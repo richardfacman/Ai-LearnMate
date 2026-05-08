@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "512005443497",
+    "project_id": "aistudybuddy-c2570",
+    "storage_bucket": "aistudybuddy-c2570.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:512005443497:android:d14f8a12e1c13f00753eb8",
+        "android_client_info": {
+          "package_name": "com.example.ai_learn_mate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA66NMQHxVWJze-ybMWrP0H5LwUvb_kS28"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

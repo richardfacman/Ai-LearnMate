@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "691553101603",
+    "project_id": "ai-learn-mate",
+    "storage_bucket": "ai-learn-mate.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:691553101603:android:73d6a16e2b429023798e96",
+        "android_client_info": {
+          "package_name": "com.example.ai_learn_mate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmzoeEhHPiCx7HZU2Yx5nfWFxQRMZ9Mhc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

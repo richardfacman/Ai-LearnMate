@@ -1,0 +1,47 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "aistudybuddy-c2570",
+          "appId": "1:512005443497:android:d14f8a12e1c13f00753eb8",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "aistudybuddy-c2570",
+          "configurations": {
+            "android": "1:512005443497:android:d14f8a12e1c13f00753eb8",
+            "web": "1:512005443497:web:2d4655d4d10919b2753eb8"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "firestore": {
+    "database": "(default)",
+    "location": "asia-south1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "functions": {
+      "host": "0.0.0.0",
+      "port": 5001
+    }
+  }
+}
