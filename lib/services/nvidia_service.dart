@@ -6,7 +6,8 @@ class NvidiaService {
   static String get _apiKey => dotenv.env['NVIDIA_API_KEY'] ?? "";
   static const String _baseUrl = "https://integrate.api.nvidia.com/v1/chat/completions";
 
-  static Future<String> getChatResponse(String message) async {
+  /// 🚀 Sends conversation history to NVIDIA
+  static Future<String> getChatResponse(List<Map<String, String>> history) async {
     try {
       if (_apiKey.isEmpty) return "Error: NVIDIA API Key is missing in .env";
 
@@ -18,20 +19,16 @@ class NvidiaService {
           "Accept": "application/json",
         },
         body: jsonEncode({
-          "model": "meta/llama-3.1-405b-instruct", // High-end model available via NVIDIA
+          "model": "meta/llama-3.1-8b-instruct",
           "messages": [
             {
               "role": "system",
-              "content": "You are a helpful AI study assistant for the app 'Ai Learn Mate'. Provide concise and educational answers."
+              "content": "You are a helpful AI study assistant for 'Ai Learn Mate'. Provide educational and expert answers."
             },
-            {
-              "role": "user",
-              "content": message
-            }
+            ...history,
           ],
           "temperature": 0.2,
           "top_p": 0.7,
-          "max_tokens": 1024,
         }),
       ).timeout(const Duration(seconds: 30));
 
@@ -40,10 +37,15 @@ class NvidiaService {
         return data['choices'][0]['message']['content'].toString().trim();
       } else {
         final errorData = jsonDecode(response.body);
+        print("NVIDIA API Error: ${response.body}");
         return "NVIDIA Error: ${errorData['error']?['message'] ?? 'Status ${response.statusCode}'}";
       }
     } catch (e) {
-      return "Connection Error: Please check your internet connection or API setup.";
+      print("NVIDIA Service Exception: $e");
+      if (e.toString().contains("XMLHttpRequest")) {
+        return "Browser CORS Error: NVIDIA API blocks direct browser requests. Please run as a Windows or Android app.";
+      }
+      return "Connection Error: $e";
     }
   }
 }

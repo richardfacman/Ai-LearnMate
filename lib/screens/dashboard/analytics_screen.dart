@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
+import '../../services/analytics_provider.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -10,165 +10,172 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-  final _auth = FirebaseAuth.instance;
-  final _db = FirebaseFirestore.instance;
-
-  int weeklyMinutes = 0;
-  int quizzesTaken = 0;
-  double avgAccuracy = 0;
-  int streakDays = 0;
-
   @override
   void initState() {
     super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    final uid = _auth.currentUser!.uid;
-
-    // --- study hours this week ---
-    final weekAgo = DateTime.now().subtract(const Duration(days: 7));
-    final sessions = await _db
-        .collection('timers')
-        .doc(uid)
-        .collection('sessions')
-        .where('startTime', isGreaterThan: weekAgo.toIso8601String())
-        .get();
-
-    int totalSec = 0;
-    for (var s in sessions.docs) {
-      totalSec += (s['duration'] as int);
-    }
-    weeklyMinutes = (totalSec / 60).round();
-
-    // --- quiz accuracy ---
-    final quizSnap = await _db
-        .collection('quizzes')
-        .doc(uid)
-        .collection('items')
-        .get();
-    quizzesTaken = quizSnap.size;
-    double correct = 0;
-    double total = 0;
-    for (var q in quizSnap.docs) {
-      final questions = q['questions'] as List;
-      total += questions.length;
-      // assume 70% average correctness (you can log actual score)
-      correct += questions.length * 0.7;
-    }
-    avgAccuracy = total == 0 ? 0 : (correct / total) * 100;
-
-    // --- streak calculation (days with sessions) ---
-    final days = <String>{};
-    for (var s in sessions.docs) {
-      final date = DateTime.parse(s['startTime']).toLocal();
-      days.add("${date.year}-${date.month}-${date.day}");
-    }
-    streakDays = days.length;
-
-    setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AnalyticsProvider>(context, listen: false).fetchAnalytics();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFDFDFE),
-      appBar: AppBar(
-        title: const Text("Study Analytics"),
-        centerTitle: true,
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF007BFF), Colors.white],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            _infoCard("Weekly Study Time", "$weeklyMinutes min", Icons.timer),
-            _infoCard("Quizzes Taken", "$quizzesTaken", Icons.assignment),
-            _infoCard("Avg Accuracy", "${avgAccuracy.toStringAsFixed(1)} %", Icons.bar_chart),
-            _infoCard("Active Days", "$streakDays days", Icons.local_fire_department),
+    final analytics = Provider.of<AnalyticsProvider>(context);
 
-            const SizedBox(height: 30),
-            const Text("Weekly Study Graph",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 220,
-              child: LineChart(
-                LineChartData(
-                  titlesData: FlTitlesData(
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (v, _) {
-                          const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                          return Text(days[v.toInt() % 7],
-                              style: const TextStyle(fontSize: 12));
-                        },
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true, interval: 20),
-                    ),
-                  ),
-                  gridData: FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: List.generate(7, (i) => FlSpot(i.toDouble(), (i + 1) * 10.0)),
-                      isCurved: true,
-                      color: const Color(0xFF6C63FF),
-                      barWidth: 4,
-                      dotData: FlDotData(show: false),
-                    ),
-                  ],
-                ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FE),
+      appBar: AppBar(
+        title: const Text("Learning Insights", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: analytics.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSummaryGrid(analytics),
+                  const SizedBox(height: 30),
+                  _buildStudyChart(analytics),
+                  const SizedBox(height: 30),
+                  _buildMasteryTrend(),
+                ],
               ),
             ),
-          ],
-        ),
+    );
+  }
+
+  Widget _buildSummaryGrid(AnalyticsProvider analytics) {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      childAspectRatio: 1.5,
+      crossAxisSpacing: 15,
+      mainAxisSpacing: 15,
+      children: [
+        _statCard("Study Time", "${analytics.weeklyMinutes}m", Icons.timer, Colors.blue),
+        _statCard("Quizzes", "${analytics.quizzesTaken}", Icons.assignment, Colors.purple),
+        _statCard("Accuracy", "${analytics.avgAccuracy.toStringAsFixed(1)}%", Icons.track_changes, Colors.green),
+        _statStatCard("Active Days", "${analytics.streakDays}", Icons.local_fire_department, Colors.orange),
+      ],
+    );
+  }
+
+  Widget _statCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 5))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+  
+  Widget _statStatCard(String title, String value, IconData icon, Color color) {
+    return _statCard(title, value, icon, color);
+  }
+
+  Widget _buildStudyChart(AnalyticsProvider analytics) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Weekly Study Activity", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 200,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: 60, // Minutes
+                barTouchData: BarTouchData(enabled: true),
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (v, _) {
+                        const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                        return Text(days[v.toInt()], style: const TextStyle(color: Colors.grey, fontSize: 12));
+                      },
+                    ),
+                  ),
+                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                barGroups: List.generate(7, (i) => BarChartGroupData(
+                  x: i,
+                  barRods: [
+                    BarChartRodData(
+                      toY: analytics.weeklyStudyData[i],
+                      color: const Color(0xFF6C63FF),
+                      width: 15,
+                      borderRadius: BorderRadius.circular(4),
+                    )
+                  ],
+                )),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _infoCard(String title, String value, IconData icon) {
+  Widget _buildMasteryTrend() {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 6)],
+        borderRadius: BorderRadius.circular(24),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF007BFF).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+          const Text("Mastery Trend", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 150,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(show: false),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: const [FlSpot(0, 20), FlSpot(1, 35), FlSpot(2, 30), FlSpot(3, 50), FlSpot(4, 45), FlSpot(5, 70)],
+                    isCurved: true,
+                    color: Colors.green,
+                    barWidth: 4,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(show: true, color: Colors.green.withOpacity(0.1)),
+                  ),
+                ],
+              ),
             ),
-            child: Icon(icon, color: const Color(0xFF007BFF)),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: const TextStyle(fontSize: 15, color: Colors.grey, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              Text(value,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
-            ],
           ),
         ],
       ),

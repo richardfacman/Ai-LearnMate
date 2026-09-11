@@ -32,32 +32,40 @@ Text: $text
         final textOut = data is List ? data[0]["generated_text"] : data["generated_text"];
         final jsonStart = textOut.indexOf("[");
         final jsonEnd = textOut.lastIndexOf("]");
+        if (jsonStart == -1 || jsonEnd == -1) return [];
         final jsonString = textOut.substring(jsonStart, jsonEnd + 1);
         final parsed = jsonDecode(jsonString) as List;
         return parsed.map((e) => Map<String, dynamic>.from(e)).toList();
       } catch (e) {
+        print("Quiz Gen Error: $e");
         return [];
       }
     }
     return [];
   }
   static Future<String> summarize(String text) async {
-    final url = "https://api-inference.huggingface.co/models/google/pegasus-xsum";
+    try {
+      final url = "https://api-inference.huggingface.co/models/google/pegasus-xsum";
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        "Authorization": "Bearer $_apiKey",
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({"inputs": text}),
-    );
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Authorization": "Bearer $_apiKey",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({"inputs": text}),
+      ).timeout(const Duration(seconds: 30));
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data[0]["summary_text"] ?? "No summary generated.";
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data[0]["summary_text"] ?? "No summary generated.";
+      }
+      return "Summarization failed (Status ${response.statusCode})";
+    } catch (e) {
+      if (e.toString().contains("XMLHttpRequest")) {
+        return "CORS ERROR: Please run in Windows app or use the '--disable-web-security' flag.";
+      }
+      return "Error: $e";
     }
-
-    return "Summarization failed.";
   }
 }
