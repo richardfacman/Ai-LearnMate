@@ -22,11 +22,17 @@ enum TutorPersona {
 class GroqService {
   static const String _baseUrl = "https://api.groq.com/openai/v1/chat/completions";
 
-  // Updated Groq models from master guidelines
-  static const String defaultModel = 'openai/gpt-oss-120b'; // best quality
-  static const String fastModel = 'openai/gpt-oss-20b'; // cheaper / faster
+  // Valid Groq production models
+  static const String defaultModel = 'llama-3.3-70b-versatile'; // best quality
+  static const String fastModel = 'llama-3.1-8b-instant'; // cheaper / faster
 
-  static String get _apiKey => dotenv.env['GROQ_API_KEY'] ?? "";
+  static String get _apiKey {
+    try {
+      return dotenv.env['GROQ_API_KEY'] ?? "";
+    } catch (_) {
+      return "";
+    }
+  }
 
   static String _getSystemPrompt(LearningMode mode, {TutorPersona persona = TutorPersona.calmMentor}) {
     String personality = "";
@@ -81,8 +87,9 @@ class GroqService {
     String model = defaultModel,
     double temperature = 0.7,
   }) async {
-    if (_apiKey.isEmpty) {
-      throw GroqServiceException('Groq API key is missing. Add GROQ_API_KEY to your .env file.');
+    final key = _apiKey;
+    if (key.isEmpty || key.contains("your_groq")) {
+      return "Error: Groq API Key is missing in .env. Please configure GROQ_API_KEY in your .env file.";
     }
 
     try {
@@ -95,7 +102,7 @@ class GroqService {
       final response = await http.post(
         Uri.parse(_baseUrl),
         headers: {
-          "Authorization": "Bearer $_apiKey",
+          "Authorization": "Bearer $key",
           "Content-Type": "application/json",
           "Accept": "application/json",
         },
@@ -109,18 +116,20 @@ class GroqService {
       final data = jsonDecode(response.body);
 
       if (response.statusCode != 200) {
-        final message = data['error']?['message'] ?? 'Unknown Groq API error.';
+        final message = data['error']?['message'] ?? 'Status ${response.statusCode}';
+        print("Groq API Error (${response.statusCode}): ${response.body}");
         throw GroqServiceException(message.toString());
       }
 
       return data['choices'][0]['message']['content'].toString().trim();
-    } on GroqServiceException {
-      rethrow;
+    } on GroqServiceException catch (e) {
+      return "Groq Error: ${e.message}";
     } catch (e) {
+      print("Groq Exception: $e");
       if (e.toString().contains("XMLHttpRequest")) {
         return "CORS ERROR: Web browsers block direct AI calls. Run with '--disable-web-security' or use Windows app.";
       }
-      throw GroqServiceException('Could not reach the AI tutor right now. Check your connection and try again.');
+      return "Error: Could not connect to Groq AI ($e).";
     }
   }
 
