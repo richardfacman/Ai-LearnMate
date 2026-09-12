@@ -20,9 +20,13 @@ enum TutorPersona {
 }
 
 class GroqService {
-  // ✅ Groq API Key loaded from .env
-  static String get _apiKey => dotenv.env['GROQ_API_KEY'] ?? "";
   static const String _baseUrl = "https://api.groq.com/openai/v1/chat/completions";
+
+  // Updated Groq models from master guidelines
+  static const String defaultModel = 'openai/gpt-oss-120b'; // best quality
+  static const String fastModel = 'openai/gpt-oss-20b'; // cheaper / faster
+
+  static String get _apiKey => dotenv.env['GROQ_API_KEY'] ?? "";
 
   static String _getSystemPrompt(LearningMode mode, {TutorPersona persona = TutorPersona.calmMentor}) {
     String personality = "";
@@ -69,10 +73,24 @@ class GroqService {
     return "$personality $modeInstructions Always act as the AI study assistant for 'Ai Learn Mate'.";
   }
 
-  /// 🚀 Sends conversation history for "smart" chat
-  static Future<String> getChatResponse(List<Map<String, String>> history, {LearningMode mode = LearningMode.normal, TutorPersona persona = TutorPersona.calmMentor}) async {
+  /// 🚀 Sends conversation history for "smart" chat (backward compatible)
+  static Future<String> getChatResponse(
+    List<Map<String, String>> history, {
+    LearningMode mode = LearningMode.normal,
+    TutorPersona persona = TutorPersona.calmMentor,
+    String model = defaultModel,
+    double temperature = 0.7,
+  }) async {
+    if (_apiKey.isEmpty) {
+      throw GroqServiceException('Groq API key is missing. Add GROQ_API_KEY to your .env file.');
+    }
+
     try {
-      if (_apiKey.isEmpty) return "Error: Groq API Key is missing in .env";
+      final systemPrompt = _getSystemPrompt(mode, persona: persona);
+      final messages = [
+        {"role": "system", "content": systemPrompt},
+        ...history,
+      ];
 
       final response = await http.post(
         Uri.parse(_baseUrl),
@@ -82,31 +100,43 @@ class GroqService {
           "Accept": "application/json",
         },
         body: jsonEncode({
-          "model": "llama-3.3-70b-versatile",
-          "messages": [
-            {
-              "role": "system",
-              "content": _getSystemPrompt(mode, persona: persona)
-            },
-            ...history,
-          ],
-          "temperature": 0.7,
+          "model": model,
+          "messages": messages,
+          "temperature": temperature,
         }),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['choices'][0]['message']['content'].toString().trim();
-      } else {
-        final errorData = jsonDecode(response.body);
-        print("Groq Error: ${response.body}");
-        return "Groq Error: ${errorData['error']?['message'] ?? 'Status ${response.statusCode}'}";
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode != 200) {
+        final message = data['error']?['message'] ?? 'Unknown Groq API error.';
+        throw GroqServiceException(message.toString());
       }
+
+      return data['choices'][0]['message']['content'].toString().trim();
+    } on GroqServiceException {
+      rethrow;
     } catch (e) {
       if (e.toString().contains("XMLHttpRequest")) {
-        return "CORS ERROR: Web browsers block direct AI calls. \n\nFIX: Use 'flutter run -d edge --web-browser-flag \"--disable-web-security\"' or run as a Windows app.";
+        return "CORS ERROR: Web browsers block direct AI calls. Run with '--disable-web-security' or use Windows app.";
       }
-      return "Connection Error: Please check your internet.";
+      throw GroqServiceException('Could not reach the AI tutor right now. Check your connection and try again.');
     }
   }
+
+  static Future<String> getChatCompletion(
+    String userMessage, {
+    String systemPrompt = 'You are a friendly, encouraging study tutor.',
+    String model = defaultModel,
+    double temperature = 0.7,
+  }) async {
+    return getChatResponse([{"role": "user", "content": userMessage}], model: model, temperature: temperature);
+  }
+}
+
+class GroqServiceException implements Exception {
+  final String message;
+  GroqServiceException(this.message);
+  @override
+  String toString() => message;
 }
