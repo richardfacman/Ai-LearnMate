@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ai_learn_mate/services/ai/voice_service.dart';
-import 'package:ai_learn_mate/services/groq_service.dart';
+import 'package:ai_learn_mate/services/ai/ai_provider_manager.dart';
 
 class VoiceTutorScreen extends StatefulWidget {
   const VoiceTutorScreen({super.key});
@@ -47,16 +47,16 @@ class _VoiceTutorScreenState extends State<VoiceTutorScreen> {
     setState(() => _loading = true);
 
     try {
-      final prompt = [
-        {"role": "user", "content": _words}
-      ];
-      final res = await GroqService.getChatResponse(prompt);
+      final res = await AiProviderManager().generateResponse(
+        prompt: _words,
+        feature: AiFeature.quickExplanation,
+      );
       setState(() => _response = res);
       
       // AI Speaks back
       await _voiceService.speak(res);
     } catch (e) {
-      setState(() => _response = "Error: $e");
+      setState(() => _response = "AI is temporarily unavailable. Please try again.");
     } finally {
       setState(() => _loading = false);
     }

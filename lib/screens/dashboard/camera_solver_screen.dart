@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ai_learn_mate/services/ai/camera_service.dart';
-import 'package:ai_learn_mate/services/groq_service.dart';
+import 'package:ai_learn_mate/services/ai/ai_provider_manager.dart';
 
 class CameraSolverScreen extends StatefulWidget {
   const CameraSolverScreen({super.key});
@@ -30,14 +30,13 @@ class _CameraSolverScreenState extends State<CameraSolverScreen> {
 
       setState(() => _recognizedText = text);
 
-      final prompt = [
-        {"role": "user", "content": "Solve the following educational problem found in this text. Provide a step-by-step explanation:\n\n$text"}
-      ];
-
-      final res = await GroqService.getChatResponse(prompt);
+      final res = await AiProviderManager().generateResponse(
+        prompt: "Solve the following educational problem found in this text. Provide a step-by-step explanation:\n\n$text",
+        feature: AiFeature.imageSolver,
+      );
       setState(() => _solution = res);
     } catch (e) {
-      setState(() => _solution = "Error solving: $e");
+      setState(() => _solution = "AI is temporarily unavailable. Please try again.");
     } finally {
       setState(() => _loading = false);
     }

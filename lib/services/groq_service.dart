@@ -53,8 +53,8 @@ class GroqService {
         personality = "Your personality is that of a traditional Socratic professor. You are wise, patient, and almost always answer with a question to guide the student.";
         break;
       case TutorPersona.calmMentor:
-      default:
         personality = "Your personality is that of a calm, supportive mentor. Be encouraging, patient, and clear.";
+        break;
     }
 
     String modeInstructions = "";
@@ -78,8 +78,8 @@ class GroqService {
         modeInstructions = "The student will explain a concept to you. Your job is to listen, grade their clarity (0-100), identify gaps in their understanding, and gently correct them.";
         break;
       case LearningMode.normal:
-      default:
         modeInstructions = "Provide educational and concise answers.";
+        break;
     }
 
     return "$personality $modeInstructions Always act as the AI study assistant for 'Ai Learn Mate'.";
@@ -123,7 +123,6 @@ class GroqService {
 
       if (response.statusCode != 200) {
         final message = data['error']?['message'] ?? 'Status ${response.statusCode}';
-        print("Groq API Error (${response.statusCode}): ${response.body}");
         throw GroqServiceException(message.toString());
       }
 
@@ -131,7 +130,6 @@ class GroqService {
     } on GroqServiceException catch (e) {
       return "Groq Error: ${e.message}";
     } catch (e) {
-      print("Groq Exception: $e");
       if (e.toString().contains("XMLHttpRequest")) {
         return "CORS ERROR: Web browsers block direct AI calls. Run with '--disable-web-security' or use Windows app.";
       }

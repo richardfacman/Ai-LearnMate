@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../services/groq_service.dart';
 import '../../services/nvidia_service.dart';
+import '../../services/ai/ai_provider_manager.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -107,7 +108,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
       final aiReply = _useNvidia
           ? await NvidiaService.getChatResponse(history)
-          : await GroqService.getChatResponse(history, mode: _selectedMode, persona: _selectedPersona);
+          : await AiProviderManager().generateResponse(
+              prompt: history.isNotEmpty ? history.last['content']! : 'Hello',
+              feature: AiFeature.tutor,
+              history: history,
+            );
 
       if (mounted) {
         setState(() {
@@ -119,7 +124,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _messages.add({'role': 'ai', 'text': "Error: Could not connect to Groq AI."});
+          _messages.add({'role': 'ai', 'text': "AI is temporarily unavailable. Please try again."});
         });
       }
     } finally {
