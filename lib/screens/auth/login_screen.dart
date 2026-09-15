@@ -364,18 +364,18 @@ class _GoogleGLogoPainter extends CustomPainter {
     final strokeWidth = w * 0.22;
     final rect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
 
-    final pRed = Paint()..color = const Color(0xFFEA4335)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
-    final pYellow = Paint()..color = const Color(0xFFFBBC05)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
-    final pGreen = Paint()..color = const Color(0xFF34A853)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
-    final pBlue = Paint()..color = const Color(0xFF4285F4)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
+    final pRed = Paint()..color = const Color(0xFFEA4335)..style = PaintingStyle.stroke..strokeWidth = strokeWidth..strokeCap = StrokeCap.butt;
+    final pYellow = Paint()..color = const Color(0xFFFBBC05)..style = PaintingStyle.stroke..strokeWidth = strokeWidth..strokeCap = StrokeCap.butt;
+    final pGreen = Paint()..color = const Color(0xFF34A853)..style = PaintingStyle.stroke..strokeWidth = strokeWidth..strokeCap = StrokeCap.butt;
+    final pBlue = Paint()..color = const Color(0xFF4285F4)..style = PaintingStyle.stroke..strokeWidth = strokeWidth..strokeCap = StrokeCap.butt;
 
-    canvas.drawArc(rect, -2.35, 1.57, false, pRed);
-    canvas.drawArc(rect, -0.78, 1.15, false, pYellow);
-    canvas.drawArc(rect, 0.37, 1.57, false, pGreen);
-    canvas.drawArc(rect, -0.2, 0.57, false, pBlue);
+    canvas.drawArc(rect, -2.2, 1.4, false, pRed);
+    canvas.drawArc(rect, -0.8, 0.9, false, pYellow);
+    canvas.drawArc(rect, 0.1, 1.4, false, pGreen);
+    canvas.drawArc(rect, -0.2, 0.5, false, pBlue);
 
     final barPaint = Paint()..color = const Color(0xFF4285F4)..style = PaintingStyle.fill;
-    canvas.drawRect(Rect.fromLTWH(center.dx, center.dy - strokeWidth / 2, radius, strokeWidth), barPaint);
+    canvas.drawRect(Rect.fromLTWH(center.dx - w * 0.05, center.dy - strokeWidth / 2, radius + w * 0.05, strokeWidth), barPaint);
   }
 
   @override
@@ -435,10 +435,51 @@ Widget githubBrandLogo({double size = 24}) {
       borderRadius: BorderRadius.circular(size * 0.22),
     ),
     alignment: Alignment.center,
-    child: Icon(
-      Icons.code_rounded,
-      color: Colors.white,
-      size: size * 0.65,
+    child: CustomPaint(
+      size: Size(size * 0.65, size * 0.65),
+      painter: _GithubOctocatPainter(),
     ),
   );
+}
+
+class _GithubOctocatPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final paint = Paint()..color = Colors.white..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(w * 0.5, 0);
+    path.cubicTo(w * 0.22, 0, 0, h * 0.22, 0, h * 0.5);
+    path.cubicTo(0, h * 0.72, w * 0.18, h * 0.9, w * 0.42, h * 0.96);
+    path.cubicTo(w * 0.45, h * 0.97, w * 0.46, h * 0.95, w * 0.46, h * 0.93);
+    path.lineTo(w * 0.46, h * 0.83);
+    path.cubicTo(w * 0.32, h * 0.86, w * 0.29, h * 0.77, w * 0.29, h * 0.77);
+    path.cubicTo(w * 0.27, h * 0.71, w * 0.23, h * 0.69, w * 0.23, h * 0.69);
+    path.cubicTo(w * 0.18, h * 0.66, w * 0.23, h * 0.66, w * 0.23, h * 0.66);
+    path.cubicTo(w * 0.28, h * 0.67, w * 0.31, h * 0.71, w * 0.31, h * 0.71);
+    path.cubicTo(w * 0.36, h * 0.8, w * 0.45, h * 0.77, w * 0.48, h * 0.75);
+    path.cubicTo(w * 0.49, h * 0.71, w * 0.51, h * 0.67, w * 0.53, h * 0.65);
+    path.cubicTo(w * 0.42, h * 0.64, w * 0.3, h * 0.59, w * 0.3, h * 0.39);
+    path.cubicTo(w * 0.3, h * 0.33, w * 0.32, h * 0.28, w * 0.36, h * 0.24);
+    path.cubicTo(w * 0.35, h * 0.22, w * 0.33, h * 0.16, w * 0.37, h * 0.08);
+    path.cubicTo(w * 0.37, h * 0.08, w * 0.42, h * 0.06, w * 0.53, h * 0.14);
+    path.cubicTo(w * 0.58, h * 0.12, w * 0.63, h * 0.11, w * 0.68, h * 0.11);
+    path.cubicTo(w * 0.73, h * 0.11, w * 0.78, h * 0.12, w * 0.83, h * 0.14);
+    path.cubicTo(w * 0.94, h * 0.06, w * 0.99, h * 0.08, w * 0.99, h * 0.08);
+    path.cubicTo(w * 1.03, h * 0.16, w * 1.01, h * 0.22, w * 1.0, h * 0.24);
+    path.cubicTo(w * 1.04, h * 0.28, w * 1.06, h * 0.33, w * 1.06, h * 0.39);
+    path.cubicTo(w * 1.06, h * 0.59, w * 0.94, h * 0.64, w * 0.83, h * 0.65);
+    path.cubicTo(w * 0.85, h * 0.67, w * 0.87, h * 0.72, w * 0.87, h * 0.79);
+    path.lineTo(w * 0.87, h * 0.93);
+    path.cubicTo(w * 0.87, h * 0.95, w * 0.88, h * 0.97, w * 0.92, h * 0.96);
+    path.cubicTo(w * 1.15, h * 0.9, w * 1.33, h * 0.72, w * 1.33, h * 0.5);
+    path.cubicTo(w * 1.33, h * 0.22, w * 1.11, 0, w * 0.83, 0);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
