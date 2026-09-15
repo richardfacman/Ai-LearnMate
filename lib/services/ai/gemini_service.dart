@@ -8,35 +8,55 @@ class GeminiService {
     final apiKey = AiConfig.geminiApiKey;
     final selectedModel = model ?? AiConfig.geminiModel;
 
-    final targetUrl = kIsWeb
-        ? '/api/gemini-chat'
-        : 'https://generativelanguage.googleapis.com/v1beta/models/$selectedModel:generateContent?key=$apiKey';
-
-    try {
-      final response = await http.post(
-        Uri.parse(targetUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "prompt": prompt,
-          "model": selectedModel,
-          "temperature": temperature,
-          "contents": [
-            {
-              "parts": [
-                {"text": prompt}
-              ]
-            }
-          ],
-          "generationConfig": {
-            "temperature": temperature,
-          }
-        }),
-      ).timeout(const Duration(seconds: 30));
-
-      if (response.statusCode != 200) {
-        throw Exception('Gemini API error (Status ${response.statusCode}): ${response.body}');
+    final directUrl = 'https://generativelanguage.googleapis.com/v1beta/models/$selectedModel:generateContent?key=$apiKey';
+    final payload = jsonEncode({
+      "prompt": prompt,
+      "model": selectedModel,
+      "temperature": temperature,
+      "contents": [
+        {
+          "parts": [
+            {"text": prompt}
+          ]
+        }
+      ],
+      "generationConfig": {
+        "temperature": temperature,
       }
+    });
 
+    final headers = {'Content-Type': 'application/json'};
+    http.Response? response;
+
+    if (kIsWeb) {
+      try {
+        response = await http.post(
+          Uri.parse('/api/gemini-chat'),
+          headers: headers,
+          body: payload,
+        ).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode != 200 || response.body.contains("<!DOCTYPE")) {
+          response = null;
+        }
+      } catch (_) {
+        response = null;
+      }
+    }
+
+    if (response == null) {
+      try {
+        response = await http.post(
+          Uri.parse(directUrl),
+          headers: headers,
+          body: payload,
+        ).timeout(const Duration(seconds: 30));
+      } catch (e) {
+        throw Exception('Gemini Service Error: $e');
+      }
+    }
+
+    if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final candidates = data['candidates'] as List?;
       if (candidates == null || candidates.isEmpty) {
@@ -49,8 +69,8 @@ class GeminiService {
       }
 
       return parts[0]['text'].toString().trim();
-    } catch (e) {
-      throw Exception('Gemini Service Error: $e');
+    } else {
+      throw Exception('Gemini API error (Status ${response.statusCode}): ${response.body}');
     }
   }
 }

@@ -23,7 +23,6 @@ enum TutorPersona {
 class GroqService {
   static const String _baseUrl = "https://api.groq.com/openai/v1/chat/completions";
 
-  // Use the most reliable, universally accessible Groq model
   static const String defaultModel = 'llama-3.1-8b-instant';
   static const String fastModel = 'llama-3.1-8b-instant';
 
@@ -86,7 +85,7 @@ class GroqService {
     return "$personality $modeInstructions Always act as the AI study assistant for 'Ai Learn Mate'.";
   }
 
-  /// 🚀 Sends conversation history for "smart" chat (backward compatible)
+  /// 🚀 Sends conversation history for "smart" chat (auto-resilient)
   static Future<String> getChatResponse(
     List<Map<String, String>> history, {
     LearningMode mode = LearningMode.normal,
@@ -95,43 +94,65 @@ class GroqService {
     double temperature = 0.7,
   }) async {
     final key = _apiKey;
+    final systemPrompt = _getSystemPrompt(mode, persona: persona);
+    final messages = [
+      {"role": "system", "content": systemPrompt},
+      ...history,
+    ];
 
-    try {
-      final systemPrompt = _getSystemPrompt(mode, persona: persona);
-      final messages = [
-        {"role": "system", "content": systemPrompt},
-        ...history,
-      ];
+    final payload = jsonEncode({
+      "model": model,
+      "messages": messages,
+      "temperature": temperature,
+    });
 
-      // On Web/Vercel, call the secure Vercel serverless endpoint; otherwise call Groq directly
-      final targetUrl = kIsWeb ? "/api/groq-chat" : _baseUrl;
+    final headers = {
+      "Authorization": "Bearer $key",
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    };
 
-      final response = await http.post(
-        Uri.parse(targetUrl),
-        headers: {
-          "Authorization": "Bearer $key",
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: jsonEncode({
-          "model": model,
-          "messages": messages,
-          "temperature": temperature,
-        }),
-      ).timeout(const Duration(seconds: 30));
+    http.Response? response;
 
+    if (kIsWeb) {
+      try {
+        response = await http.post(
+          Uri.parse("/api/groq-chat"),
+          headers: headers,
+          body: payload,
+        ).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode != 200 || response.body.contains("<!DOCTYPE")) {
+          response = null;
+        }
+      } catch (_) {
+        response = null;
+      }
+    }
+
+    if (response == null) {
+      try {
+        response = await http.post(
+          Uri.parse(_baseUrl),
+          headers: headers,
+          body: payload,
+        ).timeout(const Duration(seconds: 30));
+      } catch (e) {
+        throw GroqServiceException('Could not connect to Groq AI: $e');
+      }
+    }
+
+    if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
-      if (response.statusCode != 200) {
+      return data['choices'][0]['message']['content'].toString().trim();
+    } else {
+      try {
+        final data = jsonDecode(response.body);
         final message = data['error']?['message'] ?? 'Status ${response.statusCode}';
         throw GroqServiceException(message.toString());
+      } catch (_) {
+        throw GroqServiceException('Status ${response.statusCode}');
       }
-
-      return data['choices'][0]['message']['content'].toString().trim();
-    } on GroqServiceException {
-      rethrow;
-    } catch (e) {
-      throw GroqServiceException('Could not connect to Groq AI: $e');
     }
   }
 
