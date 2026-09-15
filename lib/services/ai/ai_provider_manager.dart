@@ -71,16 +71,18 @@ class AiProviderManager {
             result = await OpenRouterService.generateResponse(fullPrompt, temperature: temperature);
           }
 
-          if (result.isNotEmpty && !result.startsWith("Error:")) {
+          if (result.isNotEmpty && !result.startsWith("Error:") && !result.startsWith("Groq Error:") && !result.startsWith("NVIDIA Error:")) {
             return result;
           } else {
             throw Exception(result.isNotEmpty ? result : 'Empty response from provider');
           }
         } catch (e) {
+          print("⚠️ AI Provider [$provider] attempt $attempt failed: $e");
           final errorStr = e.toString().toLowerCase();
 
           // Do not retry invalid API auth errors (401/403)
-          if (errorStr.contains('401') || errorStr.contains('403') || errorStr.contains('unauthorized') || errorStr.contains('forbidden')) {
+          if (errorStr.contains('401') || errorStr.contains('403') || errorStr.contains('unauthorized') || errorStr.contains('forbidden') || errorStr.contains('api key not valid')) {
+            print("🚫 Auth/Key error on [$provider]. Skipping to next fallback provider.");
             break; // Skip remaining attempts for this provider, move to next fallback
           }
 

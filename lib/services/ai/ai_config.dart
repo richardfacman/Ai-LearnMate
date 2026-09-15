@@ -20,7 +20,7 @@ class AiConfig {
 
   static String get groqModel => dotenv.env['GROQ_MODEL'] ?? 'llama-3.3-70b-versatile';
 
-  static String get geminiModel => dotenv.env['GEMINI_MODEL'] ?? 'gemini-2.5-flash';
+  static String get geminiModel => dotenv.env['GEMINI_MODEL'] ?? 'gemini-1.5-flash';
 
   static String get openRouterModel => dotenv.env['OPENROUTER_MODEL'] ?? 'google/gemini-2.5-flash';
 
