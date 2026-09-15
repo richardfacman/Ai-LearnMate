@@ -31,9 +31,6 @@ class NvidiaService {
     int maxTokens = 1024,
   }) async {
     final key = _apiKey;
-    if (key.isEmpty) {
-      return "Error: NVIDIA API Key is missing.";
-    }
 
     try {
       final messages = [
@@ -41,7 +38,7 @@ class NvidiaService {
         ...history,
       ];
 
-      final targetUrl = kIsWeb ? 'https://corsproxy.io/?$_baseUrl' : _baseUrl;
+      final targetUrl = kIsWeb ? '/api/nvidia-chat' : _baseUrl;
 
       final response = await http.post(
         Uri.parse(targetUrl),

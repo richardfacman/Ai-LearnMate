@@ -6,19 +6,20 @@ import 'ai_config.dart';
 class GeminiService {
   static Future<String> generateResponse(String prompt, {String? model, double temperature = 0.7}) async {
     final apiKey = AiConfig.geminiApiKey;
-    if (apiKey.isEmpty || apiKey.contains('YOUR_')) {
-      throw Exception('Gemini API key is not configured.');
-    }
-
     final selectedModel = model ?? AiConfig.geminiModel;
-    final rawUrl = 'https://generativelanguage.googleapis.com/v1beta/models/$selectedModel:generateContent?key=$apiKey';
-    final targetUrl = kIsWeb ? 'https://corsproxy.io/?$rawUrl' : rawUrl;
+
+    final targetUrl = kIsWeb
+        ? '/api/gemini-chat'
+        : 'https://generativelanguage.googleapis.com/v1beta/models/$selectedModel:generateContent?key=$apiKey';
 
     try {
       final response = await http.post(
         Uri.parse(targetUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
+          "prompt": prompt,
+          "model": selectedModel,
+          "temperature": temperature,
           "contents": [
             {
               "parts": [

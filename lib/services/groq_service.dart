@@ -95,9 +95,6 @@ class GroqService {
     double temperature = 0.7,
   }) async {
     final key = _apiKey;
-    if (key.isEmpty) {
-      throw GroqServiceException('Groq API Key is missing.');
-    }
 
     try {
       final systemPrompt = _getSystemPrompt(mode, persona: persona);
@@ -106,7 +103,8 @@ class GroqService {
         ...history,
       ];
 
-      final targetUrl = kIsWeb ? "https://corsproxy.io/?$_baseUrl" : _baseUrl;
+      // On Web/Vercel, call the secure Vercel serverless endpoint; otherwise call Groq directly
+      final targetUrl = kIsWeb ? "/api/groq-chat" : _baseUrl;
 
       final response = await http.post(
         Uri.parse(targetUrl),
