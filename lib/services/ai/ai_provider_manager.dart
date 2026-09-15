@@ -71,18 +71,22 @@ class AiProviderManager {
             result = await OpenRouterService.generateResponse(fullPrompt, temperature: temperature);
           }
 
-          if (result.isNotEmpty && !result.startsWith("Error:") && !result.startsWith("Groq Error:") && !result.startsWith("NVIDIA Error:")) {
+          if (result.isNotEmpty) {
             return result;
           } else {
-            throw Exception(result.isNotEmpty ? result : 'Empty response from provider');
+            throw Exception('Empty response from provider');
           }
         } catch (e) {
           print("⚠️ AI Provider [$provider] attempt $attempt failed: $e");
           final errorStr = e.toString().toLowerCase();
 
+          // If CORS error, return it immediately so the user sees the CORS solution
+          if (errorStr.contains('cors') || errorStr.contains('xmlhttprequest')) {
+            return "CORS ERROR: Web browsers block direct AI calls. Run the app as a Windows desktop app (`flutter run -d windows`) or disable web security in Chrome.";
+          }
+
           // Do not retry invalid API auth errors (401/403)
           if (errorStr.contains('401') || errorStr.contains('403') || errorStr.contains('unauthorized') || errorStr.contains('forbidden') || errorStr.contains('api key not valid')) {
-            print("🚫 Auth/Key error on [$provider]. Skipping to next fallback provider.");
             break; // Skip remaining attempts for this provider, move to next fallback
           }
 
@@ -94,6 +98,6 @@ class AiProviderManager {
       }
     }
 
-    return "AI is temporarily unavailable. Please try again.";
+    return "AI is temporarily unavailable. Please check your API keys or internet connection.";
   }
 }
