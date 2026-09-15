@@ -71,17 +71,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               isText: true,
                               onTap: _handleGoogleSignIn,
                             ),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 15),
                             _socialIcon(
                               Icons.facebook,
                               color: const Color(0xFF1877F2),
-                              onTap: () => _showComingSoon("Facebook Sign-in"),
+                              onTap: _handleFacebookSignIn,
                             ),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 15),
                             _socialIcon(
                               Icons.link,
                               color: const Color(0xFF0077B5),
-                              onTap: () => _showComingSoon("LinkedIn Sign-in"),
+                              onTap: _handleLinkedInSignIn,
+                            ),
+                            const SizedBox(width: 15),
+                            _socialIcon(
+                              Icons.code,
+                              color: Colors.white,
+                              onTap: _handleGithubSignIn,
                             ),
                           ],
                         ),
@@ -270,9 +276,66 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showComingSoon(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("$feature is coming soon!")),
-    );
+  Future<void> _handleFacebookSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.facebookSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Facebook Sign-in failed: $e")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleGithubSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.githubSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("GitHub Sign-in failed: $e")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleLinkedInSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.linkedInSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("LinkedIn Sign-in failed: $e")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 }

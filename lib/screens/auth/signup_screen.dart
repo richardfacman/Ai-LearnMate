@@ -249,17 +249,23 @@ class _SignupScreenState extends State<SignupScreen> {
                                 isText: true,
                                 onTap: _handleGoogleSignIn,
                               ),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: 15),
                               _socialButton(
                                 Icons.facebook,
                                 color: const Color(0xFF1877F2),
-                                onTap: () => _showError("Facebook Sign-in is coming soon!"),
+                                onTap: _handleFacebookSignIn,
                               ),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: 15),
                               _socialButton(
                                 Icons.link,
                                 color: const Color(0xFF0077B5),
-                                onTap: () => _showError("LinkedIn Sign-in is coming soon!"),
+                                onTap: _handleLinkedInSignIn,
+                              ),
+                              const SizedBox(width: 15),
+                              _socialButton(
+                                Icons.code,
+                                color: Colors.white,
+                                onTap: _handleGithubSignIn,
                               ),
                             ],
                           ),
@@ -358,6 +364,48 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _loading = true);
     try {
       final user = await _auth.googleSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleFacebookSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.facebookSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleGithubSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.githubSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleLinkedInSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.linkedInSignIn();
       if (user != null && mounted) {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }

@@ -31,8 +31,7 @@ class AuthService {
       password: password,
     );
 
-    final snap =
-    await _db.collection('users').doc(cred.user!.uid).get();
+    final snap = await _db.collection('users').doc(cred.user!.uid).get();
 
     if (!snap.exists) {
       final fallbackUser = UserModel(
@@ -42,9 +41,7 @@ class AuthService {
         createdAt: DateTime.now(),
       );
 
-      await _db.collection('users')
-          .doc(fallbackUser.uid)
-          .set(fallbackUser.toMap());
+      await _db.collection('users').doc(fallbackUser.uid).set(fallbackUser.toMap());
 
       return fallbackUser;
     }
@@ -72,10 +69,59 @@ class AuthService {
       createdAt: DateTime.now(),
     );
 
-    await _db.collection('users')
-        .doc(user.uid)
-        .set(user.toMap(), SetOptions(merge: true));
+    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
 
+    return user;
+  }
+
+  Future<UserModel?> facebookSignIn() async {
+    final facebookProvider = FacebookAuthProvider();
+    final result = await _auth.signInWithProvider(facebookProvider);
+    if (result.user == null) return null;
+
+    final user = UserModel(
+      uid: result.user!.uid,
+      name: result.user!.displayName ?? "Facebook User",
+      email: result.user!.email ?? "",
+      photoUrl: result.user!.photoURL,
+      createdAt: DateTime.now(),
+    );
+
+    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+    return user;
+  }
+
+  Future<UserModel?> githubSignIn() async {
+    final githubProvider = GithubAuthProvider();
+    final result = await _auth.signInWithProvider(githubProvider);
+    if (result.user == null) return null;
+
+    final user = UserModel(
+      uid: result.user!.uid,
+      name: result.user!.displayName ?? "GitHub User",
+      email: result.user!.email ?? "",
+      photoUrl: result.user!.photoURL,
+      createdAt: DateTime.now(),
+    );
+
+    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+    return user;
+  }
+
+  Future<UserModel?> linkedInSignIn() async {
+    final linkedinProvider = OAuthProvider('linkedin.com');
+    final result = await _auth.signInWithProvider(linkedinProvider);
+    if (result.user == null) return null;
+
+    final user = UserModel(
+      uid: result.user!.uid,
+      name: result.user!.displayName ?? "LinkedIn User",
+      email: result.user!.email ?? "",
+      photoUrl: result.user!.photoURL,
+      createdAt: DateTime.now(),
+    );
+
+    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
     return user;
   }
 
