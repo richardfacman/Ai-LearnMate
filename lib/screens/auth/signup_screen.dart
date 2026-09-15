@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../dashboard/home_screen.dart';
+import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -243,32 +244,23 @@ class _SignupScreenState extends State<SignupScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _socialButton(
-                                "G",
-                                color: Colors.red,
-                                isText: true,
-                                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png",
+                              _socialButtonWrapper(
+                                child: const GoogleBrandLogo(size: 24),
                                 onTap: _handleGoogleSignIn,
                               ),
-                              const SizedBox(width: 15),
-                              _socialButton(
-                                Icons.facebook,
-                                color: const Color(0xFF1877F2),
-                                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1024px-Facebook_Logo_%282019%29.png",
+                              const SizedBox(width: 16),
+                              _socialButtonWrapper(
+                                child: facebookBrandLogo(size: 24),
                                 onTap: _handleFacebookSignIn,
                               ),
-                              const SizedBox(width: 15),
-                              _socialButton(
-                                Icons.link,
-                                color: const Color(0xFF0077B5),
-                                imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1024px-LinkedIn_icon.svg.png",
+                              const SizedBox(width: 16),
+                              _socialButtonWrapper(
+                                child: linkedInBrandLogo(size: 24),
                                 onTap: _handleLinkedInSignIn,
                               ),
-                              const SizedBox(width: 15),
-                              _socialButton(
-                                Icons.code,
-                                color: Colors.white,
-                                imageUrl: "https://cdn-icons-png.flaticon.com/512/25/25231.png",
+                              const SizedBox(width: 16),
+                              _socialButtonWrapper(
+                                child: githubBrandLogo(size: 24),
                                 onTap: _handleGithubSignIn,
                               ),
                             ],
@@ -324,7 +316,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _socialButton(dynamic icon, {required Color color, bool isText = false, String? imageUrl, required VoidCallback onTap}) {
+  Widget _socialButtonWrapper({required Widget child, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
@@ -337,17 +329,8 @@ class _SignupScreenState extends State<SignupScreen> {
           border: Border.all(color: Colors.white12),
           color: Colors.black.withOpacity(0.1),
         ),
-        child: imageUrl != null
-            ? Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => isText
-                    ? Center(child: Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 20)))
-                    : Icon(icon, color: color, size: 24),
-              )
-            : isText
-                ? Center(child: Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 20)))
-                : Icon(icon, color: color, size: 24),
+        alignment: Alignment.center,
+        child: child,
       ),
     );
   }

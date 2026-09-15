@@ -65,32 +65,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _socialIcon(
-                              "G",
-                              color: Colors.red,
-                              isText: true,
-                              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png",
+                            _socialIconWrapper(
+                              child: const GoogleBrandLogo(size: 24),
                               onTap: _handleGoogleSignIn,
                             ),
-                            const SizedBox(width: 15),
-                            _socialIcon(
-                              Icons.facebook,
-                              color: const Color(0xFF1877F2),
-                              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1024px-Facebook_Logo_%282019%29.png",
+                            const SizedBox(width: 16),
+                            _socialIconWrapper(
+                              child: facebookBrandLogo(size: 24),
                               onTap: _handleFacebookSignIn,
                             ),
-                            const SizedBox(width: 15),
-                            _socialIcon(
-                              Icons.link,
-                              color: const Color(0xFF0077B5),
-                              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1024px-LinkedIn_icon.svg.png",
+                            const SizedBox(width: 16),
+                            _socialIconWrapper(
+                              child: linkedInBrandLogo(size: 24),
                               onTap: _handleLinkedInSignIn,
                             ),
-                            const SizedBox(width: 15),
-                            _socialIcon(
-                              Icons.code,
-                              color: Colors.white,
-                              imageUrl: "https://cdn-icons-png.flaticon.com/512/25/25231.png",
+                            const SizedBox(width: 16),
+                            _socialIconWrapper(
+                              child: githubBrandLogo(size: 24),
                               onTap: _handleGithubSignIn,
                             ),
                           ],
@@ -197,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _socialIcon(dynamic icon, {required Color color, double size = 24, bool isText = false, String? imageUrl, VoidCallback? onTap}) {
+  Widget _socialIconWrapper({required Widget child, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
@@ -210,17 +201,8 @@ class _LoginScreenState extends State<LoginScreen> {
           color: Colors.black.withOpacity(0.2),
           border: Border.all(color: Colors.white12),
         ),
-        child: imageUrl != null
-            ? Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => isText
-                    ? Center(child: Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 20)))
-                    : Icon(icon, color: color, size: size),
-              )
-            : isText
-                ? Center(child: Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 20)))
-                : Icon(icon, color: color, size: size),
+        alignment: Alignment.center,
+        child: child,
       ),
     );
   }
@@ -353,4 +335,110 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
+}
+
+// Brand Logo Widgets
+class GoogleBrandLogo extends StatelessWidget {
+  final double size;
+  const GoogleBrandLogo({super.key, this.size = 24});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _GoogleGLogoPainter(),
+      ),
+    );
+  }
+}
+
+class _GoogleGLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final center = Offset(w / 2, h / 2);
+    final radius = w / 2;
+    final strokeWidth = w * 0.22;
+    final rect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+
+    final pRed = Paint()..color = const Color(0xFFEA4335)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
+    final pYellow = Paint()..color = const Color(0xFFFBBC05)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
+    final pGreen = Paint()..color = const Color(0xFF34A853)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
+    final pBlue = Paint()..color = const Color(0xFF4285F4)..style = PaintingStyle.stroke..strokeWidth = strokeWidth;
+
+    canvas.drawArc(rect, -2.35, 1.57, false, pRed);
+    canvas.drawArc(rect, -0.78, 1.15, false, pYellow);
+    canvas.drawArc(rect, 0.37, 1.57, false, pGreen);
+    canvas.drawArc(rect, -0.2, 0.57, false, pBlue);
+
+    final barPaint = Paint()..color = const Color(0xFF4285F4)..style = PaintingStyle.fill;
+    canvas.drawRect(Rect.fromLTWH(center.dx, center.dy - strokeWidth / 2, radius, strokeWidth), barPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+Widget facebookBrandLogo({double size = 24}) {
+  return Container(
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(
+      color: Color(0xFF1877F2),
+      shape: BoxShape.circle,
+    ),
+    alignment: Alignment.center,
+    child: Text(
+      "f",
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w900,
+        fontSize: size * 0.75,
+        fontFamily: 'sans-serif',
+        height: 1.0,
+      ),
+    ),
+  );
+}
+
+Widget linkedInBrandLogo({double size = 24}) {
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: const Color(0xFF0077B5),
+      borderRadius: BorderRadius.circular(size * 0.22),
+    ),
+    alignment: Alignment.center,
+    child: Text(
+      "in",
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: size * 0.6,
+        fontFamily: 'sans-serif',
+        height: 1.0,
+      ),
+    ),
+  );
+}
+
+Widget githubBrandLogo({double size = 24}) {
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: const Color(0xFF24292E),
+      borderRadius: BorderRadius.circular(size * 0.22),
+    ),
+    alignment: Alignment.center,
+    child: Icon(
+      Icons.code_rounded,
+      color: Colors.white,
+      size: size * 0.65,
+    ),
+  );
 }
