@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'ai/ai_provider_manager.dart';
 
 class HuggingFaceService {
-  static String get _apiKey => dotenv.env['HUGGING_FACE_API_KEY'] ?? "";
-
   // 🔹 Generate quiz questions (MCQs)
   static Future<List<Map<String, dynamic>>> generateQuiz(String text) async {
     final prompt = """
@@ -17,55 +14,33 @@ Return JSON list like:
 Text: $text
 """;
 
-    final res = await http.post(
-      Uri.parse("https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"),
-      headers: {
-        "Authorization": "Bearer $_apiKey",
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({"inputs": prompt}),
-    );
+    try {
+      final textOut = await AiProviderManager().generateResponse(
+        prompt: prompt,
+        feature: AiFeature.quiz,
+      );
 
-    if (res.statusCode == 200) {
-      try {
-        final data = jsonDecode(res.body);
-        final textOut = data is List ? data[0]["generated_text"] : data["generated_text"];
-        final jsonStart = textOut.indexOf("[");
-        final jsonEnd = textOut.lastIndexOf("]");
-        if (jsonStart == -1 || jsonEnd == -1) return [];
-        final jsonString = textOut.substring(jsonStart, jsonEnd + 1);
-        final parsed = jsonDecode(jsonString) as List;
-        return parsed.map((e) => Map<String, dynamic>.from(e)).toList();
-      } catch (e) {
-        print("Quiz Gen Error: $e");
-        return [];
-      }
+      final jsonStart = textOut.indexOf("[");
+      final jsonEnd = textOut.lastIndexOf("]");
+      if (jsonStart == -1 || jsonEnd == -1) return [];
+      final jsonString = textOut.substring(jsonStart, jsonEnd + 1);
+      final List parsed = jsonDecode(jsonString);
+      return parsed.map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (e) {
+      print("Quiz Gen Error: $e");
+      return [];
     }
-    return [];
   }
+
   static Future<String> summarize(String text) async {
     try {
-      final url = "https://api-inference.huggingface.co/models/google/pegasus-xsum";
-
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          "Authorization": "Bearer $_apiKey",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({"inputs": text}),
-      ).timeout(const Duration(seconds: 30));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data[0]["summary_text"] ?? "No summary generated.";
-      }
-      return "Summarization failed (Status ${response.statusCode})";
+      final summary = await AiProviderManager().generateResponse(
+        prompt: "Provide a clear, well-structured, concise summary of the following study text:\n\n$text",
+        feature: AiFeature.summarization,
+      );
+      return summary;
     } catch (e) {
-      if (e.toString().contains("XMLHttpRequest")) {
-        return "CORS ERROR: Please run in Windows app or use the '--disable-web-security' flag.";
-      }
-      return "Error: $e";
+      return "Error generating summary: $e";
     }
   }
 }
