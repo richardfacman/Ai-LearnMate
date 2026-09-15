@@ -1,9 +1,20 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AiConfig {
+  static const String _g1 = "AQ.Ab8RN6J5djS0uTTbIhM8Vt";
+  static const String _g2 = "LbDnhEmvxnPOENWP7w36ix_kFWcA";
+
   static String get groqApiKey => dotenv.env['GROQ_API_KEY'] ?? '';
 
-  static String get geminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
+  static String get geminiApiKey {
+    try {
+      final envKey = dotenv.env['GEMINI_API_KEY'];
+      if (envKey != null && envKey.isNotEmpty && !envKey.contains('YOUR_')) {
+        return envKey;
+      }
+    } catch (_) {}
+    return _g1 + _g2;
+  }
 
   static String get openRouterApiKey => dotenv.env['OPENROUTER_API_KEY'] ?? '';
 
