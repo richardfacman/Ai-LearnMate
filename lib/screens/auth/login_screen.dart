@@ -69,24 +69,28 @@ class _LoginScreenState extends State<LoginScreen> {
                               "G",
                               color: Colors.red,
                               isText: true,
+                              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png",
                               onTap: _handleGoogleSignIn,
                             ),
                             const SizedBox(width: 15),
                             _socialIcon(
                               Icons.facebook,
                               color: const Color(0xFF1877F2),
+                              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1024px-Facebook_Logo_%282019%29.png",
                               onTap: _handleFacebookSignIn,
                             ),
                             const SizedBox(width: 15),
                             _socialIcon(
                               Icons.link,
                               color: const Color(0xFF0077B5),
+                              imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1024px-LinkedIn_icon.svg.png",
                               onTap: _handleLinkedInSignIn,
                             ),
                             const SizedBox(width: 15),
                             _socialIcon(
                               Icons.code,
                               color: Colors.white,
+                              imageUrl: "https://cdn-icons-png.flaticon.com/512/25/25231.png",
                               onTap: _handleGithubSignIn,
                             ),
                           ],
@@ -193,19 +197,30 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _socialIcon(dynamic icon, {required Color color, double size = 24, bool isText = false, VoidCallback? onTap}) {
+  Widget _socialIcon(dynamic icon, {required Color color, double size = 24, bool isText = false, String? imageUrl, VoidCallback? onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
       child: Container(
+        width: 48,
+        height: 48,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
+          color: Colors.black.withOpacity(0.2),
           border: Border.all(color: Colors.white12),
         ),
-        child: isText 
-          ? Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 24))
-          : Icon(icon, color: color, size: size),
+        child: imageUrl != null
+            ? Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => isText
+                    ? Center(child: Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 20)))
+                    : Icon(icon, color: color, size: size),
+              )
+            : isText
+                ? Center(child: Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 20)))
+                : Icon(icon, color: color, size: size),
       ),
     );
   }
