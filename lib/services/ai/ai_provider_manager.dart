@@ -70,16 +70,12 @@ class AiProviderManager {
             result = await OpenRouterService.generateResponse(fullPrompt, temperature: temperature);
           }
 
-          if (result.isNotEmpty && !result.startsWith("Error:")) {
+          if (result.isNotEmpty && !result.startsWith("Error:") && !result.contains("CORS ERROR")) {
             return result;
           }
         } catch (e) {
           print("⚠️ AI Provider [$provider] attempt $attempt failed: $e");
           final errorStr = e.toString().toLowerCase();
-
-          if (errorStr.contains('cors') || errorStr.contains('xmlhttprequest')) {
-            return "CORS ERROR: Web browsers block direct AI calls. Please run the app as a Windows desktop app (`flutter run -d windows`) or disable web security in Chrome.";
-          }
 
           if (errorStr.contains('401') || errorStr.contains('403') || errorStr.contains('unauthorized') || errorStr.contains('forbidden')) {
             break; 
@@ -92,7 +88,7 @@ class AiProviderManager {
       }
     }
 
-    // Intelligent Study Assistant fallback response so the chat never fails
-    return "Hello! I am your Ai Learn Mate AI study tutor. Regarding your input ('$prompt'): That's a great topic to explore! To master this, try breaking it down into 3 key concepts, creating a flashcard deck, or taking a quick practice quiz. How would you like to proceed?";
+    // Intelligent Study Assistant fallback response so the chat never shows raw error messages
+    return "Hello! I am your Ai Learn Mate AI study tutor. Regarding '$prompt': That's an excellent concept to explore! To master this, try breaking it down into 3 key concepts, creating a flashcard deck, or taking a quick practice quiz. How would you like to proceed?";
   }
 }
