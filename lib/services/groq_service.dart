@@ -28,8 +28,8 @@ class GroqService {
   static const String fastModel = 'llama-3.1-8b-instant';
 
   // Fallback split key
-  static const String _p1 = "gsk_IWcPGNBlENovGJJ3aa3xW";
-  static const String _p2 = "Gdyb3FYhIvBiWivGK5F9ixnpV4HfwYL";
+  static const String _p1 = "gsk_JQkcDQTEHMy63aLjT8AZ";
+  static const String _p2 = "WGdyb3FYhZUY74GojUShbpSCwyoTuD9O";
 
   static String get _apiKey {
     try {
