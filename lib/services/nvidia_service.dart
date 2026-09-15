@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 class NvidiaService {
   static const String _baseUrl = 'https://integrate.api.nvidia.com/v1/chat/completions';
@@ -40,8 +41,10 @@ class NvidiaService {
         ...history,
       ];
 
+      final targetUrl = kIsWeb ? 'https://corsproxy.io/?$_baseUrl' : _baseUrl;
+
       final response = await http.post(
-        Uri.parse(_baseUrl),
+        Uri.parse(targetUrl),
         headers: {
           'Authorization': 'Bearer $key',
           'Content-Type': 'application/json',
@@ -60,7 +63,6 @@ class NvidiaService {
 
       if (response.statusCode != 200) {
         final message = data['error']?['message'] ?? data['detail'] ?? 'Status ${response.statusCode}';
-        print("NVIDIA API Error (${response.statusCode}): ${response.body}");
         throw NvidiaServiceException(message.toString());
       }
 
@@ -68,11 +70,7 @@ class NvidiaService {
     } on NvidiaServiceException catch (e) {
       return "NVIDIA Error: ${e.message}";
     } catch (e) {
-      print("NVIDIA Exception: $e");
-      if (e.toString().contains("XMLHttpRequest")) {
-        return "Browser CORS Error: NVIDIA API blocks direct browser requests. Please run as a Windows or Android app.";
-      }
-      return "Error: Could not connect to NVIDIA AI ($e).";
+      throw NvidiaServiceException('Could not connect to NVIDIA AI: $e');
     }
   }
 

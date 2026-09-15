@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 enum LearningMode {
   beginner,
@@ -105,8 +106,10 @@ class GroqService {
         ...history,
       ];
 
+      final targetUrl = kIsWeb ? "https://corsproxy.io/?$_baseUrl" : _baseUrl;
+
       final response = await http.post(
-        Uri.parse(_baseUrl),
+        Uri.parse(targetUrl),
         headers: {
           "Authorization": "Bearer $key",
           "Content-Type": "application/json",
@@ -130,9 +133,6 @@ class GroqService {
     } on GroqServiceException {
       rethrow;
     } catch (e) {
-      if (e.toString().contains("XMLHttpRequest")) {
-        throw GroqServiceException("CORS ERROR: Web browsers block direct AI calls. Run as a Windows desktop app (`flutter run -d windows`) or disable web security in Chrome.");
-      }
       throw GroqServiceException('Could not connect to Groq AI: $e');
     }
   }

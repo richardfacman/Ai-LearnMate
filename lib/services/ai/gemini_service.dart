@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'ai_config.dart';
 
 class GeminiService {
@@ -10,11 +11,12 @@ class GeminiService {
     }
 
     final selectedModel = model ?? AiConfig.geminiModel;
-    final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/$selectedModel:generateContent?key=$apiKey');
+    final rawUrl = 'https://generativelanguage.googleapis.com/v1beta/models/$selectedModel:generateContent?key=$apiKey';
+    final targetUrl = kIsWeb ? 'https://corsproxy.io/?$rawUrl' : rawUrl;
 
     try {
       final response = await http.post(
-        url,
+        Uri.parse(targetUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "contents": [
