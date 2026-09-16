@@ -267,13 +267,25 @@ class ContactOwnerScreen extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
-        child: Image.asset(
-          AppContactConfig.ownerAssetPath,
+        child: Image.network(
+          AppContactConfig.ownerPhotoUrl,
           fit: BoxFit.cover,
           filterQuality: FilterQuality.high,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                    : null,
+                color: gold,
+                strokeWidth: 2,
+              ),
+            );
+          },
           errorBuilder: (context, error, stackTrace) {
-            return Image.network(
-              AppContactConfig.ownerPhotoUrl,
+            return Image.asset(
+              AppContactConfig.ownerAssetPath,
               fit: BoxFit.cover,
               filterQuality: FilterQuality.high,
               errorBuilder: (context, error, stackTrace) {
@@ -282,34 +294,27 @@ class ContactOwnerScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                   filterQuality: FilterQuality.high,
                   errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/images/foysal_ahmed.png',
-                      fit: BoxFit.cover,
-                      filterQuality: FilterQuality.high,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          padding: const EdgeInsets.all(16),
-                          alignment: Alignment.center,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: gold.withOpacity(0.2),
-                                  border: Border.all(color: gold, width: 2),
-                                ),
-                                child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
-                              ),
-                              const SizedBox(height: 12),
-                              const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
-                              const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
-                            ],
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: gold.withOpacity(0.2),
+                              border: Border.all(color: gold, width: 2),
+                            ),
+                            child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
                           ),
-                        );
-                      },
+                          const SizedBox(height: 12),
+                          const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
                     );
                   },
                 );
