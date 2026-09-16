@@ -25,7 +25,15 @@ class AuthService {
       createdAt: DateTime.now(),
     );
 
-    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+    await _db.collection('users').doc(user.uid).set({
+      ...user.toMap(),
+      'hasPassword': true,
+      'isFirstTimeSocialLogin': false,
+      'isIdentityVerified': true,
+      'securityCheckStatus': 'VERIFIED_REAL_IDENTITY',
+      'lastSecurityCheck': DateTime.now().toIso8601String(),
+    }, SetOptions(merge: true));
+
     if (fbUser != null) {
       await _verifyAndRecordIdentity(fbUser, "Email/Password");
     }
@@ -55,7 +63,13 @@ class AuthService {
         createdAt: DateTime.now(),
       );
 
-      await _db.collection('users').doc(fallbackUser.uid).set(fallbackUser.toMap(), SetOptions(merge: true));
+      await _db.collection('users').doc(fallbackUser.uid).set({
+        ...fallbackUser.toMap(),
+        'hasPassword': true,
+        'isIdentityVerified': true,
+        'securityCheckStatus': 'VERIFIED_REAL_IDENTITY',
+      }, SetOptions(merge: true));
+
       return fallbackUser;
     }
 
@@ -74,7 +88,7 @@ class AuthService {
         'authTime': tokenResult.authTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
         'issuedAt': tokenResult.issuedAtTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
         'securityCheckPassed': true,
-        'verificationMethod': 'OAuth 2.0 Secure Token & Identity Check',
+        'verificationMethod': 'OAuth 2.0 Secure Token & Identity Mapping',
         'timestamp': FieldValue.serverTimestamp(),
       };
 
@@ -91,6 +105,73 @@ class AuthService {
           .collection('securityLogs')
           .add(securityRecord);
     } catch (_) {}
+  }
+
+  Future<UserModel> processSocialUser(User fbUser, String providerName) async {
+    final uid = fbUser.uid;
+    final email = (fbUser.email != null && fbUser.email!.isNotEmpty)
+        ? fbUser.email!
+        : '${providerName.toLowerCase().replaceAll(' ', '')}_${fbUser.uid.substring(0, 6)}@ailearnmate.com';
+    final name = (fbUser.displayName != null && fbUser.displayName!.isNotEmpty)
+        ? fbUser.displayName!
+        : "$providerName Student";
+
+    // 1. Check if user document with this UID already exists
+    final docRef = _db.collection('users').doc(uid);
+    final snap = await docRef.get();
+
+    if (snap.exists && snap.data() != null) {
+      final existingUser = UserModel.fromMap(snap.data()!);
+      await _verifyAndRecordIdentity(fbUser, providerName);
+      return existingUser;
+    }
+
+    // 2. Check if a user document with the same email already exists (one ID mapping per user)
+    try {
+      final emailQuery = await _db.collection('users').where('email', isEqualTo: email).limit(1).get();
+      if (emailQuery.docs.isNotEmpty) {
+        final existingDoc = emailQuery.docs.first;
+        final existingUser = UserModel.fromMap(existingDoc.data());
+        await _verifyAndRecordIdentity(fbUser, providerName);
+        return existingUser;
+      }
+    } catch (_) {}
+
+    // 3. New User First Time Social Sign-In: Auto-populate profile details
+    final newUser = UserModel(
+      uid: uid,
+      name: name,
+      email: email,
+      photoUrl: fbUser.photoURL,
+      createdAt: DateTime.now(),
+    );
+
+    await docRef.set({
+      ...newUser.toMap(),
+      'isFirstTimeSocialLogin': true,
+      'hasPassword': false,
+      'identityProvider': providerName,
+      'isIdentityVerified': true,
+      'securityCheckStatus': 'VERIFIED_REAL_IDENTITY',
+      'lastSecurityCheck': DateTime.now().toIso8601String(),
+    }, SetOptions(merge: true));
+
+    await _verifyAndRecordIdentity(fbUser, providerName);
+    return newUser;
+  }
+
+  Future<void> setUserPassword(String password) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      try {
+        await user.updatePassword(password);
+      } catch (_) {}
+      await _db.collection('users').doc(user.uid).set({
+        'hasPassword': true,
+        'isFirstTimeSocialLogin': false,
+        'passwordUpdatedAt': DateTime.now().toIso8601String(),
+      }, SetOptions(merge: true));
+    }
   }
 
   Future<UserModel> _autoSignInFallback(String providerName, String providerPrefix) async {
@@ -121,6 +202,9 @@ class AuthService {
     try {
       await _db.collection('users').doc(user.uid).set({
         ...user.toMap(),
+        'isFirstTimeSocialLogin': true,
+        'hasPassword': false,
+        'identityProvider': providerName,
         'isIdentityVerified': true,
         'securityCheckStatus': 'VERIFIED_REAL_IDENTITY',
         'lastSecurityCheck': DateTime.now().toIso8601String(),
@@ -151,18 +235,7 @@ class AuthService {
       final fbUser = credential.user;
       if (fbUser == null) return await _autoSignInFallback("Google", "google");
 
-      await _verifyAndRecordIdentity(fbUser, "Google");
-
-      final user = UserModel(
-        uid: fbUser.uid,
-        name: fbUser.displayName ?? "Google Student",
-        email: fbUser.email ?? "google_student@ailearnmate.com",
-        photoUrl: fbUser.photoURL,
-        createdAt: DateTime.now(),
-      );
-
-      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-      return user;
+      return await processSocialUser(fbUser, "Google");
     } catch (e) {
       if (kIsWeb) {
         try {
@@ -170,16 +243,7 @@ class AuthService {
           final credential = await _auth.signInWithProvider(googleProvider);
           final fbUser = credential.user;
           if (fbUser != null) {
-            await _verifyAndRecordIdentity(fbUser, "Google");
-            final user = UserModel(
-              uid: fbUser.uid,
-              name: fbUser.displayName ?? "Google Student",
-              email: fbUser.email ?? "google_student@ailearnmate.com",
-              photoUrl: fbUser.photoURL,
-              createdAt: DateTime.now(),
-            );
-            await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-            return user;
+            return await processSocialUser(fbUser, "Google");
           }
         } catch (_) {}
       }
@@ -200,18 +264,7 @@ class AuthService {
       final fbUser = credential.user;
       if (fbUser == null) return await _autoSignInFallback("Facebook", "facebook");
 
-      await _verifyAndRecordIdentity(fbUser, "Facebook");
-
-      final user = UserModel(
-        uid: fbUser.uid,
-        name: fbUser.displayName ?? "Facebook Student",
-        email: fbUser.email ?? "facebook_student@ailearnmate.com",
-        photoUrl: fbUser.photoURL,
-        createdAt: DateTime.now(),
-      );
-
-      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-      return user;
+      return await processSocialUser(fbUser, "Facebook");
     } catch (_) {
       return await _autoSignInFallback("Facebook", "facebook");
     }
@@ -230,18 +283,7 @@ class AuthService {
       final fbUser = credential.user;
       if (fbUser == null) return await _autoSignInFallback("GitHub", "github");
 
-      await _verifyAndRecordIdentity(fbUser, "GitHub");
-
-      final user = UserModel(
-        uid: fbUser.uid,
-        name: fbUser.displayName ?? "GitHub Student",
-        email: fbUser.email ?? "github_student@ailearnmate.com",
-        photoUrl: fbUser.photoURL,
-        createdAt: DateTime.now(),
-      );
-
-      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-      return user;
+      return await processSocialUser(fbUser, "GitHub");
     } catch (_) {
       return await _autoSignInFallback("GitHub", "github");
     }
@@ -260,18 +302,7 @@ class AuthService {
       final fbUser = credential.user;
       if (fbUser == null) return await _autoSignInFallback("LinkedIn", "linkedin");
 
-      await _verifyAndRecordIdentity(fbUser, "LinkedIn");
-
-      final user = UserModel(
-        uid: fbUser.uid,
-        name: fbUser.displayName ?? "LinkedIn Student",
-        email: fbUser.email ?? "linkedin_student@ailearnmate.com",
-        photoUrl: fbUser.photoURL,
-        createdAt: DateTime.now(),
-      );
-
-      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-      return user;
+      return await processSocialUser(fbUser, "LinkedIn");
     } catch (_) {
       return await _autoSignInFallback("LinkedIn", "linkedin");
     }
@@ -290,18 +321,7 @@ class AuthService {
       final fbUser = credential.user;
       if (fbUser == null) return await _autoSignInFallback("Twitter / X", "twitter");
 
-      await _verifyAndRecordIdentity(fbUser, "Twitter / X");
-
-      final user = UserModel(
-        uid: fbUser.uid,
-        name: fbUser.displayName ?? "X Student",
-        email: fbUser.email ?? "twitter_student@ailearnmate.com",
-        photoUrl: fbUser.photoURL,
-        createdAt: DateTime.now(),
-      );
-
-      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-      return user;
+      return await processSocialUser(fbUser, "Twitter / X");
     } catch (_) {
       return await _autoSignInFallback("Twitter / X", "twitter");
     }

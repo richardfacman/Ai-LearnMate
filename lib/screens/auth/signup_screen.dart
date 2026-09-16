@@ -1,5 +1,7 @@
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
 import '../dashboard/home_screen.dart';
 import 'login_screen.dart';
@@ -30,7 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                "🔒 $provider Identity Security Verified",
+                "🔒 $provider Security Verified • Single ID Linked",
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
@@ -42,6 +44,170 @@ class _SignupScreenState extends State<SignupScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
+  }
+
+  Future<void> _checkAndPromptSetPassword(UserModel user) async {
+    try {
+      final snap = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final data = snap.data();
+      final bool isFirstTime = data?['isFirstTimeSocialLogin'] == true || data?['hasPassword'] == false;
+
+      if (isFirstTime && mounted) {
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: const Color(0xFF1E2126),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          builder: (ctx) {
+            final pwdController = TextEditingController();
+            final confirmController = TextEditingController();
+            bool obscure = true;
+            bool saving = false;
+
+            return StatefulBuilder(
+              builder: (context, setModalState) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                    top: 28,
+                    left: 24,
+                    right: 24,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00B0FF).withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.lock_reset_rounded, color: Color(0xFF00B0FF), size: 24),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Welcome, ${user.name}!",
+                                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 2),
+                                const Text(
+                                  "Set a password for your account",
+                                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Your identity (${user.email}) is verified. Setting a password allows you to log in directly via Email + Password as well as Social Media.",
+                        style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Password Field
+                      TextField(
+                        controller: pwdController,
+                        obscureText: obscure,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Enter New Password (min 6 chars)",
+                          hintStyle: const TextStyle(color: Colors.white30, fontSize: 13),
+                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white38),
+                          suffixIcon: IconButton(
+                            icon: Icon(obscure ? Icons.visibility_off : Icons.visibility, color: Colors.white38),
+                            onPressed: () => setModalState(() => obscure = !obscure),
+                          ),
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.2),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white12)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Confirm Password Field
+                      TextField(
+                        controller: confirmController,
+                        obscureText: obscure,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Confirm New Password",
+                          hintStyle: const TextStyle(color: Colors.white30, fontSize: 13),
+                          prefixIcon: const Icon(Icons.lock_clock_outlined, color: Colors.white38),
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.2),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white12)),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Save Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: saving
+                              ? null
+                              : () async {
+                                  final p1 = pwdController.text.trim();
+                                  final p2 = confirmController.text.trim();
+                                  if (p1.length < 6) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Password must be at least 6 characters")),
+                                    );
+                                    return;
+                                  }
+                                  if (p1 != p2) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Passwords do not match")),
+                                    );
+                                    return;
+                                  }
+
+                                  setModalState(() => saving = true);
+                                  try {
+                                    await _auth.setUserPassword(p1);
+                                    if (context.mounted) Navigator.pop(context);
+                                  } catch (_) {
+                                    if (context.mounted) Navigator.pop(context);
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00B0FF),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: saving
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              : const Text("SAVE PASSWORD & CONTINUE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Center(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Skip for now", style: TextStyle(color: Colors.white38, fontSize: 12)),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      }
+    } catch (_) {}
   }
 
   @override
@@ -393,7 +559,10 @@ class _SignupScreenState extends State<SignupScreen> {
       final user = await _auth.googleSignIn();
       if (user != null && mounted) {
         _showSecurityVerifiedNotice("Google");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        await _checkAndPromptSetPassword(user);
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        }
       }
     } catch (e) {
       _showError(e.toString());
@@ -408,7 +577,10 @@ class _SignupScreenState extends State<SignupScreen> {
       final user = await _auth.facebookSignIn();
       if (user != null && mounted) {
         _showSecurityVerifiedNotice("Facebook");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        await _checkAndPromptSetPassword(user);
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        }
       }
     } catch (e) {
       _showError(e.toString());
@@ -423,7 +595,10 @@ class _SignupScreenState extends State<SignupScreen> {
       final user = await _auth.githubSignIn();
       if (user != null && mounted) {
         _showSecurityVerifiedNotice("GitHub");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        await _checkAndPromptSetPassword(user);
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        }
       }
     } catch (e) {
       _showError(e.toString());
@@ -438,7 +613,10 @@ class _SignupScreenState extends State<SignupScreen> {
       final user = await _auth.linkedInSignIn();
       if (user != null && mounted) {
         _showSecurityVerifiedNotice("LinkedIn");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        await _checkAndPromptSetPassword(user);
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        }
       }
     } catch (e) {
       _showError(e.toString());
@@ -453,7 +631,10 @@ class _SignupScreenState extends State<SignupScreen> {
       final user = await _auth.twitterSignIn();
       if (user != null && mounted) {
         _showSecurityVerifiedNotice("Twitter / X");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        await _checkAndPromptSetPassword(user);
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        }
       }
     } catch (e) {
       _showError(e.toString());
