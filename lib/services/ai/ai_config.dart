@@ -29,11 +29,11 @@ class AiConfig {
     return _o1 + _o2;
   }
 
-  static String get groqModel => dotenv.env['GROQ_MODEL'] ?? 'llama-3.1-8b-instant';
+  static String get groqModel => dotenv.env['GROQ_MODEL'] ?? 'openai/gpt-oss-120b';
 
-  static String get geminiModel => dotenv.env['GEMINI_MODEL'] ?? 'gemini-1.5-flash';
+  static String get geminiModel => dotenv.env['GEMINI_MODEL'] ?? 'gemini-3.5-flash';
 
-  static String get openRouterModel => dotenv.env['OPENROUTER_MODEL'] ?? 'google/gemini-2.5-flash';
+  static String get openRouterModel => dotenv.env['OPENROUTER_MODEL'] ?? 'google/gemini-3.5-flash';
 
   static bool get hasGroqKey => groqApiKey.trim().isNotEmpty && !groqApiKey.contains('YOUR_');
 

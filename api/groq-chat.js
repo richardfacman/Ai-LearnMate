@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: { message: 'GROQ_API_KEY is not configured on Vercel.' } });
     }
 
-    const { messages, model = 'llama-3.1-8b-instant', temperature = 0.7 } = req.body;
+    const { messages, model = 'openai/gpt-oss-120b', temperature = 0.7 } = req.body;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',

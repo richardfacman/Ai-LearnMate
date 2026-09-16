@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: { message: 'GEMINI_API_KEY is not configured on Vercel.' } });
     }
 
-    const { prompt, model = 'gemini-1.5-flash', temperature = 0.7 } = req.body;
+    const { prompt, model = 'gemini-3.5-flash', temperature = 0.7 } = req.body;
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 

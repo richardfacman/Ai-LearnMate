@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: { message: 'OPENROUTER_API_KEY is not configured on Vercel.' } });
     }
 
-    const { messages, prompt, model = 'google/gemini-2.5-flash', temperature = 0.7 } = req.body;
+    const { messages, prompt, model = 'google/gemini-3.5-flash', temperature = 0.7 } = req.body;
 
     const bodyMessages = messages || [{ role: 'user', content: prompt }];
 

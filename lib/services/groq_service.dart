@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
+import 'ai/ai_config.dart';
 
 enum LearningMode {
   beginner,
@@ -23,8 +24,8 @@ enum TutorPersona {
 class GroqService {
   static const String _baseUrl = "https://api.groq.com/openai/v1/chat/completions";
 
-  static const String defaultModel = 'llama-3.1-8b-instant';
-  static const String fastModel = 'llama-3.1-8b-instant';
+  static const String defaultModel = 'openai/gpt-oss-120b';
+  static const String fastModel = 'openai/gpt-oss-20b';
 
   // Fallback split key
   static const String _p1 = "gsk_JQkcDQTEHMy63aLjT8AZ";
@@ -85,15 +86,16 @@ class GroqService {
     return "$personality $modeInstructions Always act as the AI study assistant for 'Ai Learn Mate'.";
   }
 
-  /// 🚀 Sends conversation history for "smart" chat (auto-resilient)
+  /// 🚀 Sends conversation history for "smart" chat
   static Future<String> getChatResponse(
     List<Map<String, String>> history, {
     LearningMode mode = LearningMode.normal,
     TutorPersona persona = TutorPersona.calmMentor,
-    String model = defaultModel,
+    String? model,
     double temperature = 0.7,
   }) async {
     final key = _apiKey;
+    final selectedModel = model ?? AiConfig.groqModel;
     final systemPrompt = _getSystemPrompt(mode, persona: persona);
     final messages = [
       {"role": "system", "content": systemPrompt},
@@ -101,7 +103,7 @@ class GroqService {
     ];
 
     final payload = jsonEncode({
-      "model": model,
+      "model": selectedModel,
       "messages": messages,
       "temperature": temperature,
     });
@@ -131,35 +133,27 @@ class GroqService {
     }
 
     if (response == null) {
-      try {
-        response = await http.post(
-          Uri.parse(_baseUrl),
-          headers: headers,
-          body: payload,
-        ).timeout(const Duration(seconds: 30));
-      } catch (e) {
-        throw GroqServiceException('Could not connect to Groq AI: $e');
-      }
+      response = await http.post(
+        Uri.parse(_baseUrl),
+        headers: headers,
+        body: payload,
+      ).timeout(const Duration(seconds: 30));
     }
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'].toString().trim();
     } else {
-      try {
-        final data = jsonDecode(response.body);
-        final message = data['error']?['message'] ?? 'Status ${response.statusCode}';
-        throw GroqServiceException(message.toString());
-      } catch (_) {
-        throw GroqServiceException('Status ${response.statusCode}');
-      }
+      final data = jsonDecode(response.body);
+      final message = data['error']?['message'] ?? 'Status ${response.statusCode}';
+      throw GroqServiceException(message.toString());
     }
   }
 
   static Future<String> getChatCompletion(
     String userMessage, {
     String systemPrompt = 'You are a friendly, encouraging study tutor.',
-    String model = defaultModel,
+    String? model,
     double temperature = 0.7,
   }) async {
     return getChatResponse([{"role": "user", "content": userMessage}], model: model, temperature: temperature);
