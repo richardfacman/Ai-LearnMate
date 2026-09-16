@@ -42,34 +42,85 @@ class AiConfig {
     return _o1 + _o2;
   }
 
-  static String get groqModel {
+  // Task-specific Configurable Models
+  static String get geminiTextModel {
     try {
-      return dotenv.env['GROQ_MODEL'] ?? 'openai/gpt-oss-120b';
+      return dotenv.env['GEMINI_TEXT_MODEL'] ?? 'gemini-3.8-flash';
+    } catch (_) {
+      return 'gemini-3.8-flash';
+    }
+  }
+
+  static String get geminiVisionModel {
+    try {
+      return dotenv.env['GEMINI_VISION_MODEL'] ?? 'gemini-3.8-flash';
+    } catch (_) {
+      return 'gemini-3.8-flash';
+    }
+  }
+
+  static String get geminiSttModel {
+    try {
+      return dotenv.env['GEMINI_STT_MODEL'] ?? 'gemini-3.5-transcribe';
+    } catch (_) {
+      return 'gemini-3.5-transcribe';
+    }
+  }
+
+  static String get geminiLiveModel {
+    try {
+      return dotenv.env['GEMINI_LIVE_MODEL'] ?? 'gemini-3.8-live';
+    } catch (_) {
+      return 'gemini-3.8-live';
+    }
+  }
+
+  static String get geminiTtsModel {
+    try {
+      return dotenv.env['GEMINI_TTS_MODEL'] ?? 'gemini-3.1-flash-tts';
+    } catch (_) {
+      return 'gemini-3.1-flash-tts';
+    }
+  }
+
+  static String get geminiReasoningModel {
+    try {
+      return dotenv.env['GEMINI_REASONING_MODEL'] ?? 'gemini-3.1-pro';
+    } catch (_) {
+      return 'gemini-3.1-pro';
+    }
+  }
+
+  static String get groqTextModel {
+    try {
+      return dotenv.env['GROQ_TEXT_MODEL'] ?? 'openai/gpt-oss-120b';
     } catch (_) {
       return 'openai/gpt-oss-120b';
     }
   }
 
-  static String get geminiModel {
+  static String get groqSttModel {
     try {
-      return dotenv.env['GEMINI_MODEL'] ?? 'gemini-3.5-flash';
+      return dotenv.env['GROQ_STT_MODEL'] ?? 'whisper-large-v3';
     } catch (_) {
-      return 'gemini-3.5-flash';
+      return 'whisper-large-v3';
     }
   }
 
-  static String get openRouterModel {
+  static String get openRouterFallbackModel {
     try {
-      return dotenv.env['OPENROUTER_MODEL'] ?? 'google/gemini-3.5-flash';
+      return dotenv.env['OPENROUTER_FALLBACK_MODEL'] ?? 'google/gemini-3.5-flash';
     } catch (_) {
       return 'google/gemini-3.5-flash';
     }
   }
 
+  static String get groqModel => groqTextModel;
+  static String get geminiModel => geminiTextModel;
+  static String get openRouterModel => openRouterFallbackModel;
+
   static bool get hasGroqKey => groqApiKey.trim().isNotEmpty && !groqApiKey.contains('YOUR_');
-
   static bool get hasGeminiKey => geminiApiKey.trim().isNotEmpty && !geminiApiKey.contains('YOUR_');
-
   static bool get hasOpenRouterKey => openRouterApiKey.trim().isNotEmpty && !openRouterApiKey.contains('YOUR_');
 
   /// Diagnostic function reporting configuration status without leaking keys

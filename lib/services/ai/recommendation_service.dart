@@ -3,6 +3,7 @@ import '../../models/learning/topic_model.dart';
 import '../../models/learning/mastery_model.dart';
 import '../../models/learning/exam_model.dart';
 import 'ai_config.dart';
+import 'ai_provider_manager.dart';
 
 class RecommendationService {
   static String getNextActivity({
@@ -89,6 +90,31 @@ class RecommendationService {
       "historyLength": testHistory.length,
       "payloadLength": combinedPayload.length,
       "contextIntact": isContextIntact,
+    };
+  }
+
+  /// Diagnostic routine verifying task-based model selection
+  static Map<String, dynamic> runTaskRouterDiagnostics() {
+    final visionRequest = AiRequest(
+      prompt: "Solve math problem",
+      taskType: AiTaskType.scannerVision,
+      hasImage: true,
+    );
+    final textRequest = AiRequest(
+      prompt: "What is binary search?",
+      taskType: AiTaskType.tutor,
+    );
+
+    final visionRoute = AiProviderManager().selectRoute(visionRequest);
+    final textRoute = AiProviderManager().selectRoute(textRequest);
+
+    final visionPrimaryIsGemini = visionRoute.first['provider'] == 'gemini';
+    final textPrimaryIsGroq = textRoute.first['provider'] == 'groq';
+
+    return {
+      "status": (visionPrimaryIsGemini && textPrimaryIsGroq) ? "PASS" : "FAIL",
+      "visionPrimary": visionRoute.first['provider'],
+      "textPrimary": textRoute.first['provider'],
     };
   }
 

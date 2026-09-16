@@ -29,6 +29,13 @@ void main() {
       expect(result['contextIntact'], isTrue);
     });
 
+    test('runTaskRouterDiagnostics verifies dynamic model selection per task', () {
+      final routerResult = RecommendationService.runTaskRouterDiagnostics();
+      expect(routerResult['status'], equals('PASS'));
+      expect(routerResult['visionPrimary'], equals('gemini'));
+      expect(routerResult['textPrimary'], equals('groq'));
+    });
+
     test('runAiLearnMateSelfTest verifies system health matrix', () {
       final matrix = RecommendationService.runAiLearnMateSelfTest();
       expect(matrix['AUTH'], equals('PASS'));
