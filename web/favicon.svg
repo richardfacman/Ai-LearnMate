@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Top floating pixels -->
+  <rect x="20" y="55" width="24" height="24" fill="#FACC15" rx="3" />
+  <rect x="75" y="25" width="28" height="28" fill="#F0A93E" rx="4" />
+  <rect x="125" y="45" width="36" height="36" fill="#FACC15" rx="5" />
+  <rect x="190" y="15" width="32" height="32" fill="#F0A93E" rx="4" />
+  <rect x="240" y="50" width="28" height="28" fill="#FACC15" rx="4" />
+  <rect x="290" y="20" width="36" height="36" fill="#F0A93E" rx="5" />
+  <rect x="350" y="45" width="32" height="32" fill="#FACC15" rx="4" />
+  <rect x="410" y="15" width="30" height="32" fill="#F0A93E" rx="4" />
+  <rect x="465" y="55" width="24" height="24" fill="#FACC15" rx="3" />
+
+  <!-- Book Base / Cover Outer -->
+  <path d="M 24 180
+           C 24 160, 110 130, 240 150
+           L 240 430
+           C 110 410, 24 440, 24 440
+           Z"
+        fill="#43354E" stroke="#111827" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M 488 180
+           C 488 160, 402 130, 272 150
+           L 272 430
+           C 402 410, 488 440, 488 440
+           Z"
+        fill="#43354E" stroke="#111827" stroke-width="14" stroke-linejoin="round"/>
+
+  <!-- Book Pages Inner -->
+  <path d="M 40 160
+           C 40 160, 120 135, 248 155
+           L 248 415
+           C 120 395, 40 420, 40 420
+           Z"
+        fill="#B2EDFE" stroke="#111827" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M 472 160
+           C 472 160, 392 135, 264 155
+           L 264 415
+           C 392 395, 472 420, 472 420
+           Z"
+        fill="#B2EDFE" stroke="#111827" stroke-width="12" stroke-linejoin="round"/>
+
+  <!-- Book Spine Center Bottom -->
+  <path d="M 220 425 C 240 460, 272 460, 292 425" fill="#43354E" stroke="#111827" stroke-width="12"/>
+
+  <!-- Circuit Traces & Terminals (Left Page) -->
+  <path d="M 120 220 L 180 220 L 210 250 M 110 280 L 170 280 L 210 280 M 110 330 L 170 330 L 210 310 M 130 380 L 180 380 L 210 340"
+        fill="none" stroke="#111827" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="120" cy="220" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+  <circle cx="110" cy="280" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+  <circle cx="110" cy="330" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+  <circle cx="130" cy="380" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+
+  <!-- Circuit Traces & Terminals (Right Page) -->
+  <path d="M 392 220 L 332 220 L 302 250 M 402 280 L 342 280 L 302 280 M 402 330 L 342 330 L 302 310 M 382 380 L 332 380 L 302 340"
+        fill="none" stroke="#111827" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="392" cy="220" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+  <circle cx="402" cy="280" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+  <circle cx="402" cy="330" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+  <circle cx="382" cy="380" r="16" fill="#C084FC" stroke="#111827" stroke-width="10"/>
+
+  <!-- Center AI Processor Chip -->
+  <rect x="200" y="225" width="112" height="112" rx="18" fill="#38BDF8" stroke="#111827" stroke-width="14"/>
+  <text x="256" y="296" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#111827" text-anchor="middle">AI</text>
+</svg>
