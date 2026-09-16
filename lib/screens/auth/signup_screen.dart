@@ -245,23 +245,28 @@ class _SignupScreenState extends State<SignupScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _socialButtonWrapper(
-                                child: const GoogleBrandLogo(size: 24),
+                                child: const GoogleBrandLogo(size: 22),
                                 onTap: _handleGoogleSignIn,
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 12),
                               _socialButtonWrapper(
-                                child: facebookBrandLogo(size: 24),
+                                child: facebookBrandLogo(size: 22),
                                 onTap: _handleFacebookSignIn,
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 12),
                               _socialButtonWrapper(
-                                child: linkedInBrandLogo(size: 24),
+                                child: linkedInBrandLogo(size: 22),
                                 onTap: _handleLinkedInSignIn,
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 12),
                               _socialButtonWrapper(
-                                child: githubBrandLogo(size: 24),
+                                child: githubBrandLogo(size: 22),
                                 onTap: _handleGithubSignIn,
+                              ),
+                              const SizedBox(width: 12),
+                              _socialButtonWrapper(
+                                child: twitterXBrandLogo(size: 22),
+                                onTap: _handleTwitterSignIn,
                               ),
                             ],
                           ),
@@ -403,6 +408,20 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _loading = true);
     try {
       final user = await _auth.linkedInSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleTwitterSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.twitterSignIn();
       if (user != null && mounted) {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }

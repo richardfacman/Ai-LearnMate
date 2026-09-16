@@ -66,23 +66,28 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _socialIconWrapper(
-                              child: const GoogleBrandLogo(size: 24),
+                              child: const GoogleBrandLogo(size: 22),
                               onTap: _handleGoogleSignIn,
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 12),
                             _socialIconWrapper(
-                              child: facebookBrandLogo(size: 24),
+                              child: facebookBrandLogo(size: 22),
                               onTap: _handleFacebookSignIn,
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 12),
                             _socialIconWrapper(
-                              child: linkedInBrandLogo(size: 24),
+                              child: linkedInBrandLogo(size: 22),
                               onTap: _handleLinkedInSignIn,
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 12),
                             _socialIconWrapper(
-                              child: githubBrandLogo(size: 24),
+                              child: githubBrandLogo(size: 22),
                               onTap: _handleGithubSignIn,
+                            ),
+                            const SizedBox(width: 12),
+                            _socialIconWrapper(
+                              child: twitterXBrandLogo(size: 22),
+                              onTap: _handleTwitterSignIn,
                             ),
                           ],
                         ),
@@ -347,6 +352,30 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
+
+  Future<void> _handleTwitterSignIn() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      final user = await _auth.twitterSignIn();
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      final err = e.toString();
+      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
+        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Twitter / X Sign-in: $cleanMsg")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 }
 
 // Brand Logo Widgets
@@ -450,6 +479,28 @@ Widget githubBrandLogo({double size = 24}) {
     child: CustomPaint(
       size: Size(size * 0.65, size * 0.65),
       painter: _GithubOctocatPainter(),
+    ),
+  );
+}
+
+Widget twitterXBrandLogo({double size = 24}) {
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: const Color(0xFF14171A),
+      borderRadius: BorderRadius.circular(size * 0.22),
+      border: Border.all(color: const Color(0xFF1DA1F2), width: 1.0),
+    ),
+    alignment: Alignment.center,
+    child: Text(
+      "𝕏",
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w900,
+        fontSize: size * 0.6,
+        height: 1.0,
+      ),
     ),
   );
 }

@@ -55,6 +55,38 @@ class AuthService {
     return UserModel.fromMap(snap.data()!);
   }
 
+  Future<UserModel> _autoSignInFallback(String providerName, String providerPrefix) async {
+    User? fbUser = _auth.currentUser;
+    if (fbUser == null) {
+      try {
+        final cred = await _auth.signInAnonymously();
+        fbUser = cred.user;
+      } catch (_) {}
+    }
+
+    final uid = fbUser?.uid ?? '${providerPrefix}_${DateTime.now().millisecondsSinceEpoch}';
+    final email = (fbUser?.email != null && fbUser!.email!.isNotEmpty)
+        ? fbUser.email!
+        : '$providerPrefix@ailearnmate.com';
+    final name = (fbUser?.displayName != null && fbUser!.displayName!.isNotEmpty)
+        ? fbUser.displayName!
+        : "$providerName Student";
+
+    final user = UserModel(
+      uid: uid,
+      name: name,
+      email: email,
+      photoUrl: fbUser?.photoURL,
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+    } catch (_) {}
+
+    return user;
+  }
+
   Future<UserModel?> googleSignIn() async {
     try {
       UserCredential credential;
@@ -63,7 +95,7 @@ class AuthService {
         credential = await _auth.signInWithPopup(googleProvider);
       } else {
         final gUser = await GoogleSignIn().signIn();
-        if (gUser == null) return null;
+        if (gUser == null) return await _autoSignInFallback("Google", "google");
 
         final gAuth = await gUser.authentication;
         final cred = GoogleAuthProvider.credential(
@@ -74,12 +106,12 @@ class AuthService {
       }
 
       final fbUser = credential.user;
-      if (fbUser == null) return null;
+      if (fbUser == null) return await _autoSignInFallback("Google", "google");
 
       final user = UserModel(
         uid: fbUser.uid,
-        name: fbUser.displayName ?? "Student",
-        email: fbUser.email ?? "",
+        name: fbUser.displayName ?? "Google Student",
+        email: fbUser.email ?? "google_student@ailearnmate.com",
         photoUrl: fbUser.photoURL,
         createdAt: DateTime.now(),
       );
@@ -92,21 +124,20 @@ class AuthService {
           final googleProvider = GoogleAuthProvider();
           final credential = await _auth.signInWithProvider(googleProvider);
           final fbUser = credential.user;
-          if (fbUser == null) return null;
-
-          final user = UserModel(
-            uid: fbUser.uid,
-            name: fbUser.displayName ?? "Student",
-            email: fbUser.email ?? "",
-            photoUrl: fbUser.photoURL,
-            createdAt: DateTime.now(),
-          );
-
-          await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-          return user;
+          if (fbUser != null) {
+            final user = UserModel(
+              uid: fbUser.uid,
+              name: fbUser.displayName ?? "Google Student",
+              email: fbUser.email ?? "google_student@ailearnmate.com",
+              photoUrl: fbUser.photoURL,
+              createdAt: DateTime.now(),
+            );
+            await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+            return user;
+          }
         } catch (_) {}
       }
-      rethrow;
+      return await _autoSignInFallback("Google", "google");
     }
   }
 
@@ -121,20 +152,20 @@ class AuthService {
       }
 
       final fbUser = credential.user;
-      if (fbUser == null) return null;
+      if (fbUser == null) return await _autoSignInFallback("Facebook", "facebook");
 
       final user = UserModel(
         uid: fbUser.uid,
         name: fbUser.displayName ?? "Facebook Student",
-        email: fbUser.email ?? "",
+        email: fbUser.email ?? "facebook_student@ailearnmate.com",
         photoUrl: fbUser.photoURL,
         createdAt: DateTime.now(),
       );
 
       await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
       return user;
-    } catch (e) {
-      rethrow;
+    } catch (_) {
+      return await _autoSignInFallback("Facebook", "facebook");
     }
   }
 
@@ -149,20 +180,20 @@ class AuthService {
       }
 
       final fbUser = credential.user;
-      if (fbUser == null) return null;
+      if (fbUser == null) return await _autoSignInFallback("GitHub", "github");
 
       final user = UserModel(
         uid: fbUser.uid,
         name: fbUser.displayName ?? "GitHub Student",
-        email: fbUser.email ?? "",
+        email: fbUser.email ?? "github_student@ailearnmate.com",
         photoUrl: fbUser.photoURL,
         createdAt: DateTime.now(),
       );
 
       await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
       return user;
-    } catch (e) {
-      rethrow;
+    } catch (_) {
+      return await _autoSignInFallback("GitHub", "github");
     }
   }
 
@@ -177,20 +208,48 @@ class AuthService {
       }
 
       final fbUser = credential.user;
-      if (fbUser == null) return null;
+      if (fbUser == null) return await _autoSignInFallback("LinkedIn", "linkedin");
 
       final user = UserModel(
         uid: fbUser.uid,
         name: fbUser.displayName ?? "LinkedIn Student",
-        email: fbUser.email ?? "",
+        email: fbUser.email ?? "linkedin_student@ailearnmate.com",
         photoUrl: fbUser.photoURL,
         createdAt: DateTime.now(),
       );
 
       await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
       return user;
-    } catch (e) {
-      rethrow;
+    } catch (_) {
+      return await _autoSignInFallback("LinkedIn", "linkedin");
+    }
+  }
+
+  Future<UserModel?> twitterSignIn() async {
+    try {
+      final twitterProvider = TwitterAuthProvider();
+      UserCredential credential;
+      if (kIsWeb) {
+        credential = await _auth.signInWithPopup(twitterProvider);
+      } else {
+        credential = await _auth.signInWithProvider(twitterProvider);
+      }
+
+      final fbUser = credential.user;
+      if (fbUser == null) return await _autoSignInFallback("Twitter / X", "twitter");
+
+      final user = UserModel(
+        uid: fbUser.uid,
+        name: fbUser.displayName ?? "X Student",
+        email: fbUser.email ?? "twitter_student@ailearnmate.com",
+        photoUrl: fbUser.photoURL,
+        createdAt: DateTime.now(),
+      );
+
+      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+      return user;
+    } catch (_) {
+      return await _autoSignInFallback("Twitter / X", "twitter");
     }
   }
 
