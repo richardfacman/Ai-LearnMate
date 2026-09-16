@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../services/groq_service.dart';
 import '../../services/nvidia_service.dart';
 import '../../services/ai/ai_provider_manager.dart';
+import '../../widgets/orbital_share_dialog.dart';
 
 enum TutorQuickAction {
   confused,
@@ -261,6 +262,33 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _shareConversation() {
+    if (_messages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Start a conversation first, then you can share it!"),
+          backgroundColor: surface,
+        ),
+      );
+      return;
+    }
+
+    final StringBuffer sb = StringBuffer();
+    sb.writeln("📚 AI Study Tutor Notes & Summary:");
+    sb.writeln();
+    for (var m in _messages.take(6)) {
+      final role = m['role'] == 'user' ? "Student" : "AI Tutor";
+      sb.writeln("$role: ${m['text']}");
+      sb.writeln();
+    }
+
+    OrbitalShareDialog.show(context, shareText: sb.toString().trim());
+  }
+
+  void _shareText(String text) {
+    OrbitalShareDialog.show(context, shareText: "📚 AI Study Tutor Notes:\n\n$text");
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -311,6 +339,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 activeColor: gold,
               ),
             ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.share_rounded, color: gold, size: 20),
+            tooltip: "Share Conversation",
+            onPressed: _shareConversation,
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
@@ -507,6 +540,7 @@ class _ChatScreenState extends State<ChatScreen> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
+            _actionChip("🔗 Share", _shareConversation),
             _actionChip("😕 I'm Confused", () => _executeQuickAction(TutorQuickAction.confused)),
             _actionChip("📝 Summarize", () => _executeQuickAction(TutorQuickAction.summarize)),
             _actionChip("💡 Example", () => _executeQuickAction(TutorQuickAction.example)),
@@ -548,13 +582,44 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           border: Border.all(color: isUser ? gold : hairline),
         ),
-        child: SelectableText(
-          text,
-          style: TextStyle(
-            color: isUser ? ink : paper,
-            fontSize: 14,
-            height: 1.45,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SelectableText(
+              text,
+              style: TextStyle(
+                color: isUser ? ink : paper,
+                fontSize: 14,
+                height: 1.45,
+              ),
+            ),
+            if (!isUser) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: () => _shareText(text),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: surfaceHi,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: hairline),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.share_outlined, color: gold, size: 14),
+                        SizedBox(width: 4),
+                        Text("Share", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
