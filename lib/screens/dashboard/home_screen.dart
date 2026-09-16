@@ -405,6 +405,18 @@ class _HomeDashboardState extends State<HomeDashboard> {
     );
   }
 
+  Color _getSubjectAccentColor(int index) {
+    const palette = [
+      Color(0xFF2DD4BF), // Soft Teal
+      Color(0xFFFB7185), // Soft Rose
+      Color(0xFFC084FC), // Soft Violet
+      Color(0xFF34D399), // Soft Emerald
+      Color(0xFF38BDF8), // Soft Sky Blue
+      Color(0xFFF87171), // Soft Coral
+    ];
+    return palette[index % palette.length];
+  }
+
   Widget _buildSubjectSection(LearningProvider provider) {
     if (provider.subjects.isEmpty) {
       return Container(
@@ -425,8 +437,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
       );
     }
 
+    int index = 0;
     return Column(
       children: provider.subjects.map((subj) {
+        final accent = _getSubjectAccentColor(index++);
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),
@@ -443,10 +457,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: surfaceHi,
+                      color: accent.withOpacity(0.16),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.book_outlined, color: indigo, size: 18),
+                    child: Icon(Icons.book_outlined, color: accent, size: 18),
                   ),
                   const SizedBox(width: 12),
                   Text(subj.name, style: const TextStyle(color: paper, fontSize: 13.5, fontWeight: FontWeight.w500)),
