@@ -62,6 +62,18 @@ class ContactOwnerScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _openTwitter(BuildContext context) async {
+    final Uri url = Uri.parse(AppContactConfig.ownerTwitter);
+    try {
+      final bool launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await _copyToClipboard(context, AppContactConfig.ownerTwitter, "Twitter link copied!");
+      }
+    } catch (_) {
+      await _copyToClipboard(context, AppContactConfig.ownerTwitter, "Twitter link copied to clipboard!");
+    }
+  }
+
   Future<void> _copyToClipboard(BuildContext context, String text, String message) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (context.mounted) {
@@ -305,7 +317,7 @@ class ContactOwnerScreen extends StatelessWidget {
         _detailRow("Location:", AppContactConfig.ownerLocation),
         const SizedBox(height: 20),
 
-        // Social Action Icons Bar (Facebook, Email, LinkedIn)
+        // Social Action Icons Bar (Facebook, Gmail, LinkedIn, Twitter)
         Row(
           children: [
             _socialIconTile(
@@ -314,19 +326,26 @@ class ContactOwnerScreen extends StatelessWidget {
               tooltip: "Open Facebook",
               onTap: () => _openFacebook(context),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             _socialIconTile(
               icon: Icons.email_outlined,
               color: gold,
               tooltip: "Email ${AppContactConfig.ownerEmail}",
               onTap: () => _emailOwner(context),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             _socialIconTile(
               icon: Icons.link,
               color: const Color(0xFF0077B5),
               tooltip: "Open LinkedIn Profile",
               onTap: () => _openLinkedIn(context),
+            ),
+            const SizedBox(width: 8),
+            _socialIconTile(
+              icon: Icons.share,
+              color: const Color(0xFF1DA1F2),
+              tooltip: "Open Twitter / X",
+              onTap: () => _openTwitter(context),
             ),
           ],
         ),
@@ -364,15 +383,15 @@ class ContactOwnerScreen extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          width: 40,
-          height: 40,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
             color: surfaceHi,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: Colors.redAccent.withOpacity(0.8), width: 1.5),
           ),
           alignment: Alignment.center,
-          child: Icon(icon, color: color, size: 22),
+          child: Icon(icon, color: color, size: 20),
         ),
       ),
     );
