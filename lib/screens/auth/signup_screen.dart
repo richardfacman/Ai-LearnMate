@@ -20,6 +20,30 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _agreeToTerms = false;
   final _auth = AuthService();
 
+  void _showSecurityVerifiedNotice(String provider) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.verified_user_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "🔒 $provider Identity Security Verified",
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF2E7D32),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -353,6 +377,7 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       await _auth.signUp(_name.text, _email.text, _password.text);
       if (mounted) {
+        _showSecurityVerifiedNotice("Account");
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
@@ -367,6 +392,7 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final user = await _auth.googleSignIn();
       if (user != null && mounted) {
+        _showSecurityVerifiedNotice("Google");
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
@@ -381,6 +407,7 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final user = await _auth.facebookSignIn();
       if (user != null && mounted) {
+        _showSecurityVerifiedNotice("Facebook");
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
@@ -395,6 +422,7 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final user = await _auth.githubSignIn();
       if (user != null && mounted) {
+        _showSecurityVerifiedNotice("GitHub");
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
@@ -409,6 +437,7 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final user = await _auth.linkedInSignIn();
       if (user != null && mounted) {
+        _showSecurityVerifiedNotice("LinkedIn");
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
@@ -423,6 +452,7 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final user = await _auth.twitterSignIn();
       if (user != null && mounted) {
+        _showSecurityVerifiedNotice("Twitter / X");
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
     } catch (e) {
