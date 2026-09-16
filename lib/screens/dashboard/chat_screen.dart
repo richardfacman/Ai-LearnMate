@@ -17,12 +17,22 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Map<String, dynamic>> _messages = [];
   final ScrollController _scrollController = ScrollController();
   bool _loading = false;
-  bool _useNvidia = false; 
+  bool _useNvidia = false;
   LearningMode _selectedMode = LearningMode.normal;
   TutorPersona _selectedPersona = TutorPersona.calmMentor;
 
   final _auth = FirebaseAuth.instance;
   final _db = FirebaseFirestore.instance;
+
+  // Theme Tokens
+  static const Color ink = Color(0xFF0B0E14);
+  static const Color surface = Color(0xFF151A24);
+  static const Color surfaceHi = Color(0xFF1B2230);
+  static const Color gold = Color(0xFFF0A93E);
+  static const Color indigo = Color(0xFF6C7BFF);
+  static const Color paper = Color(0xFFF4EFE6);
+  static const Color muted = Color(0xFF8B93A6);
+  static const Color hairline = Color(0x1AF4EFE6);
 
   @override
   void initState() {
@@ -33,61 +43,67 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _loadChatHistory() async {
     final user = _auth.currentUser;
     if (user == null) return;
-    
-    final snap = await _db
-        .collection('chats')
-        .doc(user.uid)
-        .collection('messages')
-        .orderBy('timestamp', descending: false)
-        .get();
 
-    if (mounted) {
-      setState(() {
-        _messages.clear();
-        for (var doc in snap.docs) {
-          _messages.add({
-            'role': doc['role'],
-            'text': doc['text'],
-            'timestamp': doc['timestamp'],
-          });
-        }
-      });
-      _scrollToBottom();
-    }
+    try {
+      final snap = await _db
+          .collection('chats')
+          .doc(user.uid)
+          .collection('messages')
+          .orderBy('timestamp', descending: false)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _messages.clear();
+          for (var doc in snap.docs) {
+            _messages.add({
+              'role': doc['role'],
+              'text': doc['text'],
+              'timestamp': doc['timestamp'],
+            });
+          }
+        });
+        _scrollToBottom();
+      }
+    } catch (_) {}
   }
 
   Future<void> _saveMessage(String role, String text) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    await _db
-        .collection('chats')
-        .doc(user.uid)
-        .collection('messages')
-        .add({
-      'role': role,
-      'text': text,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    try {
+      await _db
+          .collection('chats')
+          .doc(user.uid)
+          .collection('messages')
+          .add({
+        'role': role,
+        'text': text,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
   }
 
   Future<void> _clearChat() async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    final ref = _db.collection('chats').doc(user.uid).collection('messages');
-    final snap = await ref.get();
-    final batch = _db.batch();
-    for (var doc in snap.docs) {
-      batch.delete(doc.reference);
-    }
-    await batch.commit();
-    setState(() => _messages.clear());
+    try {
+      final ref = _db.collection('chats').doc(user.uid).collection('messages');
+      final snap = await ref.get();
+      final batch = _db.batch();
+      for (var doc in snap.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      setState(() => _messages.clear());
+    } catch (_) {}
   }
 
   Future<void> sendMessage() async {
     final userText = _msgCtrl.text.trim();
-    if (userText.isEmpty) return;
+    if (userText.isEmpty || _loading) return;
 
     setState(() {
       _messages.add({'role': 'user', 'text': userText});
@@ -98,7 +114,6 @@ class _ChatScreenState extends State<ChatScreen> {
     await _saveMessage('user', userText);
 
     try {
-      // 🚀 Prepare history (last 10 messages) for the AI
       final history = _messages.map((m) {
         return {
           "role": m['role'] == 'user' ? "user" : "assistant",
@@ -109,7 +124,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final aiReply = _useNvidia
           ? await NvidiaService.getChatResponse(history)
           : await AiProviderManager().generateResponse(
-              prompt: history.isNotEmpty ? history.last['content']! : 'Hello',
+              prompt: userText,
               feature: AiFeature.tutor,
               history: history,
             );
@@ -120,7 +135,6 @@ class _ChatScreenState extends State<ChatScreen> {
         });
         await _saveMessage('ai', aiReply);
       }
-
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -147,160 +161,258 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width > 800;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE),
+      backgroundColor: ink,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        backgroundColor: surface,
+        iconTheme: const IconThemeData(color: paper),
         title: Column(
           children: [
             Text(
-              _useNvidia ? "NVIDIA AI Assistant" : "AI Tutor",
-              style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+              _useNvidia ? "NVIDIA AI Assistant" : "AI Study Tutor",
+              style: const TextStyle(color: paper, fontWeight: FontWeight.bold, fontSize: 16),
             ),
             if (!_useNvidia)
               Text(
-                _selectedMode.name.toUpperCase(),
-                style: const TextStyle(color: Color(0xFF6C63FF), fontSize: 10, fontWeight: FontWeight.bold),
+                "${_personaLabel(_selectedPersona)} • ${_modeLabel(_selectedMode)}",
+                style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w500),
               ),
           ],
         ),
         centerTitle: true,
         actions: [
-          Switch(
-            value: _useNvidia,
-            onChanged: (val) => setState(() => _useNvidia = val),
-            activeColor: const Color(0xFF6C63FF),
+          Row(
+            children: [
+              Text(
+                _useNvidia ? "NVIDIA" : "Groq",
+                style: const TextStyle(color: muted, fontSize: 11),
+              ),
+              Switch(
+                value: _useNvidia,
+                onChanged: (val) => setState(() => _useNvidia = val),
+                activeColor: gold,
+              ),
+            ],
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-            onPressed: () => _confirmClearChat(),
+            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+            tooltip: "Delete conversation",
+            onPressed: _confirmClearChat,
           ),
+          const SizedBox(width: 8),
         ],
       ),
-      body: Column(
-        children: [
-          if (!_useNvidia) ...[
-            _buildPersonaSelector(),
-            _buildModeSelector(),
-          ],
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                final isUser = msg['role'] == 'user';
-                return _buildMessageBubble(msg['text'], isUser);
-              },
-            ),
-          ),
-          if (_loading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
-                ),
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: isDesktop ? 900 : double.infinity),
+          child: Column(
+            children: [
+              if (!_useNvidia) ...[
+                _buildPersonaSelector(isDesktop),
+                _buildModeSelector(isDesktop),
+              ],
+              Expanded(
+                child: _messages.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          final msg = _messages[index];
+                          final isUser = msg['role'] == 'user';
+                          return _buildMessageBubble(msg['text'], isUser);
+                        },
+                      ),
               ),
-            ),
-          _buildQuickActions(),
-          _buildInputBar(),
-        ],
+              if (_loading)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: gold),
+                      ),
+                      const SizedBox(width: 10),
+                      Text("AI Tutor is thinking...", style: TextStyle(color: muted, fontSize: 12)),
+                    ],
+                  ),
+                ),
+              _buildQuickActions(),
+              _buildInputBar(isDesktop),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildPersonaSelector() {
-    return Container(
-      height: 40,
-      color: Colors.white,
-      padding: const EdgeInsets.only(top: 5),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        children: TutorPersona.values.map((persona) {
-          final isSelected = _selectedPersona == persona;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: FilterChip(
-              label: Text(_personaLabel(persona), style: TextStyle(fontSize: 11, color: isSelected ? Colors.white : Colors.black87)),
-              selected: isSelected,
-              onSelected: (val) => setState(() => _selectedPersona = persona),
-              selectedColor: Colors.orange,
-              backgroundColor: Colors.grey[100],
-              padding: EdgeInsets.zero,
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: hairline),
+              ),
+              child: const Icon(Icons.psychology, color: gold, size: 40),
             ),
-          );
-        }).toList(),
+            const SizedBox(height: 16),
+            const Text(
+              "How can I help you study today?",
+              style: TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Ask a question, choose a learning mode, or tap a quick action chip below to begin.",
+              style: TextStyle(color: muted, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPersonaSelector(bool isDesktop) {
+    return Container(
+      color: surface,
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: isDesktop ? MainAxisAlignment.center : MainAxisAlignment.start,
+          children: TutorPersona.values.map((persona) {
+            final isSelected = _selectedPersona == persona;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(_personaLabel(persona)),
+                selected: isSelected,
+                onSelected: (val) => setState(() => _selectedPersona = persona),
+                selectedColor: gold,
+                backgroundColor: surfaceHi,
+                labelStyle: TextStyle(
+                  color: isSelected ? ink : paper,
+                  fontSize: 11.5,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                side: BorderSide(color: isSelected ? gold : hairline),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 
   String _personaLabel(TutorPersona persona) {
     switch (persona) {
-      case TutorPersona.calmMentor: return "Calm Mentor";
-      case TutorPersona.funnyFriend: return "Funny Friend";
-      case TutorPersona.strictCoach: return "Strict Coach";
-      case TutorPersona.socraticProfessor: return "Socratic Prof";
+      case TutorPersona.calmMentor:
+        return "🧘 Calm Mentor";
+      case TutorPersona.funnyFriend:
+        return "😄 Funny Friend";
+      case TutorPersona.strictCoach:
+        return "🏋️ Strict Coach";
+      case TutorPersona.socraticProfessor:
+        return "📜 Socratic Prof";
     }
   }
 
-  Widget _buildModeSelector() {
+  Widget _buildModeSelector(bool isDesktop) {
     return Container(
-      height: 50,
-      color: Colors.white,
-      child: ListView(
+      color: surface,
+      padding: const EdgeInsets.only(bottom: 8, left: 12, right: 12),
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        children: LearningMode.values.map((mode) {
-          final isSelected = _selectedMode == mode;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: ChoiceChip(
-              label: Text(mode.name[0].toUpperCase() + mode.name.substring(1)),
-              selected: isSelected,
-              onSelected: (val) => setState(() => _selectedMode = mode),
-              selectedColor: const Color(0xFF6C63FF),
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontSize: 12,
+        child: Row(
+          mainAxisAlignment: isDesktop ? MainAxisAlignment.center : MainAxisAlignment.start,
+          children: LearningMode.values.map((mode) {
+            final isSelected = _selectedMode == mode;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(_modeLabel(mode)),
+                selected: isSelected,
+                onSelected: (val) => setState(() => _selectedMode = mode),
+                selectedColor: indigo,
+                backgroundColor: surfaceHi,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.white : paper,
+                  fontSize: 11.5,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                side: BorderSide(color: isSelected ? indigo : hairline),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
+  }
+
+  String _modeLabel(LearningMode mode) {
+    switch (mode) {
+      case LearningMode.beginner:
+        return "Beginner";
+      case LearningMode.normal:
+        return "Normal";
+      case LearningMode.deepDive:
+        return "Deep Dive";
+      case LearningMode.examMode:
+        return "Exam Mode";
+      case LearningMode.socratic:
+        return "Socratic";
+      case LearningMode.revision:
+        return "Revision";
+      case LearningMode.teachBack:
+        return "Teach Back";
+    }
   }
 
   Widget _buildQuickActions() {
     return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: ListView(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      color: surface,
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        children: [
-          _actionChip("😕 I'm Confused", Colors.orange, () => _handleQuickAction("I am confused about your previous explanation. Please simplify it with an analogy.")),
-          _actionChip("📝 Summarize", Colors.blue, () => _handleQuickAction("Summarize our discussion so far.")),
-          _actionChip("💡 Example", Colors.green, () => _handleQuickAction("Give me a real-life example of this.")),
-          _actionChip("❓ Test Me", Colors.purple, () => _handleQuickAction("Ask me a question to test my understanding.")),
-          _actionChip("🔍 Deep Dive", Colors.red, () => _handleQuickAction("Tell me more technical details about this.")),
-        ],
+        child: Row(
+          children: [
+            _actionChip("😕 I'm Confused", () => _handleQuickAction("I am confused about your previous explanation. Please simplify it with an analogy.")),
+            _actionChip("📝 Summarize", () => _handleQuickAction("Summarize our discussion so far concisely.")),
+            _actionChip("💡 Example", () => _handleQuickAction("Give me a real-life practical example of this concept.")),
+            _actionChip("❓ Test Me", () => _handleQuickAction("Ask me a short practice question to test my understanding.")),
+            _actionChip("🔍 Deep Dive", () => _handleQuickAction("Provide a detailed technical explanation of this topic.")),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _actionChip(String label, Color color, VoidCallback onTap) {
+  Widget _actionChip(String label, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ActionChip(
-        label: Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
-        backgroundColor: color,
+        label: Text(label, style: const TextStyle(color: paper, fontSize: 11.5, fontWeight: FontWeight.w500)),
+        backgroundColor: surfaceHi,
+        side: const BorderSide(color: hairline),
         onPressed: onTap,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),
     );
   }
@@ -314,49 +426,37 @@ class _ChatScreenState extends State<ChatScreen> {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
         decoration: BoxDecoration(
-          color: isUser ? const Color(0xFF6C63FF) : Colors.white,
+          color: isUser ? gold : surface,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20),
-            topRight: const Radius.circular(20),
-            bottomLeft: Radius.circular(isUser ? 20 : 0),
-            bottomRight: Radius.circular(isUser ? 0 : 20),
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isUser ? 16 : 4),
+            bottomRight: Radius.circular(isUser ? 4 : 16),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(color: isUser ? gold : hairline),
         ),
-        child: Text(
+        child: SelectableText(
           text,
           style: TextStyle(
-            color: isUser ? Colors.white : Colors.black87,
-            fontSize: 15,
-            height: 1.4,
+            color: isUser ? ink : paper,
+            fontSize: 14,
+            height: 1.45,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInputBar() {
+  Widget _buildInputBar(bool isDesktop) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
+        color: surface,
+        border: const Border(top: BorderSide(color: hairline)),
       ),
       child: SafeArea(
         child: Row(
@@ -365,31 +465,43 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F4F8),
-                  borderRadius: BorderRadius.circular(30),
+                  color: surfaceHi,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: hairline),
                 ),
                 child: TextField(
                   controller: _msgCtrl,
-                  style: const TextStyle(color: Colors.black87, fontSize: 14),
+                  style: const TextStyle(color: paper, fontSize: 14),
+                  maxLines: 4,
+                  minLines: 1,
                   decoration: const InputDecoration(
                     hintText: "Ask anything...",
-                    hintStyle: TextStyle(color: Colors.black38, fontSize: 14),
+                    hintStyle: TextStyle(color: muted, fontSize: 14),
                     border: InputBorder.none,
                   ),
                   onSubmitted: (_) => sendMessage(),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            GestureDetector(
+            const SizedBox(width: 10),
+            InkWell(
               onTap: _loading ? null : sendMessage,
+              borderRadius: BorderRadius.circular(24),
               child: Container(
-                padding: const EdgeInsets.all(12),
+                width: 44,
+                height: 44,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF6C63FF),
+                  color: gold,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.send_rounded, color: Colors.white, size: 24),
+                alignment: Alignment.center,
+                child: _loading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(color: ink, strokeWidth: 2),
+                      )
+                    : const Icon(Icons.send_rounded, color: ink, size: 20),
               ),
             ),
           ],
@@ -402,17 +514,21 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Clear Chat?"),
-        content: const Text("This will permanently delete your conversation."),
+        backgroundColor: surface,
+        title: const Text("Delete conversation?", style: TextStyle(color: paper)),
+        content: const Text("This will permanently clear your current chat history.", style: TextStyle(color: muted)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel", style: TextStyle(color: muted)),
+          ),
           ElevatedButton(
             onPressed: () {
               _clearChat();
               Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text("Clear", style: TextStyle(color: Colors.white)),
+            child: const Text("Delete", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
