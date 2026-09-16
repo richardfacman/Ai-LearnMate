@@ -9,7 +9,11 @@ import 'language_screen.dart';
 import 'security_screen.dart';
 import 'theme_screen.dart';
 import 'help_support_screen.dart';
-import 'contact_us_screen.dart';
+import 'contact_owner_screen.dart';
+import 'feedback_screen.dart';
+import 'report_problem_screen.dart';
+import 'feature_request_screen.dart';
+import 'my_reports_screen.dart';
 import 'privacy_policy_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -194,16 +198,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
                 _buildSettingsGroup([
                   _settingsTile(
+                    icon: Icons.contact_support_outlined,
+                    title: "Contact Owner",
+                    subtitle: "Foysal Ahmed — Email & LinkedIn",
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactOwnerScreen())),
+                  ),
+                  _settingsTile(
                     icon: Icons.help_outline,
                     title: "Help & Support",
                     subtitle: "FAQs, AI Tutor guides, and troubleshooting",
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
                   ),
                   _settingsTile(
-                    icon: Icons.mail_outline,
-                    title: "Contact Us & Feedback",
-                    subtitle: "Send feedback or report an issue",
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactUsScreen())),
+                    icon: Icons.rate_review_outlined,
+                    title: "Send Feedback",
+                    subtitle: "Share your experience and thoughts",
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackScreen())),
+                  ),
+                  _settingsTile(
+                    icon: Icons.bug_report_outlined,
+                    title: "Report a Problem",
+                    subtitle: "Report bugs or technical issues",
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportProblemScreen())),
+                  ),
+                  _settingsTile(
+                    icon: Icons.lightbulb_outline,
+                    title: "Suggest a Feature",
+                    subtitle: "Request new features or tools",
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeatureRequestScreen())),
+                  ),
+                  _settingsTile(
+                    icon: Icons.assignment_outlined,
+                    title: "My Submitted Reports",
+                    subtitle: "View your past feedback and support tickets",
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyReportsScreen())),
                   ),
                   _settingsTile(
                     icon: Icons.privacy_tip_outlined,
