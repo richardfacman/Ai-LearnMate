@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../config/app_contact_config.dart';
 import 'feedback_screen.dart';
 import 'report_problem_screen.dart';
+import 'feature_request_screen.dart';
 
 class ContactOwnerScreen extends StatelessWidget {
   const ContactOwnerScreen({super.key});
@@ -23,7 +24,7 @@ class ContactOwnerScreen extends StatelessWidget {
       path: AppContactConfig.ownerEmail,
       queryParameters: {
         'subject': 'AI Learn Mate Support Request',
-        'body': 'Hello Foysal,\n\nI need help with AI Learn Mate.\n\nProblem:\n\nThank you.',
+        'body': 'Hello Foysal,\n\nI need help with AI Learn Mate.\n\nProblem / Feedback:\n\nThank you.',
       },
     );
 
@@ -31,7 +32,7 @@ class ContactOwnerScreen extends StatelessWidget {
       if (await canLaunchUrl(mailUri)) {
         await launchUrl(mailUri, mode: LaunchMode.externalApplication);
       } else {
-        await _copyToClipboard(context, AppContactConfig.ownerEmail, "Email copied! Opening mail client failed.");
+        await _copyToClipboard(context, AppContactConfig.ownerEmail, "Email address copied to clipboard!");
       }
     } catch (_) {
       await _copyToClipboard(context, AppContactConfig.ownerEmail, "Email address copied to clipboard!");
@@ -51,6 +52,19 @@ class ContactOwnerScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _openFacebook(BuildContext context) async {
+    final Uri url = Uri.parse(AppContactConfig.ownerFacebook);
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        await _copyToClipboard(context, AppContactConfig.ownerFacebook, "Facebook link copied!");
+      }
+    } catch (_) {
+      await _copyToClipboard(context, AppContactConfig.ownerFacebook, "Facebook link copied to clipboard!");
+    }
+  }
+
   Future<void> _copyToClipboard(BuildContext context, String text, String message) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (context.mounted) {
@@ -62,172 +76,291 @@ class ContactOwnerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width > 800;
+
     return Scaffold(
       backgroundColor: ink,
       appBar: AppBar(
-        title: const Text("Contact Owner", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.w600)),
+        title: const Text("Contact & About Owner", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.w600)),
         backgroundColor: surface,
         foregroundColor: paper,
         elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(22),
-        child: Column(
-          children: [
-            // Owner Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: surface,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: gold.withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 46,
-                    backgroundColor: gold.withOpacity(0.2),
-                    child: const Icon(Icons.person, color: gold, size: 48),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    AppContactConfig.ownerName,
-                    style: const TextStyle(color: paper, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    AppContactConfig.ownerRole,
-                    style: const TextStyle(color: gold, fontSize: 13, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Email Box
-            _contactCard(
-              icon: Icons.email_outlined,
-              title: "Direct Email",
-              value: AppContactConfig.ownerEmail,
-              buttonLabel: "Email Owner",
-              onPrimaryTap: () => _emailOwner(context),
-              onCopyTap: () => _copyToClipboard(context, AppContactConfig.ownerEmail, "Email address copied to clipboard!"),
-            ),
-            const SizedBox(height: 16),
-
-            // LinkedIn Box
-            _contactCard(
-              icon: Icons.link,
-              title: "LinkedIn Profile",
-              value: AppContactConfig.ownerLinkedIn,
-              buttonLabel: "Open LinkedIn",
-              onPrimaryTap: () => _openLinkedIn(context),
-              onCopyTap: () => _copyToClipboard(context, AppContactConfig.ownerLinkedIn, "LinkedIn URL copied to clipboard!"),
-            ),
-            const SizedBox(height: 28),
-
-            // Need Help Quick Links
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("NEED DIRECT ASSISTANCE?", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-            ),
-            const SizedBox(height: 12),
-
-            Row(
+        child: Center(
+          child: Container(
+            constraints: BoxConstraints(maxWidth: isDesktop ? 900 : double.infinity),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportProblemScreen())),
-                    icon: const Icon(Icons.bug_report_outlined, size: 18),
-                    label: const Text("Report Bug"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: surface,
-                      foregroundColor: paper,
-                      side: const BorderSide(color: hairline),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
+                // Hero Banner
+                const Text("Hello!", style: TextStyle(color: gold, fontSize: 28, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                const Text(
+                  "Have a question, found a problem, or have an idea for AI Learn Mate? Get in touch directly.",
+                  style: TextStyle(color: muted, fontSize: 13.5, height: 1.4),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackScreen())),
-                    icon: const Icon(Icons.rate_review_outlined, size: 18),
-                    label: const Text("Send Feedback"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: gold,
-                      foregroundColor: ink,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                const SizedBox(height: 24),
+
+                // Owner Profile Card
+                Container(
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: surface,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: gold.withOpacity(0.3)),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                    ],
                   ),
+                  child: isDesktop
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildPortrait(),
+                            const SizedBox(width: 24),
+                            Expanded(child: _buildOwnerDetails(context)),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            _buildPortrait(),
+                            const SizedBox(height: 20),
+                            _buildOwnerDetails(context),
+                          ],
+                        ),
                 ),
+                const SizedBox(height: 28),
+
+                // Support Quick Actions
+                const Text("NEED ASSISTANCE OR HAVE FEEDBACK?", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportProblemScreen())),
+                        icon: const Icon(Icons.bug_report_outlined, size: 16),
+                        label: const Text("Report Bug"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: surface,
+                          foregroundColor: paper,
+                          side: const BorderSide(color: hairline),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackScreen())),
+                        icon: const Icon(Icons.rate_review_outlined, size: 16),
+                        label: const Text("Feedback"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: gold,
+                          foregroundColor: ink,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeatureRequestScreen())),
+                        icon: const Icon(Icons.lightbulb_outline, size: 16),
+                        label: const Text("Suggest"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: surfaceHi,
+                          foregroundColor: paper,
+                          side: const BorderSide(color: hairline),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+
+                // About AI Learn Mate Feature Chips
+                const Text("ABOUT AI LEARN MATE", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                const SizedBox(height: 10),
+                const Text(
+                  "AI Learn Mate brings together 10 intelligent study tools in one connected learning loop:",
+                  style: TextStyle(color: muted, fontSize: 12.5),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: const [
+                    _FeatureChip("🤖 AI Tutor"),
+                    _FeatureChip("🎴 Smart Flashcards"),
+                    _FeatureChip("⚡ Quick Quiz"),
+                    _FeatureChip("📅 Study Planner"),
+                    _FeatureChip("📊 Analytics"),
+                    _FeatureChip("📸 Scanner"),
+                    _FeatureChip("🎙️ Voice Tutor"),
+                    _FeatureChip("⏱️ Pomodoro"),
+                    _FeatureChip("❌ Mistake Bank"),
+                    _FeatureChip("📈 Adaptive Learning"),
+                  ],
+                ),
+                const SizedBox(height: 36),
               ],
             ),
-            const SizedBox(height: 30),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _contactCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    required String buttonLabel,
-    required VoidCallback onPrimaryTap,
-    required VoidCallback onCopyTap,
-  }) {
+  Widget _buildPortrait() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      width: 180,
+      height: 230,
       decoration: BoxDecoration(
-        color: surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: hairline),
+        border: Border.all(color: gold.withOpacity(0.4), width: 1.5),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.network(
+          AppContactConfig.ownerPhotoUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: surfaceHi,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.person, color: gold, size: 56),
+                  SizedBox(height: 8),
+                  Text("FA", style: TextStyle(color: gold, fontSize: 22, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOwnerDetails(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("About Me", style: TextStyle(color: gold, fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 6),
+        const Text(
+          AppContactConfig.ownerBio,
+          style: TextStyle(color: paper, fontSize: 13, height: 1.45),
+        ),
+        const SizedBox(height: 16),
+        const Text("Details", style: TextStyle(color: gold, fontSize: 14, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        _detailRow("Name:", AppContactConfig.ownerName),
+        _detailRow("Role:", AppContactConfig.ownerRole),
+        _detailRow("Project:", AppContactConfig.ownerProject),
+        _detailRow("Location:", AppContactConfig.ownerLocation),
+        const SizedBox(height: 16),
+
+        // Social Action Icons Bar
+        Row(
+          children: [
+            _socialButton(
+              icon: Icons.email_outlined,
+              label: "Email",
+              color: gold,
+              onTap: () => _emailOwner(context),
+            ),
+            const SizedBox(width: 10),
+            _socialButton(
+              icon: Icons.link,
+              label: "LinkedIn",
+              color: const Color(0xFF0077B5),
+              onTap: () => _openLinkedIn(context),
+            ),
+            const SizedBox(width: 10),
+            _socialButton(
+              icon: Icons.facebook,
+              label: "Facebook",
+              color: const Color(0xFF1877F2),
+              onTap: () => _openFacebook(context),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(icon, color: gold, size: 20),
-              const SizedBox(width: 10),
-              Text(title, style: const TextStyle(color: muted, fontSize: 12)),
-            ],
+          SizedBox(
+            width: 75,
+            child: Text(label, style: const TextStyle(color: muted, fontSize: 12.5, fontWeight: FontWeight.w600)),
           ),
-          const SizedBox(height: 6),
-          SelectableText(
-            value,
-            style: const TextStyle(color: paper, fontSize: 13.5, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: onPrimaryTap,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: gold,
-                    foregroundColor: ink,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: Text(buttonLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                ),
-              ),
-              const SizedBox(width: 10),
-              IconButton(
-                icon: const Icon(Icons.copy_outlined, color: paper, size: 18),
-                tooltip: "Copy to clipboard",
-                onPressed: onCopyTap,
-              ),
-            ],
+          Expanded(
+            child: Text(value, style: const TextStyle(color: paper, fontSize: 12.5, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _socialButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: surfaceHi,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.5)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 6),
+            Text(label, style: TextStyle(color: paper, fontSize: 12, fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FeatureChip extends StatelessWidget {
+  final String label;
+  const _FeatureChip(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF151A24),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0x1AF4EFE6)),
+      ),
+      child: Text(label, style: const TextStyle(color: Color(0xFFF4EFE6), fontSize: 12, fontWeight: FontWeight.w500)),
     );
   }
 }
