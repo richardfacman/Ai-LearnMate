@@ -238,21 +238,27 @@ class ContactOwnerScreen extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
-        child: Image.network(
-          AppContactConfig.ownerPhotoUrl,
+        child: Image.asset(
+          AppContactConfig.ownerAssetPath,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: surfaceHi,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.person, color: gold, size: 60),
-                  SizedBox(height: 8),
-                  Text("FA", style: TextStyle(color: gold, fontSize: 24, fontWeight: FontWeight.bold)),
-                ],
-              ),
+            return Image.network(
+              AppContactConfig.ownerPhotoUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: surfaceHi,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.person, color: gold, size: 60),
+                      SizedBox(height: 8),
+                      Text("FA", style: TextStyle(color: gold, fontSize: 24, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                );
+              },
             );
           },
         ),
