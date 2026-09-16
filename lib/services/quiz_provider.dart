@@ -22,6 +22,7 @@ class QuizProvider with ChangeNotifier {
   int get currentIndex => _currentIndex;
   int get score => _score;
   bool get isLoading => _isLoading;
+  bool get isAdaptive => _isAdaptive;
   bool get isComplete => _questions.isNotEmpty && _currentIndex >= _questions.length;
 
   Future<void> startQuiz({

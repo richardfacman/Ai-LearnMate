@@ -21,7 +21,6 @@ class _NoteTutorScreenState extends State<NoteTutorScreen> {
   String _aiResponse = "";
   bool _loading = false;
   String _keyPoints = "";
-  List<Map<String, String>> _flashcards = [];
 
   Future<void> _generateKeyPoints() async {
     setState(() => _loading = true);

@@ -7,7 +7,13 @@ class AiConfig {
   static const String _o1 = "sk-or-v1-cfbe387e2b36394d4b8d553395bb49a742692c431c0";
   static const String _o2 = "bd2d7edcc8da6dcc4f98e";
 
-  static String get groqApiKey => dotenv.env['GROQ_API_KEY'] ?? '';
+  static String get groqApiKey {
+    try {
+      return dotenv.env['GROQ_API_KEY'] ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
 
   static String get geminiApiKey {
     try {
@@ -29,11 +35,29 @@ class AiConfig {
     return _o1 + _o2;
   }
 
-  static String get groqModel => dotenv.env['GROQ_MODEL'] ?? 'openai/gpt-oss-120b';
+  static String get groqModel {
+    try {
+      return dotenv.env['GROQ_MODEL'] ?? 'openai/gpt-oss-120b';
+    } catch (_) {
+      return 'openai/gpt-oss-120b';
+    }
+  }
 
-  static String get geminiModel => dotenv.env['GEMINI_MODEL'] ?? 'gemini-3.5-flash';
+  static String get geminiModel {
+    try {
+      return dotenv.env['GEMINI_MODEL'] ?? 'gemini-3.5-flash';
+    } catch (_) {
+      return 'gemini-3.5-flash';
+    }
+  }
 
-  static String get openRouterModel => dotenv.env['OPENROUTER_MODEL'] ?? 'google/gemini-3.5-flash';
+  static String get openRouterModel {
+    try {
+      return dotenv.env['OPENROUTER_MODEL'] ?? 'google/gemini-3.5-flash';
+    } catch (_) {
+      return 'google/gemini-3.5-flash';
+    }
+  }
 
   static bool get hasGroqKey => groqApiKey.trim().isNotEmpty && !groqApiKey.contains('YOUR_');
 
