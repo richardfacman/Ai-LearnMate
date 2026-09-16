@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'ai_config.dart';
 
 class OpenRouterService {
@@ -12,29 +13,52 @@ class OpenRouterService {
     }
 
     final selectedModel = model ?? AiConfig.openRouterModel;
+    final payload = jsonEncode({
+      "model": selectedModel,
+      "messages": [
+        {"role": "user", "content": prompt}
+      ],
+      "temperature": temperature,
+    });
 
-    try {
-      final response = await http.post(
-        Uri.parse(_baseUrl),
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://ai-learn-mate.app',
-          'X-Title': 'Ai Learn Mate',
-        },
-        body: jsonEncode({
-          "model": selectedModel,
-          "messages": [
-            {"role": "user", "content": prompt}
-          ],
-          "temperature": temperature,
-        }),
-      ).timeout(const Duration(seconds: 30));
+    final headers = {
+      'Authorization': 'Bearer $apiKey',
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://ai-learn-mate.app',
+      'X-Title': 'Ai Learn Mate',
+    };
 
-      if (response.statusCode != 200) {
-        throw Exception('OpenRouter API error (Status ${response.statusCode}): ${response.body}');
+    http.Response? response;
+
+    if (kIsWeb) {
+      try {
+        response = await http.post(
+          Uri.parse('/api/openrouter-chat'),
+          headers: headers,
+          body: payload,
+        ).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode != 200 || response.body.contains("<!DOCTYPE")) {
+          response = null;
+        }
+      } catch (_) {
+        response = null;
       }
+    }
 
+    if (response == null) {
+      try {
+        response = await http.post(
+          Uri.parse(_baseUrl),
+          headers: headers,
+          body: payload,
+        ).timeout(const Duration(seconds: 30));
+      } catch (e) {
+        throw Exception('OpenRouter Service Error: $e');
+      }
+    }
+
+    if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final choices = data['choices'] as List?;
       if (choices == null || choices.isEmpty) {
@@ -42,8 +66,8 @@ class OpenRouterService {
       }
 
       return choices[0]['message']['content'].toString().trim();
-    } catch (e) {
-      throw Exception('OpenRouter Service Error: $e');
+    } else {
+      throw Exception('OpenRouter API error (Status ${response.statusCode}): ${response.body}');
     }
   }
 }

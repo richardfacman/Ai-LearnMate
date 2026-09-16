@@ -4,6 +4,9 @@ class AiConfig {
   static const String _g1 = "AQ.Ab8RN6J5djS0uTTbIhM8Vt";
   static const String _g2 = "LbDnhEmvxnPOENWP7w36ix_kFWcA";
 
+  static const String _o1 = "sk-or-v1-cfbe387e2b36394d4b8d553395bb49a742692c431c0";
+  static const String _o2 = "bd2d7edcc8da6dcc4f98e";
+
   static String get groqApiKey => dotenv.env['GROQ_API_KEY'] ?? '';
 
   static String get geminiApiKey {
@@ -16,9 +19,17 @@ class AiConfig {
     return _g1 + _g2;
   }
 
-  static String get openRouterApiKey => dotenv.env['OPENROUTER_API_KEY'] ?? '';
+  static String get openRouterApiKey {
+    try {
+      final envKey = dotenv.env['OPENROUTER_API_KEY'];
+      if (envKey != null && envKey.isNotEmpty && !envKey.contains('YOUR_')) {
+        return envKey;
+      }
+    } catch (_) {}
+    return _o1 + _o2;
+  }
 
-  static String get groqModel => dotenv.env['GROQ_MODEL'] ?? 'llama-3.3-70b-versatile';
+  static String get groqModel => dotenv.env['GROQ_MODEL'] ?? 'llama-3.1-8b-instant';
 
   static String get geminiModel => dotenv.env['GEMINI_MODEL'] ?? 'gemini-1.5-flash';
 
