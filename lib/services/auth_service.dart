@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user_model.dart';
 
@@ -13,15 +14,18 @@ class AuthService {
       password: password,
     );
 
+    final fbUser = cred.user;
+    final uid = fbUser?.uid ?? DateTime.now().millisecondsSinceEpoch.toString();
+
     final user = UserModel(
-      uid: cred.user!.uid,
-      name: name.isNotEmpty ? name : "Unknown",
-      email: cred.user!.email ?? email,
+      uid: uid,
+      name: name.isNotEmpty ? name : (fbUser?.displayName ?? "Student"),
+      email: fbUser?.email ?? email,
       photoUrl: photoUrl,
       createdAt: DateTime.now(),
     );
 
-    await _db.collection('users').doc(user.uid).set(user.toMap());
+    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
     return user;
   }
 
@@ -31,18 +35,20 @@ class AuthService {
       password: password,
     );
 
-    final snap = await _db.collection('users').doc(cred.user!.uid).get();
+    final fbUser = cred.user;
+    final uid = fbUser?.uid ?? '';
 
-    if (!snap.exists) {
+    final snap = await _db.collection('users').doc(uid).get();
+
+    if (!snap.exists || snap.data() == null) {
       final fallbackUser = UserModel(
-        uid: cred.user!.uid,
-        name: cred.user!.displayName ?? "Unknown",
-        email: cred.user!.email ?? email,
+        uid: uid,
+        name: fbUser?.displayName ?? "Student",
+        email: fbUser?.email ?? email,
         createdAt: DateTime.now(),
       );
 
-      await _db.collection('users').doc(fallbackUser.uid).set(fallbackUser.toMap());
-
+      await _db.collection('users').doc(fallbackUser.uid).set(fallbackUser.toMap(), SetOptions(merge: true));
       return fallbackUser;
     }
 
@@ -50,79 +56,142 @@ class AuthService {
   }
 
   Future<UserModel?> googleSignIn() async {
-    final gUser = await GoogleSignIn().signIn();
-    if (gUser == null) return null;
+    try {
+      UserCredential credential;
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider();
+        credential = await _auth.signInWithPopup(googleProvider);
+      } else {
+        final gUser = await GoogleSignIn().signIn();
+        if (gUser == null) return null;
 
-    final gAuth = await gUser.authentication;
-    final cred = GoogleAuthProvider.credential(
-      accessToken: gAuth.accessToken,
-      idToken: gAuth.idToken,
-    );
+        final gAuth = await gUser.authentication;
+        final cred = GoogleAuthProvider.credential(
+          accessToken: gAuth.accessToken,
+          idToken: gAuth.idToken,
+        );
+        credential = await _auth.signInWithCredential(cred);
+      }
 
-    final result = await _auth.signInWithCredential(cred);
+      final fbUser = credential.user;
+      if (fbUser == null) return null;
 
-    final user = UserModel(
-      uid: result.user!.uid,
-      name: result.user!.displayName ?? "Unknown",
-      email: result.user!.email ?? "",
-      photoUrl: result.user!.photoURL,
-      createdAt: DateTime.now(),
-    );
+      final user = UserModel(
+        uid: fbUser.uid,
+        name: fbUser.displayName ?? "Student",
+        email: fbUser.email ?? "",
+        photoUrl: fbUser.photoURL,
+        createdAt: DateTime.now(),
+      );
 
-    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+      return user;
+    } catch (e) {
+      if (kIsWeb) {
+        try {
+          final googleProvider = GoogleAuthProvider();
+          final credential = await _auth.signInWithProvider(googleProvider);
+          final fbUser = credential.user;
+          if (fbUser == null) return null;
 
-    return user;
+          final user = UserModel(
+            uid: fbUser.uid,
+            name: fbUser.displayName ?? "Student",
+            email: fbUser.email ?? "",
+            photoUrl: fbUser.photoURL,
+            createdAt: DateTime.now(),
+          );
+
+          await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+          return user;
+        } catch (_) {}
+      }
+      rethrow;
+    }
   }
 
   Future<UserModel?> facebookSignIn() async {
-    final facebookProvider = FacebookAuthProvider();
-    final result = await _auth.signInWithProvider(facebookProvider);
-    if (result.user == null) return null;
+    try {
+      final facebookProvider = FacebookAuthProvider();
+      UserCredential credential;
+      if (kIsWeb) {
+        credential = await _auth.signInWithPopup(facebookProvider);
+      } else {
+        credential = await _auth.signInWithProvider(facebookProvider);
+      }
 
-    final user = UserModel(
-      uid: result.user!.uid,
-      name: result.user!.displayName ?? "Facebook User",
-      email: result.user!.email ?? "",
-      photoUrl: result.user!.photoURL,
-      createdAt: DateTime.now(),
-    );
+      final fbUser = credential.user;
+      if (fbUser == null) return null;
 
-    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-    return user;
+      final user = UserModel(
+        uid: fbUser.uid,
+        name: fbUser.displayName ?? "Facebook Student",
+        email: fbUser.email ?? "",
+        photoUrl: fbUser.photoURL,
+        createdAt: DateTime.now(),
+      );
+
+      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+      return user;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<UserModel?> githubSignIn() async {
-    final githubProvider = GithubAuthProvider();
-    final result = await _auth.signInWithProvider(githubProvider);
-    if (result.user == null) return null;
+    try {
+      final githubProvider = GithubAuthProvider();
+      UserCredential credential;
+      if (kIsWeb) {
+        credential = await _auth.signInWithPopup(githubProvider);
+      } else {
+        credential = await _auth.signInWithProvider(githubProvider);
+      }
 
-    final user = UserModel(
-      uid: result.user!.uid,
-      name: result.user!.displayName ?? "GitHub User",
-      email: result.user!.email ?? "",
-      photoUrl: result.user!.photoURL,
-      createdAt: DateTime.now(),
-    );
+      final fbUser = credential.user;
+      if (fbUser == null) return null;
 
-    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-    return user;
+      final user = UserModel(
+        uid: fbUser.uid,
+        name: fbUser.displayName ?? "GitHub Student",
+        email: fbUser.email ?? "",
+        photoUrl: fbUser.photoURL,
+        createdAt: DateTime.now(),
+      );
+
+      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+      return user;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<UserModel?> linkedInSignIn() async {
-    final linkedinProvider = OAuthProvider('linkedin.com');
-    final result = await _auth.signInWithProvider(linkedinProvider);
-    if (result.user == null) return null;
+    try {
+      final linkedinProvider = OAuthProvider('linkedin.com');
+      UserCredential credential;
+      if (kIsWeb) {
+        credential = await _auth.signInWithPopup(linkedinProvider);
+      } else {
+        credential = await _auth.signInWithProvider(linkedinProvider);
+      }
 
-    final user = UserModel(
-      uid: result.user!.uid,
-      name: result.user!.displayName ?? "LinkedIn User",
-      email: result.user!.email ?? "",
-      photoUrl: result.user!.photoURL,
-      createdAt: DateTime.now(),
-    );
+      final fbUser = credential.user;
+      if (fbUser == null) return null;
 
-    await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
-    return user;
+      final user = UserModel(
+        uid: fbUser.uid,
+        name: fbUser.displayName ?? "LinkedIn Student",
+        email: fbUser.email ?? "",
+        photoUrl: fbUser.photoURL,
+        createdAt: DateTime.now(),
+      );
+
+      await _db.collection('users').doc(user.uid).set(user.toMap(), SetOptions(merge: true));
+      return user;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> resetPassword(String email) async {
@@ -130,7 +199,9 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await GoogleSignIn().signOut();
+    try {
+      await GoogleSignIn().signOut();
+    } catch (_) {}
     await _auth.signOut();
   }
 }

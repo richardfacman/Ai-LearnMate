@@ -200,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _settingsTile(
                     icon: Icons.contact_support_outlined,
                     title: "Contact Owner",
-                    subtitle: "Foysal Ahmed — Email & LinkedIn",
+                    subtitle: "Foysal Ahmed — Email, Facebook, LinkedIn & X",
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactOwnerScreen())),
                   ),
                   _settingsTile(

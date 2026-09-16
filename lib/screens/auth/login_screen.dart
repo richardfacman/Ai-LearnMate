@@ -253,6 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    if (_loading) return;
     setState(() => _loading = true);
     try {
       final user = await _auth.googleSignIn();
@@ -263,9 +264,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      final err = e.toString();
+      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
+        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Google Sign-in failed: $e")),
+          SnackBar(content: Text("Google Sign-in: $cleanMsg")),
         );
       }
     } finally {
@@ -274,6 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleFacebookSignIn() async {
+    if (_loading) return;
     setState(() => _loading = true);
     try {
       final user = await _auth.facebookSignIn();
@@ -284,9 +288,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      final err = e.toString();
+      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
+        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Facebook Sign-in failed: $e")),
+          SnackBar(content: Text("Facebook Sign-in: $cleanMsg")),
         );
       }
     } finally {
@@ -295,6 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGithubSignIn() async {
+    if (_loading) return;
     setState(() => _loading = true);
     try {
       final user = await _auth.githubSignIn();
@@ -305,9 +312,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      final err = e.toString();
+      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
+        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("GitHub Sign-in failed: $e")),
+          SnackBar(content: Text("GitHub Sign-in: $cleanMsg")),
         );
       }
     } finally {
@@ -316,6 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLinkedInSignIn() async {
+    if (_loading) return;
     setState(() => _loading = true);
     try {
       final user = await _auth.linkedInSignIn();
@@ -326,9 +336,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      final err = e.toString();
+      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
+        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("LinkedIn Sign-in failed: $e")),
+          SnackBar(content: Text("LinkedIn Sign-in: $cleanMsg")),
         );
       }
     } finally {

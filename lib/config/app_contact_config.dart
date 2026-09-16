@@ -5,7 +5,7 @@ class AppContactConfig {
   static const String ownerEmail = "mdfaisalahmed949@gmail.com";
   static const String ownerLinkedIn = "https://www.linkedin.com/in/foysal-ahmed-048035355";
   static const String ownerFacebook = "https://www.facebook.com/share/186qiN2U6j/";
-  static const String ownerTwitter = "https://x.com";
+  static const String ownerTwitter = "https://x.com/AhmedMdfaisal";
   static const String ownerLocation = "Bangladesh";
   static const String ownerPhotoUrl = "https://raw.githubusercontent.com/richardfacman/Ai-LearnMate/main/assets/images/foysal_ahmed.jpg";
   static const String ownerAssetPath = "assets/images/foysal_ahmed.jpg";

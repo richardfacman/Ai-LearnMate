@@ -18,67 +18,87 @@ class ContactOwnerScreen extends StatelessWidget {
   static const Color muted = Color(0xFF8B93A6);
   static const Color hairline = Color(0x1AF4EFE6);
 
+  Future<void> _launchURL(BuildContext context, String urlString, String name) async {
+    final Uri? uri = Uri.tryParse(urlString);
+    if (uri == null) {
+      if (context.mounted) {
+        await _copyToClipboard(context, urlString, "$name link copied to clipboard!");
+      }
+      return;
+    }
+
+    try {
+      bool launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+      if (!launched && context.mounted) {
+        await _copyToClipboard(context, urlString, "$name link copied to clipboard!");
+      }
+    } catch (_) {
+      if (context.mounted) {
+        await _copyToClipboard(context, urlString, "$name link copied to clipboard!");
+      }
+    }
+  }
+
   Future<void> _emailOwner(BuildContext context) async {
     final Uri mailUri = Uri(
       scheme: 'mailto',
       path: AppContactConfig.ownerEmail,
       queryParameters: {
-        'subject': 'AI Learn Mate Support Request',
-        'body': 'Hello Foysal,\n\nI need help with AI Learn Mate.\n\nProblem / Feedback:\n\nThank you.',
+        'subject': 'AI Learn Mate Support / Inquiry',
+        'body': 'Hello Foysal,\n\nI am contacting you regarding AI Learn Mate.\n\nThank you.',
       },
     );
 
     try {
-      final bool launched = await launchUrl(mailUri, mode: LaunchMode.externalApplication);
+      bool launched = await launchUrl(mailUri, mode: LaunchMode.externalApplication);
       if (!launched) {
+        launched = await launchUrl(mailUri, mode: LaunchMode.platformDefault);
+      }
+      if (!launched && context.mounted) {
         await _copyToClipboard(context, AppContactConfig.ownerEmail, "Email address copied to clipboard!");
       }
     } catch (_) {
-      await _copyToClipboard(context, AppContactConfig.ownerEmail, "Email address copied to clipboard!");
+      if (context.mounted) {
+        await _copyToClipboard(context, AppContactConfig.ownerEmail, "Email address copied to clipboard!");
+      }
     }
   }
 
   Future<void> _openLinkedIn(BuildContext context) async {
-    final Uri url = Uri.parse(AppContactConfig.ownerLinkedIn);
-    try {
-      final bool launched = await launchUrl(url, mode: LaunchMode.externalApplication);
-      if (!launched) {
-        await _copyToClipboard(context, AppContactConfig.ownerLinkedIn, "LinkedIn link copied!");
-      }
-    } catch (_) {
-      await _copyToClipboard(context, AppContactConfig.ownerLinkedIn, "LinkedIn link copied to clipboard!");
-    }
+    await _launchURL(context, AppContactConfig.ownerLinkedIn, "LinkedIn");
   }
 
   Future<void> _openFacebook(BuildContext context) async {
-    final Uri url = Uri.parse(AppContactConfig.ownerFacebook);
-    try {
-      final bool launched = await launchUrl(url, mode: LaunchMode.externalApplication);
-      if (!launched) {
-        await _copyToClipboard(context, AppContactConfig.ownerFacebook, "Facebook link copied!");
-      }
-    } catch (_) {
-      await _copyToClipboard(context, AppContactConfig.ownerFacebook, "Facebook link copied to clipboard!");
-    }
+    await _launchURL(context, AppContactConfig.ownerFacebook, "Facebook");
   }
 
   Future<void> _openTwitter(BuildContext context) async {
-    final Uri url = Uri.parse(AppContactConfig.ownerTwitter);
-    try {
-      final bool launched = await launchUrl(url, mode: LaunchMode.externalApplication);
-      if (!launched) {
-        await _copyToClipboard(context, AppContactConfig.ownerTwitter, "Twitter link copied!");
-      }
-    } catch (_) {
-      await _copyToClipboard(context, AppContactConfig.ownerTwitter, "Twitter link copied to clipboard!");
-    }
+    await _launchURL(context, AppContactConfig.ownerTwitter, "Twitter / X");
+  }
+
+  Future<void> _shareProfile(BuildContext context) async {
+    final String shareText = "Connect with ${AppContactConfig.ownerName} (${AppContactConfig.ownerRole}):\n"
+        "Email: ${AppContactConfig.ownerEmail}\n"
+        "Facebook: ${AppContactConfig.ownerFacebook}\n"
+        "LinkedIn: ${AppContactConfig.ownerLinkedIn}\n"
+        "X/Twitter: ${AppContactConfig.ownerTwitter}";
+    await _copyToClipboard(context, shareText, "Owner contact links copied to clipboard!");
   }
 
   Future<void> _copyToClipboard(BuildContext context, String text, String message) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: gold, duration: const Duration(seconds: 2)),
+        SnackBar(
+          content: Text(message, style: const TextStyle(color: ink, fontWeight: FontWeight.w600)),
+          backgroundColor: gold,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -240,9 +260,9 @@ class ContactOwnerScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: surfaceHi,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: gold.withOpacity(0.4), width: 1.5),
+        border: Border.all(color: gold.withOpacity(0.5), width: 1.5),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 15, offset: const Offset(0, 5)),
         ],
       ),
       child: ClipRRect(
@@ -252,36 +272,30 @@ class ContactOwnerScreen extends StatelessWidget {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Image.network(
-              'foysal_ahmed.jpg',
+              AppContactConfig.ownerPhotoUrl,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                return Image.network(
-                  AppContactConfig.ownerPhotoUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: gold.withOpacity(0.2),
-                              border: Border.all(color: gold, width: 2),
-                            ),
-                            child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
-                        ],
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: gold.withOpacity(0.2),
+                          border: Border.all(color: gold, width: 2),
+                        ),
+                        child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
                       ),
-                    );
-                  },
+                      const SizedBox(height: 12),
+                      const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 );
               },
             );
@@ -317,35 +331,71 @@ class ContactOwnerScreen extends StatelessWidget {
         _detailRow("Location:", AppContactConfig.ownerLocation),
         const SizedBox(height: 20),
 
-        // Social Action Icons Bar (Facebook, Gmail, LinkedIn, Twitter)
-        Row(
+        // Social Action Icons Bar (Facebook, Gmail, LinkedIn, Twitter/X, Share)
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
           children: [
             _socialIconTile(
-              icon: Icons.facebook,
-              color: const Color(0xFF1877F2),
-              tooltip: "Open Facebook",
+              iconWidget: const Icon(Icons.facebook, color: Colors.white, size: 22),
+              backgroundColor: const Color(0xFF1877F2),
+              borderColor: const Color(0xFF1877F2),
+              tooltip: "Open Facebook Profile",
               onTap: () => _openFacebook(context),
             ),
-            const SizedBox(width: 8),
             _socialIconTile(
-              icon: Icons.email_outlined,
-              color: gold,
-              tooltip: "Email ${AppContactConfig.ownerEmail}",
+              iconWidget: const Icon(Icons.mail_rounded, color: Color(0xFFEA4335), size: 22),
+              backgroundColor: surfaceHi,
+              borderColor: const Color(0xFFEA4335),
+              tooltip: "Send Email (${AppContactConfig.ownerEmail})",
               onTap: () => _emailOwner(context),
             ),
-            const SizedBox(width: 8),
             _socialIconTile(
-              icon: Icons.link,
-              color: const Color(0xFF0077B5),
+              iconWidget: Container(
+                width: 22,
+                height: 22,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0077B5),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  "in",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'sans-serif',
+                    height: 1.0,
+                  ),
+                ),
+              ),
+              backgroundColor: const Color(0xFF0077B5),
+              borderColor: const Color(0xFF0077B5),
               tooltip: "Open LinkedIn Profile",
               onTap: () => _openLinkedIn(context),
             ),
-            const SizedBox(width: 8),
             _socialIconTile(
-              icon: Icons.share,
-              color: const Color(0xFF1DA1F2),
-              tooltip: "Open Twitter / X",
+              iconWidget: const Text(
+                "𝕏",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  height: 1.0,
+                ),
+              ),
+              backgroundColor: const Color(0xFF14171A),
+              borderColor: const Color(0xFF1DA1F2),
+              tooltip: "Open Twitter / X (@AhmedMdfaisal)",
               onTap: () => _openTwitter(context),
+            ),
+            _socialIconTile(
+              iconWidget: const Icon(Icons.share_rounded, color: gold, size: 20),
+              backgroundColor: surfaceHi,
+              borderColor: gold.withOpacity(0.6),
+              tooltip: "Share Owner Contact Details",
+              onTap: () => _shareProfile(context),
             ),
           ],
         ),
@@ -372,26 +422,38 @@ class ContactOwnerScreen extends StatelessWidget {
   }
 
   Widget _socialIconTile({
-    required IconData icon,
-    required Color color,
+    required Widget iconWidget,
+    required Color backgroundColor,
+    required Color borderColor,
     required String tooltip,
     required VoidCallback onTap,
   }) {
     return Tooltip(
       message: tooltip,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: surfaceHi,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.redAccent.withOpacity(0.8), width: 1.5),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: borderColor, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: borderColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child: iconWidget,
           ),
-          alignment: Alignment.center,
-          child: Icon(icon, color: color, size: 20),
         ),
       ),
     );
