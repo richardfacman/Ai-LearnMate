@@ -229,45 +229,43 @@ class ContactOwnerScreen extends StatelessWidget {
         color: surfaceHi,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: gold.withOpacity(0.4), width: 1.5),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            gold.withOpacity(0.15),
-            surfaceHi,
-          ],
-        ),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4)),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
-        child: Image.network(
-          AppContactConfig.ownerPhotoUrl,
+        child: Image.asset(
+          AppContactConfig.ownerAssetPath,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: gold.withOpacity(0.2),
-                      border: Border.all(color: gold, width: 2),
-                    ),
-                    child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
+            return Image.network(
+              AppContactConfig.ownerPhotoUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: gold.withOpacity(0.2),
+                          border: Border.all(color: gold, width: 2),
+                        ),
+                        child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
-                ],
-              ),
+                );
+              },
             );
           },
         ),
