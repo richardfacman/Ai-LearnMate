@@ -260,7 +260,7 @@ class ContactOwnerScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: surfaceHi,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: gold.withOpacity(0.5), width: 1.5),
+        border: Border.all(color: gold.withOpacity(0.6), width: 1.5),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 15, offset: const Offset(0, 5)),
         ],
@@ -270,32 +270,48 @@ class ContactOwnerScreen extends StatelessWidget {
         child: Image.asset(
           AppContactConfig.ownerAssetPath,
           fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
           errorBuilder: (context, error, stackTrace) {
             return Image.network(
               AppContactConfig.ownerPhotoUrl,
               fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
               errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: gold.withOpacity(0.2),
-                          border: Border.all(color: gold, width: 2),
-                        ),
-                        child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                return Image.network(
+                  AppContactConfig.ownerPhotoBackupUrl,
+                  fit: BoxFit.cover,
+                  filterQuality: FilterQuality.high,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/images/foysal_ahmed.png',
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: gold.withOpacity(0.2),
+                                  border: Border.all(color: gold, width: 2),
+                                ),
+                                child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
                 );
               },
             );
