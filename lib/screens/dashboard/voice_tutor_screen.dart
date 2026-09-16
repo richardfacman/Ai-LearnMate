@@ -11,10 +11,21 @@ class VoiceTutorScreen extends StatefulWidget {
 
 class _VoiceTutorScreenState extends State<VoiceTutorScreen> {
   final VoiceService _voiceService = VoiceService();
-  String _words = "Tap the mic to start talking...";
+  final TextEditingController _textCtrl = TextEditingController();
+
+  String _words = "Tap the mic to start speaking...";
   String _response = "";
   bool _isListening = false;
   bool _loading = false;
+
+  // Theme Tokens
+  static const Color ink = Color(0xFF0B0E14);
+  static const Color surface = Color(0xFF151A24);
+  static const Color surfaceHi = Color(0xFF1B2230);
+  static const Color gold = Color(0xFFF0A93E);
+  static const Color paper = Color(0xFFF4EFE6);
+  static const Color muted = Color(0xFF8B93A6);
+  static const Color hairline = Color(0x1AF4EFE6);
 
   @override
   void initState() {
@@ -26,7 +37,7 @@ class _VoiceTutorScreenState extends State<VoiceTutorScreen> {
     if (_isListening) {
       _voiceService.stopListening();
       setState(() => _isListening = false);
-      _sendToAI();
+      _sendToAI(_words);
     } else {
       final available = await _voiceService.initSpeech();
       if (available) {
@@ -35,25 +46,36 @@ class _VoiceTutorScreenState extends State<VoiceTutorScreen> {
           _words = "Listening...";
         });
         _voiceService.startListening((val) {
-          setState(() => _words = val);
+          setState(() {
+            _words = val;
+            _textCtrl.text = val;
+          });
         });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Microphone is not enabled or available on this device. You can type below!", style: TextStyle(color: paper)),
+            backgroundColor: surface,
+          ),
+        );
       }
     }
   }
 
-  Future<void> _sendToAI() async {
-    if (_words == "Listening..." || _words.isEmpty) return;
+  Future<void> _sendToAI(String promptText) async {
+    final query = promptText.trim();
+    if (query.isEmpty || query == "Listening..." || query == "Tap the mic to start speaking...") return;
 
     setState(() => _loading = true);
 
     try {
       final res = await AiProviderManager().generateResponse(
-        prompt: _words,
+        prompt: query,
         feature: AiFeature.quickExplanation,
       );
       setState(() => _response = res);
       
-      // AI Speaks back
+      // Speak AI response back if TTS is supported
       await _voiceService.speak(res);
     } catch (e) {
       setState(() => _response = "AI is temporarily unavailable. Please try again.");
@@ -63,69 +85,127 @@ class _VoiceTutorScreenState extends State<VoiceTutorScreen> {
   }
 
   @override
+  void dispose() {
+    _textCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ink,
       appBar: AppBar(
-        title: const Text("Voice AI Tutor"),
-        backgroundColor: const Color(0xFF6C63FF),
-        foregroundColor: Colors.white,
+        title: const Text("Voice AI Tutor", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.w600)),
+        backgroundColor: surface,
+        foregroundColor: paper,
+        elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(30),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const Spacer(),
-            Text(
-              _words,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-                color: _isListening ? const Color(0xFF6C63FF) : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 30),
-            if (_loading) const CircularProgressIndicator(),
-            if (_response.isNotEmpty) ...[
-              const SizedBox(height: 30),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Text(
-                    _response,
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: hairline),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            _words,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: _isListening ? gold : paper,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _textCtrl,
+                                  style: const TextStyle(color: paper, fontSize: 14),
+                                  decoration: const InputDecoration(
+                                    hintText: "Or type your question here...",
+                                    hintStyle: TextStyle(color: muted, fontSize: 13),
+                                    border: InputBorder.none,
+                                  ),
+                                  onSubmitted: (val) => _sendToAI(val),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.send_rounded, color: gold, size: 20),
+                                onPressed: () => _sendToAI(_textCtrl.text),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    if (_loading) const CircularProgressIndicator(color: gold),
+                    if (_response.isNotEmpty) ...[
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("AI Tutor Explanation:", style: TextStyle(color: gold, fontSize: 14, fontWeight: FontWeight.w600)),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: hairline),
+                        ),
+                        child: SelectableText(
+                          _response,
+                          style: const TextStyle(color: paper, fontSize: 14, height: 1.5),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-            ],
-            const Spacer(),
+            ),
+            const SizedBox(height: 16),
             GestureDetector(
               onTap: _toggleListening,
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  color: _isListening ? Colors.redAccent : const Color(0xFF6C63FF),
+                  color: _isListening ? Colors.redAccent : gold,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: (_isListening ? Colors.redAccent : const Color(0xFF6C63FF)).withOpacity(0.3),
+                      color: (_isListening ? Colors.redAccent : gold).withOpacity(0.3),
                       blurRadius: 20,
-                      spreadRadius: 5,
+                      spreadRadius: 4,
                     )
                   ],
                 ),
                 child: Icon(
                   _isListening ? Icons.mic : Icons.mic_none,
-                  size: 40,
-                  color: Colors.white,
+                  size: 36,
+                  color: ink,
                 ),
               ),
             ),
             const SizedBox(height: 10),
             Text(
-              _isListening ? "Listening..." : "Tap to speak",
-              style: const TextStyle(color: Colors.grey),
+              _isListening ? "Listening... Tap to stop" : "Tap microphone to speak",
+              style: const TextStyle(color: muted, fontSize: 12),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
           ],
         ),
       ),

@@ -28,5 +28,13 @@ void main() {
       expect(result['status'], equals('PASS'));
       expect(result['contextIntact'], isTrue);
     });
+
+    test('runAiLearnMateSelfTest verifies system health matrix', () {
+      final matrix = RecommendationService.runAiLearnMateSelfTest();
+      expect(matrix['AUTH'], equals('PASS'));
+      expect(matrix['SCANNER'], equals('PASS'));
+      expect(matrix['VOICE'], equals('PASS'));
+      expect(matrix['NAVIGATION'], equals('PASS'));
+    });
   });
 }

@@ -1,22 +1,37 @@
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CameraService {
   final TextRecognizer _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
-  Future<String> recognizeTextFromImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+  Future<XFile?> pickImage({required ImageSource source}) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      return await picker.pickImage(source: source);
+    } catch (_) {
+      return null;
+    }
+  }
 
-    if (image == null) return "";
+  Future<String> recognizeTextFromXFile(XFile file) async {
+    if (kIsWeb) {
+      return "";
+    }
 
-    final inputImage = InputImage.fromFilePath(image.path);
-    final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
-
-    return recognizedText.text;
+    try {
+      final inputImage = InputImage.fromFilePath(file.path);
+      final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
+      return recognizedText.text;
+    } catch (e) {
+      debugPrint("OCR error: $e");
+      return "";
+    }
   }
 
   void dispose() {
-    _textRecognizer.close();
+    try {
+      _textRecognizer.close();
+    } catch (_) {}
   }
 }
