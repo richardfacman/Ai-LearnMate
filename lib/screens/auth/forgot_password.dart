@@ -35,8 +35,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             const SizedBox(height: 30),
             TextField(
               controller: _email,
+              style: const TextStyle(color: Colors.black87, fontSize: 14),
               decoration: InputDecoration(
                 labelText: "Email",
+                labelStyle: const TextStyle(color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white,
                 prefixIcon: const Icon(Icons.email_outlined),

@@ -131,8 +131,10 @@ class _NotesScreenState extends State<NotesScreen> {
               child: TextField(
                 controller: _textCtrl,
                 maxLines: 6,
+                style: const TextStyle(color: Colors.black87, fontSize: 14),
                 decoration: const InputDecoration(
                   hintText: "Paste or type your notes here...",
+                  hintStyle: TextStyle(color: Colors.black38, fontSize: 14),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(16),
                 ),

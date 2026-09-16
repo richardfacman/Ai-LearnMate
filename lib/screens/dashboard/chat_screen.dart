@@ -370,8 +370,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 child: TextField(
                   controller: _msgCtrl,
+                  style: const TextStyle(color: Colors.black87, fontSize: 14),
                   decoration: const InputDecoration(
                     hintText: "Ask anything...",
+                    hintStyle: TextStyle(color: Colors.black38, fontSize: 14),
                     border: InputBorder.none,
                   ),
                   onSubmitted: (_) => sendMessage(),
