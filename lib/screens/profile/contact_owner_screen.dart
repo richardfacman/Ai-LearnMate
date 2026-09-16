@@ -82,7 +82,7 @@ class ContactOwnerScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: ink,
       appBar: AppBar(
-        title: const Text("Contact & About Owner", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.w600)),
+        title: const Text("About & Contact Owner", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.w600)),
         backgroundColor: surface,
         foregroundColor: paper,
         elevation: 0,
@@ -95,22 +95,22 @@ class ContactOwnerScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Hero Banner
-                const Text("Hello!", style: TextStyle(color: gold, fontSize: 28, fontWeight: FontWeight.bold)),
+                // Header Title
+                const Text("Hello!", style: TextStyle(color: paper, fontSize: 36, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 const Text(
-                  "Have a question, found a problem, or have an idea for AI Learn Mate? Get in touch directly.",
-                  style: TextStyle(color: muted, fontSize: 13.5, height: 1.4),
+                  "I'm Foysal Ahmed, Project Owner & Developer of AI Learn Mate.",
+                  style: TextStyle(color: muted, fontSize: 14, height: 1.4),
                 ),
                 const SizedBox(height: 24),
 
-                // Owner Profile Card
+                // Main Reference Layout Card
                 Container(
-                  padding: const EdgeInsets.all(22),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: surface,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: gold.withOpacity(0.3)),
+                    border: Border.all(color: hairline),
                     boxShadow: [
                       BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
                     ],
@@ -119,22 +119,27 @@ class ContactOwnerScreen extends StatelessWidget {
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildPortrait(),
-                            const SizedBox(width: 24),
-                            Expanded(child: _buildOwnerDetails(context)),
+                            _buildPortraitCard(),
+                            const SizedBox(width: 28),
+                            Expanded(child: _buildAboutMeSection()),
+                            const SizedBox(width: 28),
+                            Expanded(child: _buildDetailsSection(context)),
                           ],
                         )
                       : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildPortrait(),
-                            const SizedBox(height: 20),
-                            _buildOwnerDetails(context),
+                            Center(child: _buildPortraitCard()),
+                            const SizedBox(height: 24),
+                            _buildAboutMeSection(),
+                            const SizedBox(height: 24),
+                            _buildDetailsSection(context),
                           ],
                         ),
                 ),
                 const SizedBox(height: 28),
 
-                // Support Quick Actions
+                // Quick Assistance Row
                 const Text("NEED ASSISTANCE OR HAVE FEEDBACK?", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                 const SizedBox(height: 12),
                 Row(
@@ -186,11 +191,11 @@ class ContactOwnerScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 28),
 
-                // About AI Learn Mate Feature Chips
+                // About AI Learn Mate Features
                 const Text("ABOUT AI LEARN MATE", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                 const SizedBox(height: 10),
                 const Text(
-                  "AI Learn Mate brings together 10 intelligent study tools in one connected learning loop:",
+                  "AI Learn Mate integrates 10 intelligent study tools into one adaptive learning engine:",
                   style: TextStyle(color: muted, fontSize: 12.5),
                 ),
                 const SizedBox(height: 12),
@@ -219,19 +224,20 @@ class ContactOwnerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPortrait() {
+  Widget _buildPortraitCard() {
     return Container(
-      width: 180,
-      height: 230,
+      width: 200,
+      height: 260,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        color: surfaceHi,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: gold.withOpacity(0.4), width: 1.5),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4)),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         child: Image.network(
           AppContactConfig.ownerPhotoUrl,
           fit: BoxFit.cover,
@@ -242,9 +248,9 @@ class ContactOwnerScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
-                  Icon(Icons.person, color: gold, size: 56),
+                  Icon(Icons.person, color: gold, size: 60),
                   SizedBox(height: 8),
-                  Text("FA", style: TextStyle(color: gold, fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text("FA", style: TextStyle(color: gold, fontSize: 24, fontWeight: FontWeight.bold)),
                 ],
               ),
             );
@@ -254,47 +260,54 @@ class ContactOwnerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOwnerDetails(BuildContext context) {
+  Widget _buildAboutMeSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text("About me", style: TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.bold)),
+        SizedBox(height: 10),
+        Text(
+          AppContactConfig.ownerBio,
+          style: TextStyle(color: muted, fontSize: 13, height: 1.5),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("About Me", style: TextStyle(color: gold, fontSize: 16, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 6),
-        const Text(
-          AppContactConfig.ownerBio,
-          style: TextStyle(color: paper, fontSize: 13, height: 1.45),
-        ),
-        const SizedBox(height: 16),
-        const Text("Details", style: TextStyle(color: gold, fontSize: 14, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
+        const Text("Details", style: TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
         _detailRow("Name:", AppContactConfig.ownerName),
         _detailRow("Role:", AppContactConfig.ownerRole),
         _detailRow("Project:", AppContactConfig.ownerProject),
         _detailRow("Location:", AppContactConfig.ownerLocation),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
-        // Social Action Icons Bar
+        // Social Action Icons Bar (Facebook, Email, LinkedIn)
         Row(
           children: [
-            _socialButton(
+            _socialIconTile(
+              icon: Icons.facebook,
+              color: const Color(0xFF1877F2),
+              tooltip: "Facebook",
+              onTap: () => _openFacebook(context),
+            ),
+            const SizedBox(width: 12),
+            _socialIconTile(
               icon: Icons.email_outlined,
-              label: "Email",
               color: gold,
+              tooltip: "Email",
               onTap: () => _emailOwner(context),
             ),
-            const SizedBox(width: 10),
-            _socialButton(
+            const SizedBox(width: 12),
+            _socialIconTile(
               icon: Icons.link,
-              label: "LinkedIn",
               color: const Color(0xFF0077B5),
+              tooltip: "LinkedIn",
               onTap: () => _openLinkedIn(context),
-            ),
-            const SizedBox(width: 10),
-            _socialButton(
-              icon: Icons.facebook,
-              label: "Facebook",
-              color: const Color(0xFF1877F2),
-              onTap: () => _openFacebook(context),
             ),
           ],
         ),
@@ -304,44 +317,41 @@ class ContactOwnerScreen extends StatelessWidget {
 
   Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 75,
-            child: Text(label, style: const TextStyle(color: muted, fontSize: 12.5, fontWeight: FontWeight.w600)),
+            width: 70,
+            child: Text(label, style: const TextStyle(color: paper, fontSize: 13, fontWeight: FontWeight.w600)),
           ),
           Expanded(
-            child: Text(value, style: const TextStyle(color: paper, fontSize: 12.5, fontWeight: FontWeight.w500)),
+            child: Text(value, style: const TextStyle(color: muted, fontSize: 13)),
           ),
         ],
       ),
     );
   }
 
-  Widget _socialButton({
+  Widget _socialIconTile({
     required IconData icon,
-    required String label,
     required Color color,
+    required String tooltip,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
           color: surfaceHi,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.5)),
+          border: Border.all(color: Colors.redAccent.withOpacity(0.8), width: 1.2), // Red highlight border from reference markup
         ),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(color: paper, fontSize: 12, fontWeight: FontWeight.w500)),
-          ],
-        ),
+        alignment: Alignment.center,
+        child: Icon(icon, color: color, size: 20),
       ),
     );
   }
