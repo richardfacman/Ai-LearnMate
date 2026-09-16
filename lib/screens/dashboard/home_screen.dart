@@ -373,8 +373,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
         children: [
           _toolChip(Icons.help_outline, "Quick quiz", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizScreen(summarizedText: "General knowledge study test")))),
           _toolChip(Icons.style_outlined, "Flashcards", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FlashcardScreen()))),
-          _toolChip(Icons.timer_outlined, "Pomodoro", () => {}),
-          _toolChip(Icons.center_focus_strong, "Focus mode", () => {}),
+          _toolChip(Icons.timer_outlined, "Pomodoro", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerScreen()))),
+          _toolChip(Icons.center_focus_strong, "Focus mode", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerScreen()))),
         ],
       ),
     );

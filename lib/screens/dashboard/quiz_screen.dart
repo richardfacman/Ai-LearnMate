@@ -38,7 +38,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 children: [
                   CircularProgressIndicator(color: Color(0xFF6C63FF)),
                   SizedBox(height: 20),
-                  Text("Generating personalized quiz..."),
+                  Text("Generating personalized quiz...", style: TextStyle(color: Colors.black87, fontSize: 16)),
                 ],
               ),
             )
@@ -58,15 +58,15 @@ class _QuizScreenState extends State<QuizScreen> {
         children: [
           const Text(
             "Quiz Settings",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
           const SizedBox(height: 10),
           const Text(
             "Customize your practice session to target specific areas.",
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Colors.black54, fontSize: 14),
           ),
           const SizedBox(height: 30),
-          const Text("Difficulty", style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text("Difficulty", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 16)),
           const SizedBox(height: 10),
           Wrap(
             spacing: 10,
@@ -80,8 +80,8 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
           const SizedBox(height: 30),
           SwitchListTile(
-            title: const Text("Adaptive Mode", style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: const Text("Difficulty adjusts based on your performance."),
+            title: const Text("Adaptive Mode", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+            subtitle: const Text("Difficulty adjusts based on your performance.", style: TextStyle(color: Colors.black54)),
             value: _isAdaptive,
             onChanged: (val) => setState(() => _isAdaptive = val),
             activeColor: const Color(0xFF6C63FF),
@@ -129,7 +129,7 @@ class _QuizScreenState extends State<QuizScreen> {
           const SizedBox(height: 15),
           Text(
             q.question,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
           ),
           const SizedBox(height: 30),
           ...q.options.map((opt) {
@@ -150,7 +150,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   side: const BorderSide(color: Colors.black12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: Text(opt),
+                child: Text(opt, style: const TextStyle(color: Colors.black87, fontSize: 16)),
               ),
             );
           }).toList(),
@@ -180,11 +180,11 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
             ),
             const SizedBox(height: 30),
-            const Text("Quiz Finished!", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text("Quiz Finished!", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
             const SizedBox(height: 10),
             Text(
               "You scored ${provider.score} out of ${provider.questions.length}",
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
+              style: const TextStyle(fontSize: 18, color: Colors.black54),
             ),
             const SizedBox(height: 40),
             ElevatedButton(
@@ -194,7 +194,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
               ),
-              child: const Text("Back to Dashboard", style: TextStyle(color: Colors.white)),
+              child: const Text("Back to Dashboard", style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
             const SizedBox(height: 15),
             TextButton(
@@ -202,7 +202,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 text: widget.summarizedText,
                 difficulty: _selectedDifficulty,
               ),
-              child: const Text("Retake Quiz"),
+              child: const Text("Retake Quiz", style: TextStyle(color: Color(0xFF6C63FF), fontSize: 16)),
             ),
           ],
         ),
