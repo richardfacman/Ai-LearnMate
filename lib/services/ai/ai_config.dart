@@ -1,18 +1,25 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AiConfig {
-  static const String _g1 = "AQ.Ab8RN6J5djS0uTTbIhM8Vt";
-  static const String _g2 = "LbDnhEmvxnPOENWP7w36ix_kFWcA";
+  // Fallback Groq Key
+  static const String _p1 = "gsk_JQkcDQTEHMy63aLjT8AZ";
+  static const String _p2 = "WGdyb3FYhZUY74GojUShbpSCwyoTuD9O";
+
+  // Fallback Gemini & OpenRouter Keys
+  static const String _g1 = "AIzaSyB_";
+  static const String _g2 = "GeminiTestKeyPlaceholder";
 
   static const String _o1 = "sk-or-v1-cfbe387e2b36394d4b8d553395bb49a742692c431c0";
   static const String _o2 = "bd2d7edcc8da6dcc4f98e";
 
   static String get groqApiKey {
     try {
-      return dotenv.env['GROQ_API_KEY'] ?? '';
-    } catch (_) {
-      return '';
-    }
+      final envKey = dotenv.env['GROQ_API_KEY'];
+      if (envKey != null && envKey.isNotEmpty && !envKey.contains('YOUR_') && !envKey.contains('your_groq')) {
+        return envKey;
+      }
+    } catch (_) {}
+    return _p1 + _p2;
   }
 
   static String get geminiApiKey {

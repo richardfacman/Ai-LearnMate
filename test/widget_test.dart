@@ -22,5 +22,11 @@ void main() {
       );
       expect(rec, contains('Add your first subject to start learning!'));
     });
+
+    test('runChatSelfTest verifies context preservation for Quick Actions', () {
+      final result = RecommendationService.runChatSelfTest();
+      expect(result['status'], equals('PASS'));
+      expect(result['contextIntact'], isTrue);
+    });
   });
 }

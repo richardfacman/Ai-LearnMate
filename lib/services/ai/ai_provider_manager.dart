@@ -31,7 +31,8 @@ class AiProviderManager {
     return ['groq', 'gemini', 'openrouter'];
   }
 
-  /// Generates response with automatic fallback and smart study assistant fallback
+  /// Generates real response with automatic fallback.
+  /// Throws or returns normalized error on provider failure.
   Future<String> generateResponse({
     required String prompt,
     AiFeature feature = AiFeature.tutor,
@@ -82,13 +83,12 @@ class AiProviderManager {
           }
 
           if (attempt < 2) {
-            await Future.delayed(Duration(seconds: 1));
+            await Future.delayed(const Duration(seconds: 1));
           }
         }
       }
     }
 
-    // Intelligent Study Assistant fallback response so the chat never shows raw error messages
-    return "Hello! I am your Ai Learn Mate AI study tutor. Regarding '$prompt': That's an excellent concept to explore! To master this, try breaking it down into 3 key concepts, creating a flashcard deck, or taking a quick practice quiz. How would you like to proceed?";
+    throw Exception("AI Tutor is temporarily unavailable. Please try again.");
   }
 }
