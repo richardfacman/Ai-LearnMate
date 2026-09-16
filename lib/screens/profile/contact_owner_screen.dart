@@ -29,9 +29,8 @@ class ContactOwnerScreen extends StatelessWidget {
     );
 
     try {
-      if (await canLaunchUrl(mailUri)) {
-        await launchUrl(mailUri, mode: LaunchMode.externalApplication);
-      } else {
+      final bool launched = await launchUrl(mailUri, mode: LaunchMode.externalApplication);
+      if (!launched) {
         await _copyToClipboard(context, AppContactConfig.ownerEmail, "Email address copied to clipboard!");
       }
     } catch (_) {
@@ -42,9 +41,8 @@ class ContactOwnerScreen extends StatelessWidget {
   Future<void> _openLinkedIn(BuildContext context) async {
     final Uri url = Uri.parse(AppContactConfig.ownerLinkedIn);
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
+      final bool launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched) {
         await _copyToClipboard(context, AppContactConfig.ownerLinkedIn, "LinkedIn link copied!");
       }
     } catch (_) {
@@ -55,9 +53,8 @@ class ContactOwnerScreen extends StatelessWidget {
   Future<void> _openFacebook(BuildContext context) async {
     final Uri url = Uri.parse(AppContactConfig.ownerFacebook);
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
+      final bool launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched) {
         await _copyToClipboard(context, AppContactConfig.ownerFacebook, "Facebook link copied!");
       }
     } catch (_) {
@@ -310,21 +307,21 @@ class ContactOwnerScreen extends StatelessWidget {
             _socialIconTile(
               icon: Icons.facebook,
               color: const Color(0xFF1877F2),
-              tooltip: "Facebook",
+              tooltip: "Open Facebook",
               onTap: () => _openFacebook(context),
             ),
             const SizedBox(width: 12),
             _socialIconTile(
               icon: Icons.email_outlined,
               color: gold,
-              tooltip: "Email",
+              tooltip: "Email ${AppContactConfig.ownerEmail}",
               onTap: () => _emailOwner(context),
             ),
             const SizedBox(width: 12),
             _socialIconTile(
               icon: Icons.link,
               color: const Color(0xFF0077B5),
-              tooltip: "LinkedIn",
+              tooltip: "Open LinkedIn Profile",
               onTap: () => _openLinkedIn(context),
             ),
           ],
@@ -357,19 +354,22 @@ class ContactOwnerScreen extends StatelessWidget {
     required String tooltip,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: surfaceHi,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.redAccent.withOpacity(0.8), width: 1.2), // Red highlight border from reference markup
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: surfaceHi,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.redAccent.withOpacity(0.8), width: 1.5),
+          ),
+          alignment: Alignment.center,
+          child: Icon(icon, color: color, size: 22),
         ),
-        alignment: Alignment.center,
-        child: Icon(icon, color: color, size: 20),
       ),
     );
   }
