@@ -5,6 +5,14 @@ import '../../services/groq_service.dart';
 import '../../services/nvidia_service.dart';
 import '../../services/ai/ai_provider_manager.dart';
 
+enum TutorQuickAction {
+  confused,
+  summarize,
+  example,
+  testMe,
+  deepDive,
+}
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -17,6 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Map<String, dynamic>> _messages = [];
   final ScrollController _scrollController = ScrollController();
   bool _loading = false;
+  String _statusMessage = "AI Tutor is thinking...";
   bool _useNvidia = false;
   LearningMode _selectedMode = LearningMode.normal;
   TutorPersona _selectedPersona = TutorPersona.calmMentor;
@@ -108,6 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.add({'role': 'user', 'text': userText});
       _loading = true;
+      _statusMessage = "AI Tutor is thinking...";
     });
     _msgCtrl.clear();
     _scrollToBottom();
@@ -127,6 +137,110 @@ class _ChatScreenState extends State<ChatScreen> {
               prompt: userText,
               feature: AiFeature.tutor,
               history: history,
+            );
+
+      if (mounted) {
+        setState(() {
+          _messages.add({'role': 'ai', 'text': aiReply});
+        });
+        await _saveMessage('ai', aiReply);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _messages.add({'role': 'ai', 'text': "AI is temporarily unavailable. Please try again."});
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+      _scrollToBottom();
+    }
+  }
+
+  Future<void> _executeQuickAction(TutorQuickAction action) async {
+    if (_loading) return;
+
+    if (_messages.isEmpty) {
+      String emptyHint = "Start a conversation first, then I can assist you.";
+      switch (action) {
+        case TutorQuickAction.summarize:
+          emptyHint = "Start a conversation first, then I can summarize it.";
+          break;
+        case TutorQuickAction.example:
+          emptyHint = "Ask a question first so I know what topic to give an example for.";
+          break;
+        case TutorQuickAction.testMe:
+          emptyHint = "Ask a question first so I know what topic to test you on.";
+          break;
+        case TutorQuickAction.deepDive:
+          emptyHint = "Ask a question first so I know what topic to explore in depth.";
+          break;
+        case TutorQuickAction.confused:
+          emptyHint = "Ask a question first so I know what concept to simplify.";
+          break;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(emptyHint, style: const TextStyle(color: paper)),
+          backgroundColor: surface,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    String actionPrompt = "";
+    String status = "AI Tutor is processing...";
+
+    switch (action) {
+      case TutorQuickAction.summarize:
+        actionPrompt = "TASK: Summarize the educational conversation above concisely into key takeaways.\nCRITICAL: Do NOT summarize this task instruction itself. Focus entirely on summarizing the educational concepts discussed in the conversation history above.";
+        status = "Generating summary...";
+        break;
+      case TutorQuickAction.example:
+        actionPrompt = "TASK: Provide a clear, practical, real-life example illustrating the main educational concept discussed in the conversation above.";
+        status = "Generating practical example...";
+        break;
+      case TutorQuickAction.testMe:
+        actionPrompt = "TASK: Generate a short 2-question quiz to test my understanding of the concept discussed in the conversation above. Include answers and explanations.";
+        status = "Creating practice questions...";
+        break;
+      case TutorQuickAction.deepDive:
+        actionPrompt = "TASK: Provide a detailed, technical, and in-depth breakdown of the concept discussed in the conversation above.";
+        status = "Exploring concept in depth...";
+        break;
+      case TutorQuickAction.confused:
+        actionPrompt = "TASK: The student is confused. Explain the main concept discussed in the conversation above in simpler terms using a relatable analogy, step-by-step points, and a short check for understanding.";
+        status = "Simplifying explanation...";
+        break;
+    }
+
+    setState(() {
+      _loading = true;
+      _statusMessage = status;
+    });
+    _scrollToBottom();
+
+    try {
+      final recentHistory = _messages.sublist(
+        _messages.length > 12 ? _messages.length - 12 : 0
+      ).map((m) => {
+        "role": m['role'] == 'user' ? "user" : "assistant",
+        "content": m['text'].toString(),
+      }).toList();
+
+      final payloadHistory = [
+        ...recentHistory,
+        {"role": "user", "content": actionPrompt}
+      ];
+
+      final aiReply = _useNvidia
+          ? await NvidiaService.getChatResponse(payloadHistory)
+          : await AiProviderManager().generateResponse(
+              prompt: actionPrompt,
+              feature: AiFeature.tutor,
+              history: payloadHistory,
             );
 
       if (mounted) {
@@ -241,7 +355,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: gold),
                       ),
                       const SizedBox(width: 10),
-                      Text("AI Tutor is thinking...", style: TextStyle(color: muted, fontSize: 12)),
+                      Text(_statusMessage, style: const TextStyle(color: muted, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -393,11 +507,11 @@ class _ChatScreenState extends State<ChatScreen> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _actionChip("😕 I'm Confused", () => _handleQuickAction("I am confused about your previous explanation. Please simplify it with an analogy.")),
-            _actionChip("📝 Summarize", () => _handleQuickAction("Summarize our discussion so far concisely.")),
-            _actionChip("💡 Example", () => _handleQuickAction("Give me a real-life practical example of this concept.")),
-            _actionChip("❓ Test Me", () => _handleQuickAction("Ask me a short practice question to test my understanding.")),
-            _actionChip("🔍 Deep Dive", () => _handleQuickAction("Provide a detailed technical explanation of this topic.")),
+            _actionChip("😕 I'm Confused", () => _executeQuickAction(TutorQuickAction.confused)),
+            _actionChip("📝 Summarize", () => _executeQuickAction(TutorQuickAction.summarize)),
+            _actionChip("💡 Example", () => _executeQuickAction(TutorQuickAction.example)),
+            _actionChip("❓ Test Me", () => _executeQuickAction(TutorQuickAction.testMe)),
+            _actionChip("🔍 Deep Dive", () => _executeQuickAction(TutorQuickAction.deepDive)),
           ],
         ),
       ),
@@ -415,11 +529,6 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),
     );
-  }
-
-  void _handleQuickAction(String prompt) {
-    _msgCtrl.text = prompt;
-    sendMessage();
   }
 
   Widget _buildMessageBubble(String text, bool isUser) {
@@ -454,9 +563,9 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildInputBar(bool isDesktop) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: surface,
-        border: const Border(top: BorderSide(color: hairline)),
+        border: Border(top: BorderSide(color: hairline)),
       ),
       child: SafeArea(
         child: Row(

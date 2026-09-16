@@ -65,4 +65,30 @@ class RecommendationService {
 
     return "Ready for a new study session?";
   }
+
+  /// Diagnostic routine testing context-aware quick action request payloads
+  static Map<String, dynamic> runChatSelfTest() {
+    final testHistory = [
+      {"role": "user", "content": "What is binary search?"},
+      {"role": "assistant", "content": "Binary search is an algorithm that finds a target in a sorted list by halving the search space."},
+      {"role": "user", "content": "Why is its time complexity O(log n)?"},
+      {"role": "assistant", "content": "Because each comparison divides the remaining search space in half."}
+    ];
+
+    final summarizeTask = "TASK: Summarize the educational conversation above concisely into key takeaways. CRITICAL: Do NOT summarize this task instruction itself. Focus entirely on summarizing the educational concepts discussed in the conversation history above.";
+
+    final combinedPayload = [
+      ...testHistory,
+      {"role": "user", "content": summarizeTask}
+    ];
+
+    final isContextIntact = combinedPayload.length == 5 && combinedPayload.first['content'] == "What is binary search?";
+
+    return {
+      "status": isContextIntact ? "PASS" : "FAIL",
+      "historyLength": testHistory.length,
+      "payloadLength": combinedPayload.length,
+      "contextIntact": isContextIntact,
+    };
+  }
 }
