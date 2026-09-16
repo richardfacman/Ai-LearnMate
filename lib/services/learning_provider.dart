@@ -29,6 +29,23 @@ class LearningProvider with ChangeNotifier {
     }
   }
 
+  Future<void> addSubject(String name, {String? icon}) async {
+    if (_subjects.any((s) => s.name.toLowerCase() == name.toLowerCase())) {
+      return; // Already added
+    }
+
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final newSubject = SubjectModel(id: id, name: name, icon: icon, overallMastery: 0.1);
+    _subjects.add(newSubject);
+    notifyListeners();
+
+    try {
+      await _db.collection('subjects').doc(id).set(newSubject.toMap());
+    } catch (e) {
+      debugPrint("Error adding subject: $e");
+    }
+  }
+
   Future<void> fetchTopics(String subjectId) async {
     _isLoading = true;
     notifyListeners();
@@ -45,9 +62,7 @@ class LearningProvider with ChangeNotifier {
   }
 
   String getRecommendation() {
-    if (_subjects.isEmpty) return "Add some subjects to get started!";
-    // Placeholder logic for Phase 1
-    // In future phases, this will analyze mastery scores
-    return "Ready to start your first session?";
+    if (_subjects.isEmpty) return "Add your first subject to start learning!";
+    return "Ready to start your next session?";
   }
 }

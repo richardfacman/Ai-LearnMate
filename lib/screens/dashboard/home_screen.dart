@@ -14,6 +14,13 @@ import 'timer_screen.dart';
 import '../profile/profile_screen.dart';
 import 'quiz_screen.dart';
 import 'flashcard_screen.dart';
+import 'mistake_bank_screen.dart';
+import 'analytics_screen.dart';
+import 'study_planner_screen.dart';
+import 'camera_solver_screen.dart';
+import 'voice_tutor_screen.dart';
+import 'achievement_screen.dart';
+import 'add_subject_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -82,6 +89,18 @@ class _HomeDashboardState extends State<HomeDashboard> {
     } else {
       return "Good night, $firstName";
     }
+  }
+
+  Color _getSubjectAccentColor(int index) {
+    const palette = [
+      Color(0xFF2DD4BF), // Soft Teal
+      Color(0xFFFB7185), // Soft Rose
+      Color(0xFFC084FC), // Soft Violet
+      Color(0xFF34D399), // Soft Emerald
+      Color(0xFF38BDF8), // Soft Sky Blue
+      Color(0xFFF87171), // Soft Coral
+    ];
+    return palette[index % palette.length];
   }
 
   @override
@@ -158,10 +177,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text("Your subjects", style: TextStyle(color: paper, fontSize: 13.5, fontWeight: FontWeight.w600)),
-                  TextButton(
-                    onPressed: () {},
+                  TextButton.icon(
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddSubjectScreen())),
                     style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
-                    child: const Text("View all", style: TextStyle(color: indigo, fontSize: 12)),
+                    icon: const Icon(Icons.add_circle_outline, color: gold, size: 14),
+                    label: const Text("Add subject", style: TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -375,6 +395,12 @@ class _HomeDashboardState extends State<HomeDashboard> {
           _toolChip(Icons.style_outlined, "Flashcards", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FlashcardScreen()))),
           _toolChip(Icons.timer_outlined, "Pomodoro", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerScreen()))),
           _toolChip(Icons.center_focus_strong, "Focus mode", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerScreen()))),
+          _toolChip(Icons.error_outline, "Mistakes", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MistakeBankScreen()))),
+          _toolChip(Icons.bar_chart_outlined, "Analytics", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyticsScreen()))),
+          _toolChip(Icons.calendar_today_outlined, "Planner", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StudyPlannerScreen()))),
+          _toolChip(Icons.qr_code_scanner, "Scanner", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CameraSolverScreen()))),
+          _toolChip(Icons.mic_none_outlined, "Voice", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VoiceTutorScreen()))),
+          _toolChip(Icons.emoji_events_outlined, "Awards", () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementScreen()))),
         ],
       ),
     );
@@ -395,7 +421,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
           ),
           child: Row(
             children: [
-              Icon(icon, color: gold, size: 16),
+              Icon(icon, color: paper, size: 16),
               const SizedBox(width: 8),
               Text(label, style: const TextStyle(color: paper, fontSize: 12, fontWeight: FontWeight.w500)),
             ],
@@ -405,34 +431,28 @@ class _HomeDashboardState extends State<HomeDashboard> {
     );
   }
 
-  Color _getSubjectAccentColor(int index) {
-    const palette = [
-      Color(0xFF2DD4BF), // Soft Teal
-      Color(0xFFFB7185), // Soft Rose
-      Color(0xFFC084FC), // Soft Violet
-      Color(0xFF34D399), // Soft Emerald
-      Color(0xFF38BDF8), // Soft Sky Blue
-      Color(0xFFF87171), // Soft Coral
-    ];
-    return palette[index % palette.length];
-  }
-
   Widget _buildSubjectSection(LearningProvider provider) {
     if (provider.subjects.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: hairline),
-        ),
-        child: const Column(
-          children: [
-            Text("No subjects added yet", style: TextStyle(color: paper, fontSize: 14, fontWeight: FontWeight.w600)),
-            SizedBox(height: 4),
-            Text("Add a subject from notes or study planner to track topic mastery.", style: TextStyle(color: muted, fontSize: 11.5), textAlign: TextAlign.center),
-          ],
+      return InkWell(
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddSubjectScreen())),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(26),
+          decoration: BoxDecoration(
+            color: surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: hairline),
+          ),
+          child: const Column(
+            children: [
+              Text(
+                "No subjects yet — tap here to add your first one.",
+                style: TextStyle(color: muted, fontSize: 12.5),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }
