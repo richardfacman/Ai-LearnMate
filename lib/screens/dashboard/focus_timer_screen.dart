@@ -218,6 +218,8 @@ class _RoundButton extends StatelessWidget {
   final bool large;
   final Color iconColor;
 
+  static const _accentColor = Color(0xFFF0A93E);
+
   @override
   Widget build(BuildContext context) {
     final size = large ? 72.0 : 56.0;
@@ -231,7 +233,7 @@ class _RoundButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: background == accent ? accent.withOpacity(0.35) : Colors.black26,
+              color: background == _accentColor ? _accentColor.withOpacity(0.35) : Colors.black26,
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

@@ -35,14 +35,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   static const Color hairline = Color(0x1AF4EFE6);
 
   final List<Map<String, dynamic>> _graphicAvatars = [
-    {"name": "🤖 AI Neural", "icon": Icons.smart_toy_rounded, "color": Color(0xFF00E5FF)},
-    {"name": "🎨 Cyber Scholar", "icon": Icons.palette_rounded, "color": Color(0xFFB388FF)},
-    {"name": "🎓 Gold Fellow", "icon": Icons.school_rounded, "color": Color(0xFFF0A93E)},
-    {"name": "🌟 Starlight", "icon": Icons.star_rounded, "color": Color(0xFFFFD54F)},
-    {"name": "🚀 Cosmic Voyager", "icon": Icons.rocket_launch_rounded, "color": Color(0xFFFF80AB)},
-    {"name": "📜 Socratic Sage", "icon": Icons.menu_book_rounded, "color": Color(0xFF34D399)},
-    {"name": "⚡ Quantum Genius", "icon": Icons.bolt_rounded, "color": Color(0xFF00E5FF)},
-    {"name": "🧘 Zen Mentor", "icon": Icons.self_improvement_rounded, "color": Color(0xFF81C784)},
+    {"name": "🤖 AI Neural", "icon": Icons.smart_toy_rounded, "color": const Color(0xFF00E5FF)},
+    {"name": "🎨 Cyber Scholar", "icon": Icons.palette_rounded, "color": const Color(0xFFB388FF)},
+    {"name": "🎓 Gold Fellow", "icon": Icons.school_rounded, "color": const Color(0xFFF0A93E)},
+    {"name": "🌟 Starlight", "icon": Icons.star_rounded, "color": const Color(0xFFFFD54F)},
+    {"name": "🚀 Cosmic Voyager", "icon": Icons.rocket_launch_rounded, "color": const Color(0xFFFF80AB)},
+    {"name": "📜 Socratic Sage", "icon": Icons.menu_book_rounded, "color": const Color(0xFF34D399)},
+    {"name": "⚡ Quantum Genius", "icon": Icons.bolt_rounded, "color": const Color(0xFF00E5FF)},
+    {"name": "🧘 Zen Mentor", "icon": Icons.self_improvement_rounded, "color": const Color(0xFF81C784)},
   ];
 
   final List<Color> _graphicAccentColors = [
@@ -182,7 +182,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Graphic Avatar Selection Section
-                const Text("USER GRAPHIC DESIGN SETUP", style: TextStyle(color: _selectedAccentColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                Text("USER GRAPHIC DESIGN SETUP", style: TextStyle(color: _selectedAccentColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -249,7 +249,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             padding: const EdgeInsets.only(right: 12),
                             child: InkWell(
                               onTap: () => setState(() => _selectedAccentColor = color),
-                              shape: const CircleBorder(),
+                              customBorder: const CircleBorder(),
                               child: Container(
                                 width: 36,
                                 height: 36,
