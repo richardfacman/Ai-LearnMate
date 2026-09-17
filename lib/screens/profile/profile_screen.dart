@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/user_provider.dart';
 import '../../services/theme_service.dart';
+import '../../widgets/share_widgets.dart';
 import 'edit_profile_screen.dart';
 import 'notifications_screen.dart';
 import 'language_screen.dart';
@@ -35,46 +36,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const Color muted = Color(0xFF8B93A6);
   static const Color hairline = Color(0x1AF4EFE6);
 
-  Future<void> _confirmSignOut() async {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: surface,
-        title: const Text("Sign Out?", style: TextStyle(color: paper, fontWeight: FontWeight.bold)),
-        content: const Text("Are you sure you want to sign out of Ai Learn Mate?", style: TextStyle(color: muted, fontSize: 13)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel", style: TextStyle(color: muted)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await _auth.signOut();
-              if (mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text("Sign Out", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final themeService = Provider.of<ThemeService>(context);
     final user = userProvider.user;
-    final fbUser = _auth.currentUser;
 
-    final displayName = user?.name ?? fbUser?.displayName ?? "Student";
-    final email = user?.email ?? fbUser?.email ?? "student@ilearnmate.app";
-    final photoUrl = user?.photoUrl ?? fbUser?.photoURL;
-
-    final isDesktop = MediaQuery.of(context).size.width > 800;
+    final name = user?.name ?? "Foysal Ahmed";
+    final email = user?.email ?? "foysal@example.com";
+    final photoUrl = user?.photoUrl;
 
     return Scaffold(
       backgroundColor: ink,
@@ -83,16 +53,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: surface,
         foregroundColor: paper,
         elevation: 0,
-        centerTitle: true,
       ),
-      body: Center(
-        child: Container(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 800 : double.infinity),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(22),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(22),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 800),
             child: Column(
               children: [
-                // Profile Header Card
+                // User Profile Header Card
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -102,48 +71,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 32,
-                        backgroundColor: gold.withOpacity(0.2),
-                        backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                        child: photoUrl == null
-                            ? Text(
-                                displayName.isNotEmpty ? displayName[0].toUpperCase() : "S",
-                                style: const TextStyle(color: gold, fontSize: 24, fontWeight: FontWeight.bold),
-                              )
-                            : null,
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: surfaceHi,
+                          border: Border.all(color: gold, width: 2),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: photoUrl != null && photoUrl.isNotEmpty
+                            ? Image.network(photoUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _avatarFallback(name))
+                            : _avatarFallback(name),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              displayName,
-                              style: const TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.w600),
-                            ),
+                            Text(name, style: const TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 2),
-                            Text(
-                              email,
-                              style: const TextStyle(color: muted, fontSize: 12.5),
+                            Text(email, style: const TextStyle(color: muted, fontSize: 13)),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: gold.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: gold.withOpacity(0.4)),
+                              ),
+                              child: Text(
+                                "Streak: ${user?.streak ?? 0} days • Level ${user?.level ?? 1}",
+                                style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined, color: gold, size: 20),
-                        tooltip: "Edit Profile",
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
 
-                // Section 1: ACCOUNT / GENERAL
+                // Section 1: ACCOUNT & CONTENT
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("ACCOUNT & GENERAL", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                  child: Text("ACCOUNT & CONTENT", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                 ),
                 const SizedBox(height: 10),
                 _buildSettingsGroup([
@@ -152,6 +125,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: "Edit Profile Information",
                     subtitle: "Update your name and profile details",
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())),
+                  ),
+                  _settingsTile(
+                    icon: Icons.folder_shared_outlined,
+                    title: "Shared Content",
+                    subtitle: "Join by code or view notes shared with you",
+                    onTap: () {
+                      final uid = _auth.currentUser?.uid ?? '';
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => JoinSharedContentScreen(currentUserId: uid)),
+                      );
+                    },
                   ),
                   _settingsTile(
                     icon: Icons.notifications_none_outlined,
@@ -218,39 +203,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _settingsTile(
                     icon: Icons.bug_report_outlined,
                     title: "Report a Problem",
-                    subtitle: "Report bugs or technical issues",
+                    subtitle: "Submit bug reports or technical issues",
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportProblemScreen())),
                   ),
                   _settingsTile(
                     icon: Icons.lightbulb_outline,
-                    title: "Suggest a Feature",
-                    subtitle: "Request new features or tools",
+                    title: "Suggest Feature",
+                    subtitle: "Request new features for AI Learn Mate",
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeatureRequestScreen())),
                   ),
                   _settingsTile(
                     icon: Icons.assignment_outlined,
                     title: "My Submitted Reports",
-                    subtitle: "View your past feedback and support tickets",
+                    subtitle: "View status of your bug & feedback reports",
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyReportsScreen())),
                   ),
                   _settingsTile(
-                    icon: Icons.privacy_tip_outlined,
+                    icon: Icons.policy_outlined,
                     title: "Privacy Policy",
-                    subtitle: "How AI Learn Mate handles your data",
+                    subtitle: "Data privacy and terms of service",
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen())),
                   ),
                 ]),
                 const SizedBox(height: 32),
 
-                // Sign Out Button
-                OutlinedButton.icon(
-                  onPressed: _confirmSignOut,
-                  icon: const Icon(Icons.logout, color: Colors.redAccent, size: 18),
-                  label: const Text("Sign Out", style: TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.bold)),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    side: BorderSide(color: Colors.redAccent.withOpacity(0.5)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                // Logout Button
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await _auth.signOut();
+                    },
+                    icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 18),
+                    label: const Text("Log Out", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Colors.redAccent),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -262,7 +252,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSettingsGroup(List<Widget> tiles) {
+  Widget _avatarFallback(String name) {
+    return Center(
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : "F",
+        style: const TextStyle(color: gold, fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildSettingsGroup(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
         color: surface,
@@ -270,13 +269,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         border: Border.all(color: hairline),
       ),
       child: Column(
-        children: tiles.asMap().entries.map((entry) {
+        children: children.asMap().entries.map((entry) {
           final index = entry.key;
-          final tile = entry.value;
+          final widget = entry.value;
           return Column(
             children: [
-              tile,
-              if (index < tiles.length - 1) const Divider(color: hairline, height: 1),
+              widget,
+              if (index < children.length - 1) const Divider(color: hairline, height: 1),
             ],
           );
         }).toList(),
@@ -291,17 +290,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: surfaceHi,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: gold, size: 18),
-      ),
-      title: Text(title, style: const TextStyle(color: paper, fontSize: 14, fontWeight: FontWeight.w500)),
+      leading: Icon(icon, color: gold, size: 20),
+      title: Text(title, style: const TextStyle(color: paper, fontSize: 14, fontWeight: FontWeight.w600)),
       subtitle: Text(subtitle, style: const TextStyle(color: muted, fontSize: 12)),
-      trailing: const Icon(Icons.arrow_forward_ios, color: muted, size: 12),
+      trailing: const Icon(Icons.chevron_right_rounded, color: muted, size: 20),
       onTap: onTap,
     );
   }
