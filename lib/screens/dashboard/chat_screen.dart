@@ -35,9 +35,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final _db = FirebaseFirestore.instance;
 
   // Theme Tokens
+  static const Color bgNavy = Color(0xFF05070F);
   static const Color ink = Color(0xFF0B0E14);
   static const Color surface = Color(0xFF151A24);
-  static const Color surfaceHi = Color(0xFF1B2230);
+  static const Color cardNavy = Color(0xFF0F1422);
+  static const Color surfaceHi = Color(0xFF181F33);
   static const Color gold = Color(0xFFF0A93E);
   static const Color indigo = Color(0xFF6C7BFF);
   static const Color paper = Color(0xFFF4EFE6);
@@ -307,50 +309,104 @@ class _ChatScreenState extends State<ChatScreen> {
     final isDesktop = size.width > 800;
 
     return Scaffold(
-      backgroundColor: ink,
+      backgroundColor: bgNavy,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: surface,
-        iconTheme: const IconThemeData(color: paper),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: surfaceHi,
+              shape: BoxShape.circle,
+              border: Border.all(color: hairline),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.menu_rounded, color: paper, size: 18),
+              onPressed: () {},
+            ),
+          ),
+        ),
         title: Column(
           children: [
             Text(
               _useNvidia ? "NVIDIA AI Assistant" : "AI Study Tutor",
-              style: const TextStyle(color: paper, fontWeight: FontWeight.bold, fontSize: 16),
+              style: const TextStyle(color: paper, fontWeight: FontWeight.bold, fontSize: 18, fontFamily: 'serif'),
             ),
-            if (!_useNvidia)
-              Text(
-                "${_personaLabel(_selectedPersona)} • ${_modeLabel(_selectedMode)}",
-                style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w500),
-              ),
+            const SizedBox(height: 2),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text("✦ ", style: TextStyle(color: gold, fontSize: 10)),
+                Text(
+                  "${_personaLabel(_selectedPersona, short: true)} • ${_modeLabel(_selectedMode)}",
+                  style: const TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
           ],
         ),
         centerTitle: true,
         actions: [
-          Row(
-            children: [
-              Text(
-                _useNvidia ? "NVIDIA" : "Groq",
-                style: const TextStyle(color: muted, fontSize: 11),
-              ),
-              Switch(
-                value: _useNvidia,
-                onChanged: (val) => setState(() => _useNvidia = val),
-                activeColor: gold,
-              ),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.share_rounded, color: gold, size: 20),
-            tooltip: "Share Conversation",
-            onPressed: _shareConversation,
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-            tooltip: "Delete conversation",
-            onPressed: _confirmClearChat,
+          // Groq / NVIDIA Toggle Pill
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: cardNavy,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: hairline),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _useNvidia ? "NVIDIA" : "Groq",
+                  style: const TextStyle(color: paper, fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 4),
+                SizedBox(
+                  height: 24,
+                  width: 36,
+                  child: Switch(
+                    value: _useNvidia,
+                    onChanged: (val) => setState(() => _useNvidia = val),
+                    activeColor: gold,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 8),
+
+          // Circular Share Button
+          Container(
+            margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(
+              color: surfaceHi,
+              shape: BoxShape.circle,
+              border: Border.all(color: hairline),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.share_outlined, color: gold, size: 18),
+              tooltip: "Share Conversation",
+              onPressed: _shareConversation,
+            ),
+          ),
+
+          // Circular Delete Button
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            decoration: BoxDecoration(
+              color: surfaceHi,
+              shape: BoxShape.circle,
+              border: Border.all(color: hairline),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
+              tooltip: "Delete conversation",
+              onPressed: _confirmClearChat,
+            ),
+          ),
         ],
       ),
       body: Center(
@@ -367,7 +423,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? _buildEmptyState()
                     : ListView.builder(
                         controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           final msg = _messages[index];
@@ -409,22 +465,25 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: surface,
+                color: cardNavy,
                 shape: BoxShape.circle,
-                border: Border.all(color: hairline),
+                border: Border.all(color: gold, width: 1.5),
+                boxShadow: [
+                  BoxShadow(color: gold.withOpacity(0.2), blurRadius: 15, offset: const Offset(0, 4)),
+                ],
               ),
-              child: const Icon(Icons.psychology, color: gold, size: 40),
+              child: const Icon(Icons.psychology_outlined, color: gold, size: 44),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             const Text(
               "How can I help you study today?",
-              style: TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.w600),
+              style: TextStyle(color: paper, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'serif'),
             ),
             const SizedBox(height: 8),
             const Text(
-              "Ask a question, choose a learning mode, or tap a quick action chip below to begin.",
+              "Ask a question, choose a learning persona, or tap a quick action chip below to begin.",
               style: TextStyle(color: muted, fontSize: 13),
               textAlign: TextAlign.center,
             ),
@@ -437,7 +496,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildPersonaSelector(bool isDesktop) {
     return Container(
       color: surface,
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -447,18 +506,25 @@ class _ChatScreenState extends State<ChatScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ChoiceChip(
-                label: Text(_personaLabel(persona)),
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isSelected) const Icon(Icons.check, size: 14, color: ink),
+                    if (isSelected) const SizedBox(width: 4),
+                    Text(_personaLabel(persona)),
+                  ],
+                ),
                 selected: isSelected,
                 onSelected: (val) => setState(() => _selectedPersona = persona),
                 selectedColor: gold,
-                backgroundColor: surfaceHi,
+                backgroundColor: cardNavy,
                 labelStyle: TextStyle(
                   color: isSelected ? ink : paper,
-                  fontSize: 11.5,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                side: BorderSide(color: isSelected ? gold : hairline),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                side: BorderSide(color: isSelected ? gold : hairline, width: isSelected ? 1.5 : 1.0),
               ),
             );
           }).toList(),
@@ -467,16 +533,16 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  String _personaLabel(TutorPersona persona) {
+  String _personaLabel(TutorPersona persona, {bool short = false}) {
     switch (persona) {
       case TutorPersona.calmMentor:
-        return "🧘 Calm Mentor";
+        return short ? "Calm Mentor" : "🧘 Calm Mentor";
       case TutorPersona.funnyFriend:
-        return "😄 Funny Friend";
+        return short ? "Funny Friend" : "😄 Funny Friend";
       case TutorPersona.strictCoach:
-        return "🏋️ Strict Coach";
+        return short ? "Strict Coach" : "🎓 Strict Coach";
       case TutorPersona.socraticProfessor:
-        return "📜 Socratic Prof";
+        return short ? "Socratic Prof" : "📜 Socratic Prof";
     }
   }
 
@@ -493,18 +559,25 @@ class _ChatScreenState extends State<ChatScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ChoiceChip(
-                label: Text(_modeLabel(mode)),
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isSelected) const Icon(Icons.check, size: 14, color: Colors.white),
+                    if (isSelected) const SizedBox(width: 4),
+                    Text(_modeLabel(mode)),
+                  ],
+                ),
                 selected: isSelected,
                 onSelected: (val) => setState(() => _selectedMode = mode),
                 selectedColor: indigo,
-                backgroundColor: surfaceHi,
+                backgroundColor: cardNavy,
                 labelStyle: TextStyle(
                   color: isSelected ? Colors.white : paper,
-                  fontSize: 11.5,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                side: BorderSide(color: isSelected ? indigo : hairline),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                side: BorderSide(color: isSelected ? indigo : hairline, width: isSelected ? 1.5 : 1.0),
               ),
             );
           }).toList(),
@@ -541,7 +614,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Row(
           children: [
             _actionChip("🔗 Share", _shareConversation),
-            _actionChip("😕 I'm Confused", () => _executeQuickAction(TutorQuickAction.confused)),
+            _actionChip("🧐 I'm Confused", () => _executeQuickAction(TutorQuickAction.confused)),
             _actionChip("📝 Summarize", () => _executeQuickAction(TutorQuickAction.summarize)),
             _actionChip("💡 Example", () => _executeQuickAction(TutorQuickAction.example)),
             _actionChip("❓ Test Me", () => _executeQuickAction(TutorQuickAction.testMe)),
@@ -556,78 +629,113 @@ class _ChatScreenState extends State<ChatScreen> {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ActionChip(
-        label: Text(label, style: const TextStyle(color: paper, fontSize: 11.5, fontWeight: FontWeight.w500)),
-        backgroundColor: surfaceHi,
+        label: Text(label, style: const TextStyle(color: paper, fontSize: 12, fontWeight: FontWeight.bold)),
+        backgroundColor: cardNavy,
         side: const BorderSide(color: hairline),
         onPressed: onTap,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
     );
   }
 
   Widget _buildMessageBubble(String text, bool isUser) {
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
-        decoration: BoxDecoration(
-          color: isUser ? gold : surface,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isUser ? 16 : 4),
-            bottomRight: Radius.circular(isUser ? 4 : 16),
-          ),
-          border: Border.all(color: isUser ? gold : hairline),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SelectableText(
-              text,
-              style: TextStyle(
-                color: isUser ? ink : paper,
-                fontSize: 14,
-                height: 1.45,
-              ),
+    if (isUser) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+          decoration: BoxDecoration(
+            color: gold,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(4),
             ),
-            if (!isUser) ...[
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: InkWell(
-                  onTap: () => _shareText(text),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: surfaceHi,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: hairline),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.share_outlined, color: gold, size: 14),
-                        SizedBox(width: 4),
-                        Text("Share", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.bold)),
-                      ],
+            boxShadow: [
+              BoxShadow(color: gold.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3)),
+            ],
+          ),
+          child: SelectableText(
+            text,
+            style: const TextStyle(color: ink, fontSize: 14, height: 1.45, fontWeight: FontWeight.w500),
+          ),
+        ),
+      );
+    }
+
+    // AI Response Card with Top-Left Floating Speech Badge & Bottom-Right Share Button
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: cardNavy,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: gold.withOpacity(0.25), width: 1.2),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.35), blurRadius: 15, offset: const Offset(0, 5)),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  text,
+                  style: const TextStyle(color: paper, fontSize: 14.5, height: 1.55),
+                ),
+                const SizedBox(height: 16),
+                const Divider(color: hairline, height: 1),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _shareText(text),
+                    icon: const Icon(Icons.file_upload_outlined, color: gold, size: 16),
+                    label: const Text("Share", style: TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: gold.withOpacity(0.6), width: 1.2),
+                      backgroundColor: surfaceHi,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
+
+          // Floating Speech Bubble Icon Badge
+          Positioned(
+            left: -12,
+            top: -12,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: surfaceHi,
+                shape: BoxShape.circle,
+                border: Border.all(color: gold, width: 1.5),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3)),
+                ],
               ),
-            ],
-          ],
-        ),
+              child: const Icon(Icons.chat_bubble_outline_rounded, color: gold, size: 16),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildInputBar(bool isDesktop) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: surface,
         border: Border(top: BorderSide(color: hairline)),
@@ -637,9 +745,9 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
-                  color: surfaceHi,
+                  color: cardNavy,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: hairline),
                 ),
@@ -657,25 +765,28 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             InkWell(
               onTap: _loading ? null : sendMessage,
               borderRadius: BorderRadius.circular(24),
               child: Container(
-                width: 44,
-                height: 44,
-                decoration: const BoxDecoration(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
                   color: gold,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: gold.withOpacity(0.35), blurRadius: 10, offset: const Offset(0, 3)),
+                  ],
                 ),
                 alignment: Alignment.center,
                 child: _loading
                     ? const SizedBox(
-                        width: 18,
-                        height: 18,
+                        width: 20,
+                        height: 20,
                         child: CircularProgressIndicator(color: ink, strokeWidth: 2),
                       )
-                    : const Icon(Icons.send_rounded, color: ink, size: 20),
+                    : const Icon(Icons.arrow_forward_rounded, color: ink, size: 22),
               ),
             ),
           ],
