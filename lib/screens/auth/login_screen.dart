@@ -728,18 +728,64 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildSocialButtonsRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        _socialIconTile(child: const GoogleBrandLogo(size: 20), onTap: _handleGoogleSignIn, tooltip: "Google"),
-        const SizedBox(width: 10),
-        _socialIconTile(child: facebookBrandLogo(size: 20), onTap: _handleFacebookSignIn, tooltip: "Facebook"),
-        const SizedBox(width: 10),
-        _socialIconTile(child: linkedInBrandLogo(size: 20), onTap: _handleLinkedInSignIn, tooltip: "LinkedIn"),
-        const SizedBox(width: 10),
-        _socialIconTile(child: githubBrandLogo(size: 20), onTap: _handleGithubSignIn, tooltip: "GitHub"),
-        const SizedBox(width: 10),
-        _socialIconTile(child: twitterXBrandLogo(size: 20), onTap: _handleTwitterSignIn, tooltip: "Twitter / X"),
+        SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: OutlinedButton(
+            onPressed: _handleGoogleSignIn,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: bgNavy,
+              side: const BorderSide(color: hairline),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                GoogleBrandLogo(size: 18),
+                SizedBox(width: 10),
+                Text("Continue with Google", style: TextStyle(color: textPaper, fontSize: 13, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: OutlinedButton(
+            onPressed: _handleGoogleSignIn,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: bgNavy,
+              side: const BorderSide(color: hairline),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.apple_rounded, color: textPaper, size: 20),
+                SizedBox(width: 10),
+                Text("Continue with Apple", style: TextStyle(color: textPaper, fontSize: 13, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _socialIconTile(child: facebookBrandLogo(size: 18), onTap: _handleFacebookSignIn, tooltip: "Facebook"),
+            const SizedBox(width: 8),
+            _socialIconTile(child: linkedInBrandLogo(size: 18), onTap: _handleLinkedInSignIn, tooltip: "LinkedIn"),
+            const SizedBox(width: 8),
+            _socialIconTile(child: githubBrandLogo(size: 18), onTap: _handleGithubSignIn, tooltip: "GitHub"),
+            const SizedBox(width: 8),
+            _socialIconTile(child: twitterXBrandLogo(size: 18), onTap: _handleTwitterSignIn, tooltip: "Twitter / X"),
+          ],
+        ),
       ],
     );
   }
@@ -751,8 +797,8 @@ class _LoginScreenState extends State<LoginScreen> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          width: 40,
-          height: 40,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
             color: bgNavy,
             borderRadius: BorderRadius.circular(12),
