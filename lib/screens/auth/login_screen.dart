@@ -6,6 +6,8 @@ import 'forgot_password.dart';
 import 'social_security_verification_screen.dart';
 import '../dashboard/home_screen.dart';
 
+enum UserRole { student, teacher, parent }
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -14,10 +16,51 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _email = TextEditingController();
-  final _password = TextEditingController();
-  bool _loading = false;
+  // Sign In Controllers
+  final _loginEmail = TextEditingController();
+  final _loginPassword = TextEditingController();
+  bool _rememberMe = true;
+  bool _loginLoading = false;
+
+  // Register Controllers
+  final _regName = TextEditingController();
+  final _regEmail = TextEditingController();
+  final _regPassword = TextEditingController();
+  final _regConfirmPassword = TextEditingController();
+  UserRole _selectedRole = UserRole.student;
+  bool _regLoading = false;
+
+  bool _isDarkMode = true;
+  bool _obscureLoginPassword = true;
+  bool _obscureRegPassword = true;
+  bool _obscureRegConfirmPassword = true;
+
   final _auth = AuthService();
+
+  // Color Tokens
+  static const Color bgNavy = Color(0xFF05070F);
+  static const Color cardNavy = Color(0xFF0F1422);
+  static const Color surfaceHi = Color(0xFF181F33);
+  static const Color goldLight = Color(0xFFFFC44D);
+  static const Color goldDark = Color(0xFFEE9F16);
+  static const Color textPaper = Color(0xFFF4EFE6);
+  static const Color textMuted = Color(0xFF8B93A6);
+  static const Color hairline = Color(0x1AF4EFE6);
+
+  static const Color accentCyan = Color(0xFF00E5FF);
+  static const Color accentViolet = Color(0xFFB388FF);
+  static const Color accentPink = Color(0xFFFF80AB);
+
+  @override
+  void dispose() {
+    _loginEmail.dispose();
+    _loginPassword.dispose();
+    _regName.dispose();
+    _regEmail.dispose();
+    _regPassword.dispose();
+    _regConfirmPassword.dispose();
+    super.dispose();
+  }
 
   void _navigateToSecurityVerification(UserModel user, String providerName) {
     if (!mounted) return;
@@ -32,229 +75,17 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isDesktop = size.width > 800;
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF121417),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            width: isDesktop ? 900 : size.width * 0.95,
-            height: isDesktop ? 550 : null,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E2126),
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Flex(
-              direction: isDesktop ? Axis.horizontal : Axis.vertical,
-              children: [
-                // Left Side: Sign In
-                Expanded(
-                  flex: isDesktop ? 5 : 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Sign in",
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _socialIconWrapper(
-                              child: const GoogleBrandLogo(size: 22),
-                              onTap: _handleGoogleSignIn,
-                            ),
-                            const SizedBox(width: 12),
-                            _socialIconWrapper(
-                              child: facebookBrandLogo(size: 22),
-                              onTap: _handleFacebookSignIn,
-                            ),
-                            const SizedBox(width: 12),
-                            _socialIconWrapper(
-                              child: linkedInBrandLogo(size: 22),
-                              onTap: _handleLinkedInSignIn,
-                            ),
-                            const SizedBox(width: 12),
-                            _socialIconWrapper(
-                              child: githubBrandLogo(size: 22),
-                              onTap: _handleGithubSignIn,
-                            ),
-                            const SizedBox(width: 12),
-                            _socialIconWrapper(
-                              child: twitterXBrandLogo(size: 22),
-                              onTap: _handleTwitterSignIn,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          "Or sign in using E-Mail Address",
-                          style: TextStyle(color: Colors.white38, fontSize: 13),
-                        ),
-                        const SizedBox(height: 25),
-                        _buildDarkTextField(_email, "Email", Icons.email_outlined, false),
-                        const SizedBox(height: 15),
-                        _buildDarkTextField(_password, "Password", Icons.lock_outline, true),
-                        const SizedBox(height: 15),
-                        Align(
-                          alignment: Alignment.center,
-                          child: TextButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-                            ),
-                            child: const Text(
-                              "Forgot your password?",
-                              style: TextStyle(color: Colors.white38, fontSize: 13),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _loading ? null : _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0288D1),
-                            minimumSize: const Size(200, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: _loading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                              : const Text("SIGN IN", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Right Side: Create Account
-                Expanded(
-                  flex: isDesktop ? 4 : 0,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(40),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF0288D1),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Create,\nAccount!",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          "Register if you still don't have an account ...",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                        const SizedBox(height: 40),
-                        OutlinedButton(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const SignupScreen()),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.white, width: 2),
-                            minimumSize: const Size(200, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          child: const Text(
-                            "REGISTER",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _socialIconWrapper({required Widget child, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(30),
-      child: Container(
-        width: 48,
-        height: 48,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.black.withOpacity(0.2),
-          border: Border.all(color: Colors.white12),
-        ),
-        alignment: Alignment.center,
-        child: child,
-      ),
-    );
-  }
-
-  Widget _buildDarkTextField(TextEditingController controller, String hint, IconData icon, bool obscure) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscure,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
-          prefixIcon: Icon(icon, color: Colors.white24, size: 20),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
-        ),
-      ),
-    );
-  }
-
   Future<void> _handleLogin() async {
-    if (_email.text.isEmpty || _password.text.isEmpty) return;
-    setState(() => _loading = true);
+    final email = _loginEmail.text.trim();
+    final pwd = _loginPassword.text.trim();
+    if (email.isEmpty || pwd.isEmpty) {
+      _showError("Please enter your email and password.");
+      return;
+    }
+
+    setState(() => _loginLoading = true);
     try {
-      await _auth.login(_email.text, _password.text);
+      await _auth.login(email, pwd);
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -263,118 +94,850 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login failed: $e")),
-        );
+        _showError("Login failed: ${e.toString().replaceAll('Exception:', '').trim()}");
       }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loginLoading = false);
     }
   }
 
+  Future<void> _handleRegister() async {
+    final name = _regName.text.trim();
+    final email = _regEmail.text.trim();
+    final p1 = _regPassword.text.trim();
+    final p2 = _regConfirmPassword.text.trim();
+
+    if (name.isEmpty || email.isEmpty || p1.isEmpty || p2.isEmpty) {
+      _showError("Please fill in all registration fields.");
+      return;
+    }
+
+    if (p1.length < 8) {
+      _showError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (p1 != p2) {
+      _showError("Passwords do not match.");
+      return;
+    }
+
+    setState(() => _regLoading = true);
+    try {
+      await _auth.signUp(name, email, p1);
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => _regLoading = false);
+    }
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width > 1100;
+    final isTablet = size.width > 750 && size.width <= 1100;
+
+    return Scaffold(
+      backgroundColor: bgNavy,
+      body: Stack(
+        children: [
+          // Background Glowing Color Blobs & Star-dots
+          Positioned(
+            top: -100,
+            left: -100,
+            child: Container(
+              width: 400,
+              height: 400,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF6C7BFF).withOpacity(0.12),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 150,
+            right: -100,
+            child: Container(
+              width: 450,
+              height: 450,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: goldDark.withOpacity(0.08),
+              ),
+            ),
+          ),
+
+          // Main Scrollable Body
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                children: [
+                  // TOP HEADER
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Wordmark Logo & Tagline
+                      Row(
+                        children: [
+                          _buildBookLogoMark(size: 32),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: const [
+                                  Text("AI Learn ", style: TextStyle(color: textPaper, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                                  Text("Mate", style: TextStyle(color: goldLight, fontSize: 22, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                                ],
+                              ),
+                              const Text(
+                                "Learn  ·  Practice  ·  Grow",
+                                style: TextStyle(color: accentCyan, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      // Theme Toggle Pill Button
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: cardNavy,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: hairline),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              child: const Icon(Icons.wb_sunny_outlined, color: textMuted, size: 16),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: goldDark,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.nightlight_round, color: bgNavy, size: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+
+                  // THREE COLUMN RESPONSIVE LAYOUT
+                  if (isDesktop)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 4, child: _buildLeftHeroColumn()),
+                        const SizedBox(width: 24),
+                        Expanded(flex: 3, child: _buildSignInCard()),
+                        const SizedBox(width: 24),
+                        Expanded(flex: 3, child: _buildSignUpCard()),
+                      ],
+                    )
+                  else if (isTablet)
+                    Column(
+                      children: [
+                        _buildLeftHeroColumn(),
+                        const SizedBox(height: 32),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildSignInCard()),
+                            const SizedBox(width: 20),
+                            Expanded(child: _buildSignUpCard()),
+                          ],
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        _buildLeftHeroColumn(),
+                        const SizedBox(height: 28),
+                        _buildSignInCard(),
+                        const SizedBox(height: 28),
+                        _buildSignUpCard(),
+                      ],
+                    ),
+
+                  const SizedBox(height: 48),
+
+                  // BOTTOM FOOTER: Trust Badges & Script Accent
+                  _buildFooterTrustRow(),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // LEFT COLUMN: Hero & Bento Feature Grid
+  Widget _buildLeftHeroColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Badge Pill
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: cardNavy,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: hairline),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.code_rounded, color: accentCyan, size: 14),
+              SizedBox(width: 8),
+              Text(
+                "Your AI learning companion",
+                style: TextStyle(color: textPaper, fontSize: 12, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Serif Headline
+        Text.rich(
+          TextSpan(
+            text: "Smarter learning\nfor a ",
+            style: const TextStyle(color: textPaper, fontSize: 38, fontWeight: FontWeight.bold, height: 1.15, fontFamily: 'serif'),
+            children: [
+              TextSpan(
+                text: "brighter\nfuture",
+                style: TextStyle(
+                  foreground: Paint()
+                    ..shader = const LinearGradient(
+                      colors: [goldLight, goldDark],
+                    ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                  fontSize: 38,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'serif',
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Paragraph
+        const Text(
+          "AI Learn Mate brings the tools you need to learn, practise and revise into one place — and remembers every question you got wrong until you finally get it right.",
+          style: TextStyle(color: textMuted, fontSize: 13.5, height: 1.5),
+        ),
+        const SizedBox(height: 28),
+
+        // Bento Feature Grid
+        Column(
+          children: [
+            Row(
+              children: [
+                // Featured Tile: Mistake Bank (Gold Tinted)
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: cardNavy,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: goldDark.withOpacity(0.5), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(color: goldDark.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Icon(Icons.chat_bubble_outline_rounded, color: goldLight, size: 22),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: goldDark.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Text("Most used", style: TextStyle(color: goldLight, fontSize: 10, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Text("Mistake Bank", style: TextStyle(color: textPaper, fontSize: 14, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 2),
+                        const Text("Missed questions return until they stick", style: TextStyle(color: textMuted, fontSize: 11)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+
+                // AI Tutor & Study Planner
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      _bentoTile(Icons.psychology_outlined, "AI Tutor", accentCyan),
+                      const SizedBox(height: 10),
+                      _bentoTile(Icons.check_box_outlined, "Study Planner", accentViolet),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+
+                // Scanner & Flashcards
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      _bentoTile(Icons.crop_free_rounded, "Scanner", accentCyan),
+                      const SizedBox(height: 10),
+                      _bentoTile(Icons.style_outlined, "Flashcards", accentViolet),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                Expanded(child: _bentoTile(Icons.event_available_outlined, "Quick Quiz", accentCyan)),
+                const SizedBox(width: 10),
+                Expanded(child: _bentoTile(Icons.bar_chart_rounded, "Analytics", accentPink)),
+                const SizedBox(width: 10),
+                Expanded(child: _bentoTile(Icons.mic_none_rounded, "Voice Tutor", accentViolet)),
+                const SizedBox(width: 10),
+                Expanded(child: _bentoTile(Icons.timer_outlined, "Pomodoro", accentPink)),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // Script Accent Line
+        const Text(
+          "Small steps, big dreams.",
+          style: TextStyle(color: goldLight, fontSize: 18, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'serif'),
+        ),
+      ],
+    );
+  }
+
+  Widget _bentoTile(IconData icon, String label, Color iconColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: cardNavy,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: hairline),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(color: textPaper, fontSize: 12, fontWeight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // MIDDLE COLUMN: Sign In Glass Card
+  Widget _buildSignInCard() {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: cardNavy,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: goldDark.withOpacity(0.3), width: 1.2),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildBookLogoMark(size: 28),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text("AI Learn ", style: TextStyle(color: textPaper, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+              Text("Mate", style: TextStyle(color: goldLight, fontSize: 16, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          const Text("Welcome back", style: TextStyle(color: textPaper, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+          const SizedBox(height: 4),
+          const Text("12 questions are due for review today.", style: TextStyle(color: textMuted, fontSize: 12)),
+          const SizedBox(height: 24),
+
+          // Email Field
+          _buildDarkField(_loginEmail, "Email or username", Icons.email_outlined, false),
+          const SizedBox(height: 12),
+
+          // Password Field
+          _buildDarkField(
+            _loginPassword,
+            "Password",
+            Icons.lock_outline,
+            true,
+            obscure: _obscureLoginPassword,
+            onToggleObscure: () => setState(() => _obscureLoginPassword = !_obscureLoginPassword),
+          ),
+          const SizedBox(height: 12),
+
+          // Remember Me & Forgot Password
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Checkbox(
+                      value: _rememberMe,
+                      onChanged: (val) => setState(() => _rememberMe = val!),
+                      activeColor: goldDark,
+                      checkColor: bgNavy,
+                      side: const BorderSide(color: textMuted),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text("Remember me", style: TextStyle(color: textPaper, fontSize: 12)),
+                ],
+              ),
+              GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPasswordScreen())),
+                child: const Text("Forgot password?", style: TextStyle(color: goldLight, fontSize: 12, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Gold Gradient Sign In Button
+          _buildGoldButton("Sign in", _loginLoading, _handleLogin),
+          const SizedBox(height: 16),
+
+          const Text("or", style: TextStyle(color: textMuted, fontSize: 12)),
+          const SizedBox(height: 16),
+
+          // Social Buttons Row
+          _buildSocialButtonsRow(),
+          const SizedBox(height: 20),
+
+          // Trust Badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: bgNavy,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: hairline),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.shield_outlined, color: accentCyan, size: 16),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text("Secure and private — Your notes and answers stay yours", style: TextStyle(color: textMuted, fontSize: 11)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // RIGHT COLUMN: Create Account Glass Card
+  Widget _buildSignUpCard() {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: cardNavy,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: hairline),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildBookLogoMark(size: 28),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text("AI Learn ", style: TextStyle(color: textPaper, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+              Text("Mate", style: TextStyle(color: goldLight, fontSize: 16, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          const Text("Create your account", style: TextStyle(color: textPaper, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+          const SizedBox(height: 4),
+          const Text("Under a minute. No card, no trial countdown.", style: TextStyle(color: textMuted, fontSize: 12)),
+          const SizedBox(height: 24),
+
+          _buildDarkField(_regName, "Full name", Icons.person_outline, false),
+          const SizedBox(height: 12),
+          _buildDarkField(_regEmail, "Email address", Icons.email_outlined, false),
+          const SizedBox(height: 12),
+          _buildDarkField(
+            _regPassword,
+            "Password, at least 8 characters",
+            Icons.lock_outline,
+            true,
+            obscure: _obscureRegPassword,
+            onToggleObscure: () => setState(() => _obscureRegPassword = !_obscureRegPassword),
+          ),
+          const SizedBox(height: 12),
+          _buildDarkField(
+            _regConfirmPassword,
+            "Confirm password",
+            Icons.lock_clock_outlined,
+            true,
+            obscure: _obscureRegConfirmPassword,
+            onToggleObscure: () => setState(() => _obscureRegConfirmPassword = !_obscureRegConfirmPassword),
+          ),
+          const SizedBox(height: 16),
+
+          // Three-Way Role Selector
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("Select your role", style: TextStyle(color: textPaper, fontSize: 12, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(child: _roleOption(UserRole.student, "Student", "Learn & grow", Icons.school_outlined)),
+              const SizedBox(width: 8),
+              Expanded(child: _roleOption(UserRole.teacher, "Teacher", "Teach & inspire", Icons.laptop_chromebook_rounded)),
+              const SizedBox(width: 8),
+              Expanded(child: _roleOption(UserRole.parent, "Parent", "Support & guide", Icons.favorite_border_rounded)),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          _buildGoldButton("Create account", _regLoading, _handleRegister),
+          const SizedBox(height: 16),
+
+          const Text("or", style: TextStyle(color: textMuted, fontSize: 12)),
+          const SizedBox(height: 16),
+
+          _buildSocialButtonsRow(),
+        ],
+      ),
+    );
+  }
+
+  Widget _roleOption(UserRole role, String title, String sub, IconData icon) {
+    final isSelected = _selectedRole == role;
+    return InkWell(
+      onTap: () => setState(() => _selectedRole = role),
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? goldDark.withOpacity(0.12) : bgNavy,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? goldDark : hairline, width: isSelected ? 1.5 : 1),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: isSelected ? goldLight : textMuted, size: 18),
+            const SizedBox(height: 4),
+            Text(title, style: TextStyle(color: isSelected ? goldLight : textPaper, fontSize: 11, fontWeight: FontWeight.bold)),
+            Text(sub, style: TextStyle(color: isSelected ? goldLight.withOpacity(0.8) : textMuted, fontSize: 9)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoldButton(String text, bool isLoading, VoidCallback onPressed) {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          elevation: 0,
+        ),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [goldLight, goldDark]),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(color: goldDark.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Container(
+            alignment: Alignment.center,
+            child: isLoading
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: bgNavy, strokeWidth: 2))
+                : Text(text, style: const TextStyle(color: bgNavy, fontSize: 15, fontWeight: FontWeight.bold)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialButtonsRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _socialIconTile(child: const GoogleBrandLogo(size: 20), onTap: _handleGoogleSignIn, tooltip: "Google"),
+        const SizedBox(width: 10),
+        _socialIconTile(child: facebookBrandLogo(size: 20), onTap: _handleFacebookSignIn, tooltip: "Facebook"),
+        const SizedBox(width: 10),
+        _socialIconTile(child: linkedInBrandLogo(size: 20), onTap: _handleLinkedInSignIn, tooltip: "LinkedIn"),
+        const SizedBox(width: 10),
+        _socialIconTile(child: githubBrandLogo(size: 20), onTap: _handleGithubSignIn, tooltip: "GitHub"),
+        const SizedBox(width: 10),
+        _socialIconTile(child: twitterXBrandLogo(size: 20), onTap: _handleTwitterSignIn, tooltip: "Twitter / X"),
+      ],
+    );
+  }
+
+  Widget _socialIconTile({required Widget child, required VoidCallback onTap, required String tooltip}) {
+    return Tooltip(
+      message: "Continue with $tooltip",
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: bgNavy,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: hairline),
+          ),
+          alignment: Alignment.center,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDarkField(
+    TextEditingController controller,
+    String hint,
+    IconData icon,
+    bool isPassword, {
+    bool obscure = false,
+    VoidCallback? onToggleObscure,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: bgNavy,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: hairline),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword && obscure,
+        style: const TextStyle(color: textPaper, fontSize: 13.5),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: textMuted, fontSize: 13),
+          prefixIcon: Icon(icon, color: textMuted, size: 18),
+          suffixIcon: isPassword && onToggleObscure != null
+              ? IconButton(
+                  icon: Icon(obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: textMuted, size: 18),
+                  onPressed: onToggleObscure,
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookLogoMark({double size = 28}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: goldLight, width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Icon(Icons.menu_book_rounded, color: goldLight, size: size * 0.6),
+    );
+  }
+
+  Widget _buildFooterTrustRow() {
+    return Column(
+      children: [
+        Wrap(
+          spacing: 24,
+          runSpacing: 16,
+          alignment: WrapAlignment.center,
+          children: const [
+            _TrustBadge(icon: Icons.school_outlined, title: "Personalised", subtitle: "learning"),
+            _TrustBadge(icon: Icons.shield_outlined, title: "Safe and secure", subtitle: "your data"),
+            _TrustBadge(icon: Icons.bolt_rounded, title: "Powered by", subtitle: "advanced AI"),
+            _TrustBadge(icon: Icons.favorite_border_rounded, title: "Built for", subtitle: "better you"),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Let's learn together",
+              style: TextStyle(color: textPaper, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'serif'),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: goldDark,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_forward_rounded, color: bgNavy, size: 18),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Future<void> _handleGoogleSignIn() async {
-    if (_loading) return;
-    setState(() => _loading = true);
+    if (_loginLoading || _regLoading) return;
     try {
       final user = await _auth.googleSignIn();
       if (user != null && mounted) {
         _navigateToSecurityVerification(user, "Google");
       }
     } catch (e) {
-      final err = e.toString();
-      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
-        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Google Sign-in: $cleanMsg")),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
+      _showError("Google Sign-in failed");
     }
   }
 
   Future<void> _handleFacebookSignIn() async {
-    if (_loading) return;
-    setState(() => _loading = true);
+    if (_loginLoading || _regLoading) return;
     try {
       final user = await _auth.facebookSignIn();
       if (user != null && mounted) {
         _navigateToSecurityVerification(user, "Facebook");
       }
     } catch (e) {
-      final err = e.toString();
-      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
-        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Facebook Sign-in: $cleanMsg")),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
+      _showError("Facebook Sign-in failed");
     }
   }
 
   Future<void> _handleGithubSignIn() async {
-    if (_loading) return;
-    setState(() => _loading = true);
+    if (_loginLoading || _regLoading) return;
     try {
       final user = await _auth.githubSignIn();
       if (user != null && mounted) {
         _navigateToSecurityVerification(user, "GitHub");
       }
     } catch (e) {
-      final err = e.toString();
-      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
-        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("GitHub Sign-in: $cleanMsg")),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
+      _showError("GitHub Sign-in failed");
     }
   }
 
   Future<void> _handleLinkedInSignIn() async {
-    if (_loading) return;
-    setState(() => _loading = true);
+    if (_loginLoading || _regLoading) return;
     try {
       final user = await _auth.linkedInSignIn();
       if (user != null && mounted) {
         _navigateToSecurityVerification(user, "LinkedIn");
       }
     } catch (e) {
-      final err = e.toString();
-      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
-        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("LinkedIn Sign-in: $cleanMsg")),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
+      _showError("LinkedIn Sign-in failed");
     }
   }
 
   Future<void> _handleTwitterSignIn() async {
-    if (_loading) return;
-    setState(() => _loading = true);
+    if (_loginLoading || _regLoading) return;
     try {
       final user = await _auth.twitterSignIn();
       if (user != null && mounted) {
         _navigateToSecurityVerification(user, "Twitter / X");
       }
     } catch (e) {
-      final err = e.toString();
-      if (!err.contains("popup-closed") && !err.contains("user-cancelled") && mounted) {
-        final cleanMsg = err.replaceAll("Exception:", "").replaceAll("FirebaseAuthException:", "").trim();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Twitter / X Sign-in: $cleanMsg")),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
+      _showError("Twitter / X Sign-in failed");
     }
+  }
+}
+
+class _TrustBadge extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _TrustBadge({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: const Color(0xFF00E5FF), size: 20),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(color: Color(0xFFF4EFE6), fontSize: 11.5, fontWeight: FontWeight.bold)),
+            Text(subtitle, style: const TextStyle(color: Color(0xFF8B93A6), fontSize: 10.5)),
+          ],
+        ),
+      ],
+    );
   }
 }
 
