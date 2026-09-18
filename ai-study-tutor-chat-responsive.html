@@ -14,6 +14,7 @@
   --panel:rgba(16,20,38,.66);
   --panel-2:rgba(28,32,58,.55);
   --bubble:rgba(20,25,46,.9);
+  --user-bubble:rgba(255,196,77,.18);
   --field:rgba(6,9,20,.8);
   --line:rgba(140,160,255,.14);
   --line-2:rgba(150,170,255,.30);
@@ -50,7 +51,7 @@ body{
 /* ---- Sidebar (desktop / laptop / mac / windows) ---- */
 .sidebar{width:var(--sidebar-w);flex:none;background:var(--sidebar);border-right:1px solid var(--line);
   backdrop-filter:blur(16px);display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh}
-.side-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 22px}
+.side-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 22px;cursor:pointer}
 .side-brand .mark{width:30px;height:30px;flex:none}
 .side-brand b{font-family:Fraunces,serif;font-size:16px;font-weight:600;letter-spacing:-.01em}
 .side-brand b span{color:var(--gold)}
@@ -62,7 +63,7 @@ body{
   border-color:rgba(255,196,77,.3);color:var(--gold)}
 .side-link svg{flex:none}
 .side-spacer{flex:1}
-.side-foot{border-top:1px solid var(--line);padding-top:14px;display:flex;align-items:center;gap:10px}
+.side-foot{border-top:1px solid var(--line);padding-top:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
 .side-foot .av{width:34px;height:34px;border-radius:10px;background:linear-gradient(155deg,rgba(255,196,77,.28),rgba(140,134,255,.2));
   display:grid;place-items:center;font-family:Fraunces,serif;font-weight:700;font-size:13px;color:var(--gold);flex:none}
 .side-foot small{display:block;color:var(--muted);font-size:11.5px}
@@ -95,7 +96,7 @@ body{
   color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:.15s;flex:none}
 .icon-btn:hover{border-color:var(--line-2);color:var(--text)}
 
-/* mentor + mode rows — own row, never overlapping chat */
+/* mentor + mode rows */
 .pills-wrap{flex:none;padding:12px 22px;border-bottom:1px solid var(--line);
   background:rgba(8,11,22,.55);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:9px}
 .pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
@@ -115,10 +116,13 @@ body{
 .chat-inner{max-width:820px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 .bubble-row{display:flex;gap:10px;max-width:100%}
 .bubble-row.bot{align-self:flex-start;max-width:88%}
-.avatar{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;
+.bubble-row.user{align-self:flex-end;max-width:80%;flex-direction:row-reverse}
+.avatar{width:30px;height:30px;border-radius:999px;flex:none;display:grid;place-items:center;
   background:linear-gradient(160deg,rgba(255,196,77,.25),rgba(140,134,255,.18));border:1px solid var(--line-2)}
+.avatar.user-av{background:linear-gradient(160deg,rgba(140,134,255,.3),rgba(79,195,232,.3));color:var(--text);font-size:11px;font-weight:700}
 .bubble{background:var(--bubble);border:1px solid var(--line);border-radius:var(--r-lg);border-top-left-radius:6px;
   padding:18px 20px;font-size:14.5px;line-height:1.75;box-shadow:0 20px 50px -34px rgba(0,0,0,.9)}
+.bubble-row.user .bubble{background:var(--user-bubble);border-color:rgba(255,196,77,.4);border-top-left-radius:var(--r-lg);border-top-right-radius:6px}
 .bubble h3{font-family:Fraunces,serif;font-weight:600;font-size:16px;margin:0 0 10px;color:var(--gold)}
 .bubble p{margin:0 0 10px}
 .bubble ul{margin:6px 0 12px;padding-left:20px}
@@ -133,7 +137,7 @@ body{
 .quick-wrap{flex:none;padding:8px 22px;background:rgba(8,11,22,.4)}
 .quick{max-width:820px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
 .quick::-webkit-scrollbar{display:none}
-.qbtn{flex:none;display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:999px;
+.qbtn{flex:none;display:flex;align-items:center;gap:7px;padding:99px 15px;padding:9px 15px;border-radius:999px;
   border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:12px;font-weight:600;
   cursor:pointer;white-space:nowrap;transition:.15s}
 .qbtn:hover{border-color:var(--line-2);transform:translateY(-1px)}
@@ -150,18 +154,21 @@ body{
   box-shadow:0 12px 26px -12px rgba(255,170,30,.85);transition:filter .15s}
 .send:hover{filter:brightness(1.06)}
 
-/* ---- mobile bottom nav (phones only) ---- */
+/* ---- mobile bottom nav ---- */
 .nav{display:none}
 .navitem{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);
-  font-size:10.5px;font-weight:600;cursor:pointer;background:none;border:0;padding:4px 8px}
+  font-size:10.5px;font-weight:600;cursor:pointer;background:none;border:0;padding:4px 8px;text-decoration:none}
 .navitem.active{color:var(--gold)}
 
 /* ---- overlay for mobile drawer ---- */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8}
 .overlay.show{display:block}
 
+/* Toast message styling */
+.toast{position:fixed;bottom:80px;right:24px;z-index:999;background:var(--gold);color:var(--gold-ink);padding:12px 20px;border-radius:12px;font-weight:700;font-size:13.5px;box-shadow:0 12px 30px rgba(0,0,0,0.5);display:none;align-items:center;gap:10px;animation:fadeUp 0.3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
 /* ============ RESPONSIVE BREAKPOINTS ============ */
-/* Tablet: collapse sidebar to icon rail */
 @media (max-width:1080px) and (min-width:761px){
   :root{--sidebar-w:76px}
   .side-brand b, .side-link span, .side-foot b, .side-foot small{display:none}
@@ -170,7 +177,6 @@ body{
   .side-foot{justify-content:center}
 }
 
-/* Phone: sidebar becomes a slide-in drawer, bottom tab bar appears */
 @media (max-width:760px){
   .sidebar{position:fixed;left:0;top:0;height:100vh;transform:translateX(-104%);transition:transform .22s ease;z-index:9;width:260px}
   .sidebar.open{transform:translateX(0)}
@@ -200,12 +206,13 @@ body{
 <div class="grain" style="filter:url(#n)" aria-hidden="true"></div>
 
 <div class="overlay" id="overlay"></div>
+<div id="toast" class="toast"><span>✓</span><span id="toastMsg">Action successful</span></div>
 
 <div class="app">
 
-  <!-- SIDEBAR — desktop/laptop nav; drawer on phones -->
+  <!-- SIDEBAR — active navigation links -->
   <aside class="sidebar" id="sidebar">
-    <div class="side-brand">
+    <div class="side-brand" onclick="window.location.href='/'">
       <svg class="mark" viewBox="0 0 44 44" fill="none" aria-hidden="true">
         <path d="M22 14C18.7 11 13.9 10.2 9 10.7c-.9.1-1.6.9-1.6 1.8v18.6c0 1.1.9 1.9 2 1.8 4.4-.4 8.8.6 12.2 3.3 3.4-2.7 7.8-3.7 12.2-3.3 1.1.1 2-.7 2-1.8V12.5c0-.9-.7-1.7-1.6-1.8-4.9-.5-9.7.3-13.2 3.3Z" stroke="var(--gold)" stroke-width="2.4" stroke-linejoin="round"/>
         <path d="M22 14v22.3" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
@@ -214,31 +221,31 @@ body{
       <b>AI Learn <span>Mate</span></b>
     </div>
     <nav class="side-nav">
-      <a class="side-link" href="#">
+      <a class="side-link" href="/">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg>
         <span>Home</span>
       </a>
-      <a class="side-link active" href="#">
+      <a class="side-link active" href="/tutor">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg>
         <span>AI Tutor</span>
       </a>
-      <a class="side-link" href="#">
+      <a class="side-link" href="/about">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
         <span>Study</span>
       </a>
-      <a class="side-link" href="#">
+      <a class="side-link" href="/about">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg>
         <span>Progress</span>
       </a>
-      <a class="side-link" href="#">
+      <a class="side-link" href="/about">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg>
         <span>Profile</span>
       </a>
     </nav>
     <div class="side-spacer"></div>
-    <div class="side-foot">
+    <div class="side-foot" onclick="window.location.href='/about'">
       <div class="av">F</div>
-      <div><b>Foysal</b><small>Level 1 · 0 XP</small></div>
+      <div><b>Foysal Ahmed</b><small>Project Owner &amp; Developer</small></div>
     </div>
   </aside>
 
@@ -250,58 +257,55 @@ body{
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <div class="title-block">
-        <h1>AI Study Tutor</h1>
+        <h1 id="headerMentorTitle">AI Study Tutor</h1>
         <div class="title-sub">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 3l2.4 6.3L21 12l-6.6 2.7L12 21l-2.4-6.3L3 12l6.6-2.7L12 3Z"/></svg>
-          Calm Mentor <span class="dot"></span> <em>Normal</em>
+          <span id="activePersonaLbl">Calm Mentor</span> <span class="dot"></span> <em id="activeModeLbl">Normal</em>
         </div>
       </div>
       <div class="right-group">
-        <div class="model-pill">Groq <div class="switch on" id="modelSwitch"></div></div>
-        <button class="icon-btn" aria-label="Share"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7 15.7 6.6M8.3 13.3l7.4 4.1"/></svg></button>
-        <button class="icon-btn" aria-label="Delete conversation" style="color:var(--danger)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg></button>
+        <div class="model-pill">Groq <div class="switch on" id="modelSwitch" title="Toggle AI Model"></div></div>
+        <button class="icon-btn" aria-label="Share" onclick="shareConversation()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7 15.7 6.6M8.3 13.3l7.4 4.1"/></svg></button>
+        <button class="icon-btn" aria-label="Delete conversation" style="color:var(--danger)" onclick="clearChat()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg></button>
       </div>
     </header>
 
     <div class="pills-wrap">
-      <div class="pills">
-        <span class="pill active"><span class="chk">✓</span> Calm Mentor</span>
-        <span class="pill">😊 Funny Friend</span>
-        <span class="pill">🎓 Strict Coach</span>
-        <span class="pill">📖 Socratic Prof</span>
+      <div class="pills" id="personaPills">
+        <span class="pill active" data-persona="Calm Mentor"><span class="chk">✓</span> Calm Mentor</span>
+        <span class="pill" data-persona="Funny Friend">😊 Funny Friend</span>
+        <span class="pill" data-persona="Strict Coach">🎓 Strict Coach</span>
+        <span class="pill" data-persona="Socratic Prof">📖 Socratic Prof</span>
       </div>
-      <div class="pills">
-        <span class="pill">Beginner</span>
-        <span class="pill active-violet"><span class="chk">✓</span> Normal</span>
-        <span class="pill">Deep Dive</span>
-        <span class="pill">Exam Mode</span>
-        <span class="pill">Socratic</span>
-        <span class="pill">Revision</span>
-        <span class="pill">Teach Back</span>
+      <div class="pills" id="modePills">
+        <span class="pill" data-mode="Beginner">Beginner</span>
+        <span class="pill active-violet" data-mode="Normal"><span class="chk">✓</span> Normal</span>
+        <span class="pill" data-mode="Deep Dive">Deep Dive</span>
+        <span class="pill" data-mode="Exam Mode">Exam Mode</span>
+        <span class="pill" data-mode="Socratic">Socratic</span>
+        <span class="pill" data-mode="Revision">Revision</span>
+        <span class="pill" data-mode="Teach Back">Teach Back</span>
       </div>
     </div>
 
-    <main class="chat">
-      <div class="chat-inner">
+    <!-- Interactive Chat Messages Container -->
+    <main class="chat" id="chatContainer">
+      <div class="chat-inner" id="chatInner">
         <div class="bubble-row bot">
           <div class="avatar">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg>
           </div>
           <div class="bubble">
-            <h3>3.5 Emerging Trends in BS/CS Programs</h3>
+            <h3>Hello! I am your AI Study Tutor.</h3>
+            <p>I'm here to help you learn, practice, and master any subject. What would you like to study or revise today?</p>
             <ul>
-              <li><strong>Data-Science Integration</strong> &ndash; mandatory modules in statistics &amp; machine learning.</li>
-              <li><strong>Ethics &amp; Social Impact</strong> &ndash; courses on algorithmic bias, privacy law (GDPR).</li>
-              <li><strong>Cloud-Native Development</strong> &ndash; teaching containers (Docker), orchestration (Kubernetes).</li>
-            </ul>
-            <p><strong>3.6 Suggested Textbooks</strong></p>
-            <ul>
-              <li>&ldquo;Introduction to Algorithms&rdquo; &ndash; Cormen, Leiserson, Rivest, Stein (CLRS).</li>
-              <li>&ldquo;Computer Organization and Design&rdquo; &ndash; Patterson &amp; Hennessy.</li>
+              <li><strong>Ask a question</strong> &ndash; about Math, Science, Coding, or History.</li>
+              <li><strong>Generate Quizzes</strong> &ndash; practice with instant feedback.</li>
+              <li><strong>Summarize Notes</strong> &ndash; simplify complex textbook chapters.</li>
             </ul>
             <div class="rule"></div>
             <div class="share-row">
-              <button class="share-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg> Share</button>
+              <button class="share-btn" onclick="shareConversation()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg> Share</button>
             </div>
           </div>
         </div>
@@ -310,59 +314,163 @@ body{
 
     <div class="quick-wrap">
       <div class="quick">
-        <button class="qbtn">🔗 Share</button>
-        <button class="qbtn">😕 I'm Confused</button>
-        <button class="qbtn">📝 Summarize</button>
-        <button class="qbtn">💡 Example</button>
-        <button class="qbtn">❓ Test Me</button>
-        <button class="qbtn">🔍 Deep Dive</button>
+        <button class="qbtn" onclick="sendQuickPrompt('Share a summary of this topic')">🔗 Share</button>
+        <button class="qbtn" onclick="sendQuickPrompt('I am confused about this, please explain simply')">😕 I'm Confused</button>
+        <button class="qbtn" onclick="sendQuickPrompt('Summarize key points for exam review')">📝 Summarize</button>
+        <button class="qbtn" onclick="sendQuickPrompt('Give me a real-world practical example')">💡 Example</button>
+        <button class="qbtn" onclick="sendQuickPrompt('Test me with a 3-question quiz')">❓ Test Me</button>
+        <button class="qbtn" onclick="sendQuickPrompt('Give me a deep dive explanation')">🔍 Deep Dive</button>
       </div>
     </div>
 
+    <!-- Active Input Dock -->
     <div class="dock">
-      <div class="inputbar">
-        <input type="text" placeholder="Ask anything...">
-        <button class="send" aria-label="Send"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6.5 19 12l-6.5 5.5"/></svg></button>
-      </div>
+      <form class="inputbar" id="chatForm" onsubmit="event.preventDefault(); handleSendChat();">
+        <input id="chatInput" type="text" placeholder="Ask anything..." autocomplete="off">
+        <button type="submit" class="send" id="sendBtn" aria-label="Send">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6.5 19 12l-6.5 5.5"/></svg>
+        </button>
+      </form>
     </div>
 
   </div>
 </div>
 
-<!-- phone-only bottom tab bar -->
+<!-- Active Phone Bottom Navigation Bar -->
 <nav class="nav">
-  <button class="navitem">
+  <a class="navitem" href="/">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg>
     Home
-  </button>
-  <button class="navitem active">
+  </a>
+  <a class="navitem active" href="/tutor">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg>
     AI Tutor
-  </button>
-  <button class="navitem">
+  </a>
+  <a class="navitem" href="/about">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
     Study
-  </button>
-  <button class="navitem">
+  </a>
+  <a class="navitem" href="/about">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg>
     Progress
-  </button>
-  <button class="navitem">
+  </a>
+  <a class="navitem" href="/about">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg>
     Profile
-  </button>
+  </a>
 </nav>
 
 <script>
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  var m = document.getElementById('toastMsg');
+  if (t && m) {
+    m.textContent = msg;
+    t.style.display = 'flex';
+    setTimeout(function(){ t.style.display = 'none'; }, 3000);
+  }
+}
+
+function shareConversation() {
+  navigator.clipboard.writeText(window.location.href);
+  showToast('Study session link copied to clipboard!');
+}
+
+function clearChat() {
+  if (confirm("Are you sure you want to clear this study chat conversation?")) {
+    var inner = document.getElementById('chatInner');
+    if (inner) {
+      inner.innerHTML = '<div class="bubble-row bot"><div class="avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg></div><div class="bubble"><h3>Conversation Reset</h3><p>Chat history cleared. How can I help you learn today?</p></div></div>';
+    }
+    showToast('Conversation cleared');
+  }
+}
+
+function sendQuickPrompt(promptText) {
+  var input = document.getElementById('chatInput');
+  if (input) {
+    input.value = promptText;
+    handleSendChat();
+  }
+}
+
+function handleSendChat() {
+  var input = document.getElementById('chatInput');
+  var text = input ? input.value.trim() : '';
+  if (!text) return;
+
+  var inner = document.getElementById('chatInner');
+  if (!inner) return;
+
+  // Append User Message
+  var userRow = document.createElement('div');
+  userRow.className = 'bubble-row user';
+  userRow.innerHTML = '<div class="avatar user-av">You</div><div class="bubble"><p>' + escapeHtml(text) + '</p></div>';
+  inner.appendChild(userRow);
+
+  input.value = '';
+  scrollToBottom();
+
+  // Show Typing Indicator
+  var typingRow = document.createElement('div');
+  typingRow.className = 'bubble-row bot';
+  typingRow.id = 'typingIndicator';
+  typingRow.innerHTML = '<div class="avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg></div><div class="bubble"><p><em>AI Tutor is thinking...</em></p></div>';
+  inner.appendChild(typingRow);
+  scrollToBottom();
+
+  // Generate AI Response
+  setTimeout(function() {
+    var indicator = document.getElementById('typingIndicator');
+    if (indicator) indicator.remove();
+
+    var botRow = document.createElement('div');
+    botRow.className = 'bubble-row bot';
+    var responseHtml = generateAiResponse(text);
+    botRow.innerHTML = '<div class="avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg></div><div class="bubble">' + responseHtml + '<div class="rule"></div><div class="share-row"><button class="share-btn" onclick="shareConversation()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg> Share</button></div></div>';
+    inner.appendChild(botRow);
+    scrollToBottom();
+  }, 1000);
+}
+
+function generateAiResponse(query) {
+  var q = query.toLowerCase();
+  if (q.includes('confused') || q.includes('explain')) {
+    return '<h3>Simplifying Concept</h3><p>Let&rsquo;s break this down into 3 easy steps:</p><ul><li><strong>Step 1: Core Idea</strong> &ndash; Think of this like a building block.</li><li><strong>Step 2: Practical Application</strong> &ndash; How it applies in real world scenarios.</li><li><strong>Step 3: Key Takeaway</strong> &ndash; What you need to remember for exams.</li></ul>';
+  } else if (q.includes('quiz') || q.includes('test')) {
+    return '<h3>Quick Practice Quiz</h3><p>Here is a test question based on your study plan:</p><p><strong>Question:</strong> What is the main purpose of spaced repetition in AI Learn Mate?</p><ul><li>A) To memorize answers once</li><li>B) To review missed questions right before they fade from memory</li><li>C) To skip study sessions</li></ul><p><em>Type your answer (A, B, or C) below!</em></p>';
+  } else if (q.includes('summary') || q.includes('summarize')) {
+    return '<h3>Key Summary Highlights</h3><ul><li><strong>Point 1:</strong> AI Tutor provides personalized 24/7 academic assistance.</li><li><strong>Point 2:</strong> Mistake Bank automatically tracks incorrect questions for retention.</li><li><strong>Point 3:</strong> Consistent daily sessions increase mastery by 85%.</li></ul>';
+  } else {
+    return '<h3>AI Study Guidance</h3><p>Great question about &ldquo;' + escapeHtml(query) + '&rdquo;!</p><p>Here is how you can approach this topic effectively:</p><ul><li><strong>Review Fundamentals:</strong> Connect this concept with your core subject notes.</li><li><strong>Practice Active Recall:</strong> Test yourself with flashcards or a quick quiz.</li><li><strong>Ask Follow-ups:</strong> Feel free to ask for a practice problem or a real-world example!</li></ul>';
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function scrollToBottom() {
+  var chat = document.getElementById('chatContainer');
+  if (chat) { chat.scrollTop = chat.scrollHeight; }
+}
+
 (function(){
   var sidebar=document.getElementById('sidebar'), overlay=document.getElementById('overlay'), ham=document.getElementById('hamburger');
   function openDrawer(){sidebar.classList.add('open');overlay.classList.add('show')}
   function closeDrawer(){sidebar.classList.remove('open');overlay.classList.remove('show')}
-  ham.addEventListener('click', openDrawer);
-  overlay.addEventListener('click', closeDrawer);
+  if (ham) ham.addEventListener('click', openDrawer);
+  if (overlay) overlay.addEventListener('click', closeDrawer);
 
-  document.getElementById('modelSwitch').addEventListener('click', function(){this.classList.toggle('on')});
+  var mSwitch = document.getElementById('modelSwitch');
+  if (mSwitch) {
+    mSwitch.addEventListener('click', function(){
+      this.classList.toggle('on');
+      showToast(this.classList.contains('on') ? 'AI Model: Groq Fast AI (Active)' : 'AI Model: Gemini Flash');
+    });
+  }
 
+  // Persona & Mode Pills Logic
   document.querySelectorAll('.pills').forEach(function(row){
     row.addEventListener('click', function(e){
       var p = e.target.closest('.pill');
@@ -374,12 +482,15 @@ body{
       });
       p.classList.add(wasViolet ? 'active-violet' : 'active');
       var chk=document.createElement('span');chk.className='chk';chk.textContent='✓';p.prepend(chk);
-    });
-  });
 
-  document.querySelectorAll('.qbtn').forEach(function(b){
-    b.addEventListener('click', function(){
-      document.querySelector('.inputbar input').value = b.textContent.trim().replace(/^[^\w]+/, '');
+      if (p.dataset.persona) {
+        document.getElementById('activePersonaLbl').textContent = p.dataset.persona;
+        showToast('Persona updated: ' + p.dataset.persona);
+      }
+      if (p.dataset.mode) {
+        document.getElementById('activeModeLbl').textContent = p.dataset.mode;
+        showToast('Study Mode: ' + p.dataset.mode);
+      }
     });
   });
 })();

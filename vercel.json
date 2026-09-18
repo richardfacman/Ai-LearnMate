@@ -2,6 +2,10 @@
   "outputDirectory": ".",
   "rewrites": [
     {
+      "source": "/tutor",
+      "destination": "/ai-study-tutor-chat-responsive.html"
+    },
+    {
       "source": "/about",
       "destination": "/ai-learn-mate-about.html"
     },
@@ -14,8 +18,8 @@
       "destination": "/ai-learn-mate-register.html"
     },
     {
-      "source": "/tutor",
-      "destination": "/ai-study-tutor-chat-responsive.html"
+      "source": "/mockup",
+      "destination": "/ai-learn-mate-mockup.html"
     }
   ]
 }
