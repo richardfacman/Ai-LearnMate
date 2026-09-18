@@ -9,14 +9,19 @@ import 'feature_request_screen.dart';
 class ContactOwnerScreen extends StatelessWidget {
   const ContactOwnerScreen({super.key});
 
-  // Theme Tokens
-  static const Color ink = Color(0xFF0B0E14);
-  static const Color surface = Color(0xFF151A24);
-  static const Color surfaceHi = Color(0xFF1B2230);
-  static const Color gold = Color(0xFFFFB020);
-  static const Color paper = Color(0xFFF4EFE6);
-  static const Color muted = Color(0xFF8B93A6);
-  static const Color hairline = Color(0x1AF4EFE6);
+  // Exact Theme Tokens from ai-learn-mate-about.html
+  static const Color ink = Color(0xFF05070F);
+  static const Color cardBg = Color(0xFF101426);
+  static const Color cardTop = Color(0xFF1C203A);
+  static const Color gold = Color(0xFFFFC44D);
+  static const Color goldDark = Color(0xFFEE9F16);
+  static const Color goldInk = Color(0xFF1D1404);
+  static const Color paper = Color(0xFFF1F4FC);
+  static const Color muted = Color(0xFF8D9AC2);
+  static const Color hairline = Color(0x248CA0FF);
+  static const Color cyan = Color(0xFF4FC3E8);
+  static const Color violet = Color(0xFF8C86FF);
+  static const Color pink = Color(0xFFFF80B8);
 
   Future<void> _launchURL(BuildContext context, String urlString, String name) async {
     final Uri? uri = Uri.tryParse(urlString);
@@ -93,7 +98,7 @@ class ContactOwnerScreen extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message, style: const TextStyle(color: ink, fontWeight: FontWeight.w600)),
+          content: Text(message, style: const TextStyle(color: goldInk, fontWeight: FontWeight.bold)),
           backgroundColor: gold,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -106,59 +111,82 @@ class ContactOwnerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isDesktop = size.width > 800;
+    final isDesktop = size.width > 720;
 
     return Scaffold(
       backgroundColor: ink,
       appBar: AppBar(
-        title: const Text("About & Contact Owner", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.w600)),
-        backgroundColor: surface,
+        title: const Text("About & Contact Owner", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.bold)),
+        backgroundColor: ink,
         foregroundColor: paper,
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(color: hairline, height: 1.0),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Center(
           child: Container(
-            constraints: BoxConstraints(maxWidth: isDesktop ? 900 : double.infinity),
+            constraints: const BoxConstraints(maxWidth: 900),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Title
-                const Text("Hello!", style: TextStyle(color: paper, fontSize: 36, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
+                // Hero Section
                 const Text(
-                  "I'm Foysal Ahmed, Project Owner & Developer of AI Learn Mate.",
-                  style: TextStyle(color: muted, fontSize: 14, height: 1.4),
+                  "Hello!",
+                  style: TextStyle(
+                    color: paper,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Fraunces',
+                    letterSpacing: -0.5,
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 6),
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(color: muted, fontSize: 15),
+                    children: [
+                      const TextSpan(text: "I'm "),
+                      TextSpan(text: AppContactConfig.ownerName, style: const TextStyle(color: paper, fontWeight: FontWeight.bold)),
+                      TextSpan(text: ", ${AppContactConfig.ownerRole} of AI Learn Mate."),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 26),
 
-                // Main Reference Layout Card
+                // Main Glass Profile Card
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(26),
                   decoration: BoxDecoration(
-                    color: surface,
-                    borderRadius: BorderRadius.circular(24),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [cardTop, cardBg],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: hairline),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 40, offset: const Offset(0, 20)),
                     ],
                   ),
                   child: isDesktop
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildPortraitCard(),
-                            const SizedBox(width: 28),
+                            _buildPortraitPhoto(),
+                            const SizedBox(width: 26),
                             Expanded(child: _buildAboutMeSection()),
-                            const SizedBox(width: 28),
-                            Expanded(child: _buildDetailsSection(context)),
+                            const SizedBox(width: 26),
+                            _buildDetailsSection(context),
                           ],
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Center(child: _buildPortraitCard()),
+                            Center(child: _buildPortraitPhoto()),
                             const SizedBox(height: 24),
                             _buildAboutMeSection(),
                             const SizedBox(height: 24),
@@ -166,85 +194,89 @@ class ContactOwnerScreen extends StatelessWidget {
                           ],
                         ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 34),
 
-                // Quick Assistance Row
-                const Text("NEED ASSISTANCE OR HAVE FEEDBACK?", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                // Feedback Section
+                const Text(
+                  "NEED ASSISTANCE OR HAVE FEEDBACK?",
+                  style: TextStyle(
+                    color: gold,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportProblemScreen())),
-                        icon: const Icon(Icons.bug_report_outlined, size: 16),
-                        label: const Text("Report Bug"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: surface,
-                          foregroundColor: paper,
-                          side: const BorderSide(color: hairline),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                      child: _buildActionButton(
+                        context: context,
+                        icon: Icons.bug_report_outlined,
+                        label: "Report bug",
+                        isPrimary: false,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportProblemScreen())),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 11),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackScreen())),
-                        icon: const Icon(Icons.rate_review_outlined, size: 16),
-                        label: const Text("Feedback"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: gold,
-                          foregroundColor: ink,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                      child: _buildActionButton(
+                        context: context,
+                        icon: Icons.rate_review_outlined,
+                        label: "Feedback",
+                        isPrimary: true,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackScreen())),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 11),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeatureRequestScreen())),
-                        icon: const Icon(Icons.lightbulb_outline, size: 16),
-                        label: const Text("Suggest"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: surfaceHi,
-                          foregroundColor: paper,
-                          side: const BorderSide(color: hairline),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                      child: _buildActionButton(
+                        context: context,
+                        icon: Icons.lightbulb_outline,
+                        label: "Suggest",
+                        isPrimary: false,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeatureRequestScreen())),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 34),
 
-                // About AI Learn Mate Features
-                const Text("ABOUT AI LEARN MATE", style: TextStyle(color: gold, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-                const SizedBox(height: 10),
+                // About Product Section
+                const Text(
+                  "ABOUT AI LEARN MATE",
+                  style: TextStyle(
+                    color: gold,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 const Text(
                   "AI Learn Mate integrates 10 intelligent study tools into one adaptive learning engine:",
-                  style: TextStyle(color: muted, fontSize: 12.5),
+                  style: TextStyle(color: muted, fontSize: 13.8, height: 1.5),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
+
+                // 10 Tool Chips
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 9,
+                  runSpacing: 9,
                   children: const [
-                    _FeatureChip("🤖 AI Tutor"),
-                    _FeatureChip("🎴 Smart Flashcards"),
-                    _FeatureChip("⚡ Quick Quiz"),
-                    _FeatureChip("📅 Study Planner"),
-                    _FeatureChip("📊 Analytics"),
-                    _FeatureChip("📸 Scanner"),
-                    _FeatureChip("🎙️ Voice Tutor"),
-                    _FeatureChip("⏱️ Pomodoro"),
-                    _FeatureChip("❌ Mistake Bank"),
-                    _FeatureChip("📈 Adaptive Learning"),
+                    _ToolChip(label: "AI Tutor", iconColor: cyan, icon: Icons.psychology_outlined),
+                    _ToolChip(label: "Smart Flashcards", iconColor: violet, icon: Icons.style_outlined),
+                    _ToolChip(label: "Quick Quiz", iconColor: gold, icon: Icons.bolt_outlined),
+                    _ToolChip(label: "Study Planner", iconColor: cyan, icon: Icons.calendar_today_outlined),
+                    _ToolChip(label: "Analytics", iconColor: pink, icon: Icons.bar_chart_outlined),
+                    _ToolChip(label: "Scanner", iconColor: cyan, icon: Icons.qr_code_scanner_outlined),
+                    _ToolChip(label: "Voice Tutor", iconColor: violet, icon: Icons.mic_none_outlined),
+                    _ToolChip(label: "Pomodoro", iconColor: pink, icon: Icons.timer_outlined),
+                    _ToolChip(label: "Mistake Bank", iconColor: Color(0xFFFF9A9A), icon: Icons.bookmark_border_outlined, isDanger: true),
+                    _ToolChip(label: "Adaptive Learning", iconColor: gold, icon: Icons.check_outlined),
                   ],
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -253,70 +285,42 @@ class ContactOwnerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPortraitCard() {
+  Widget _buildPortraitPhoto() {
     return Container(
-      width: 200,
-      height: 260,
+      width: 180,
+      height: 220,
       decoration: BoxDecoration(
-        color: surfaceHi,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: gold.withOpacity(0.6), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: gold, width: 2),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 15, offset: const Offset(0, 5)),
+          BoxShadow(color: gold.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 8)),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         child: Image.network(
           AppContactConfig.ownerPhotoUrl,
           fit: BoxFit.cover,
           filterQuality: FilterQuality.high,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                    : null,
-                color: gold,
-                strokeWidth: 2,
-              ),
-            );
-          },
           errorBuilder: (context, error, stackTrace) {
             return Image.asset(
               AppContactConfig.ownerAssetPath,
               fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
               errorBuilder: (context, error, stackTrace) {
-                return Image.network(
-                  AppContactConfig.ownerPhotoBackupUrl,
-                  fit: BoxFit.cover,
-                  filterQuality: FilterQuality.high,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: gold.withOpacity(0.2),
-                              border: Border.all(color: gold, width: 2),
-                            ),
-                            child: const Text("FA", style: TextStyle(color: gold, fontSize: 32, fontWeight: FontWeight.bold)),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 15, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          const Text("Project Owner", style: TextStyle(color: gold, fontSize: 11, fontWeight: FontWeight.w600)),
-                        ],
+                return Container(
+                  color: cardTop,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      CircleAvatar(
+                        radius: 36,
+                        backgroundColor: gold,
+                        child: Text("FA", style: TextStyle(color: goldInk, fontSize: 24, fontWeight: FontWeight.bold)),
                       ),
-                    );
-                  },
+                      SizedBox(height: 12),
+                      Text("Foysal Ahmed", style: TextStyle(color: paper, fontSize: 14, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                 );
               },
             );
@@ -330,11 +334,11 @@ class ContactOwnerScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
-        Text("About me", style: TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text("About me", style: TextStyle(color: paper, fontSize: 19, fontWeight: FontWeight.w600, fontFamily: 'Fraunces')),
         SizedBox(height: 10),
         Text(
           AppContactConfig.ownerBio,
-          style: TextStyle(color: muted, fontSize: 13, height: 1.5),
+          style: TextStyle(color: muted, fontSize: 13.8, height: 1.7),
         ),
       ],
     );
@@ -344,78 +348,47 @@ class ContactOwnerScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Details", style: TextStyle(color: paper, fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("Details", style: TextStyle(color: paper, fontSize: 19, fontWeight: FontWeight.w600, fontFamily: 'Fraunces')),
         const SizedBox(height: 12),
-        _detailRow("Name:", AppContactConfig.ownerName),
-        _detailRow("Role:", AppContactConfig.ownerRole),
-        _detailRow("Project:", AppContactConfig.ownerProject),
-        _detailRow("Location:", AppContactConfig.ownerLocation),
-        const SizedBox(height: 20),
+        _detailPair("Name:", AppContactConfig.ownerName),
+        _detailPair("Role:", AppContactConfig.ownerRole),
+        _detailPair("Project:", AppContactConfig.ownerProject),
+        _detailPair("Location:", AppContactConfig.ownerLocation),
+        const SizedBox(height: 16),
 
-        // Social Action Icons Bar (Facebook, Gmail, LinkedIn, Twitter/X, Share)
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
+        // Social Icons Row (Facebook, Mail, LinkedIn, X, Share)
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _socialIconTile(
-              iconWidget: const Icon(Icons.facebook, color: Colors.white, size: 22),
-              backgroundColor: const Color(0xFF1877F2),
-              borderColor: const Color(0xFF1877F2),
-              tooltip: "Open Facebook Profile",
+            _socialButton(
+              bgColor: const Color(0xFF1877F2),
+              icon: const Icon(Icons.facebook, color: Colors.white, size: 20),
               onTap: () => _openFacebook(context),
             ),
-            _socialIconTile(
-              iconWidget: const Icon(Icons.mail_rounded, color: Color(0xFFEA4335), size: 22),
-              backgroundColor: surfaceHi,
-              borderColor: const Color(0xFFEA4335),
-              tooltip: "Send Email (${AppContactConfig.ownerEmail})",
+            const SizedBox(width: 9),
+            _socialButton(
+              bgColor: const Color(0xFFEA4335),
+              icon: const Icon(Icons.mail_rounded, color: Colors.white, size: 18),
               onTap: () => _emailOwner(context),
             ),
-            _socialIconTile(
-              iconWidget: Container(
-                width: 22,
-                height: 22,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0077B5),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  "in",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'sans-serif',
-                    height: 1.0,
-                  ),
-                ),
-              ),
-              backgroundColor: const Color(0xFF0077B5),
-              borderColor: const Color(0xFF0077B5),
-              tooltip: "Open LinkedIn Profile",
+            const SizedBox(width: 9),
+            _socialButton(
+              bgColor: const Color(0xFF0A66C2),
+              icon: const Text("in", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
               onTap: () => _openLinkedIn(context),
             ),
-            _socialIconTile(
-              iconWidget: const Text(
-                "𝕏",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  height: 1.0,
-                ),
-              ),
-              backgroundColor: const Color(0xFF14171A),
-              borderColor: const Color(0xFF1DA1F2),
-              tooltip: "Open Twitter / X (@AhmedMdfaisal)",
+            const SizedBox(width: 9),
+            _socialButton(
+              bgColor: Colors.black,
+              borderColor: hairline,
+              icon: const Text("𝕏", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
               onTap: () => _openTwitter(context),
             ),
-            _socialIconTile(
-              iconWidget: const Icon(Icons.share_rounded, color: gold, size: 20),
-              backgroundColor: surfaceHi,
-              borderColor: gold.withOpacity(0.6),
-              tooltip: "Share Owner Contact Details",
+            const SizedBox(width: 9),
+            _socialButton(
+              bgColor: Colors.transparent,
+              borderColor: gold,
+              icon: const Icon(Icons.share_outlined, color: gold, size: 18),
               onTap: () => _shareProfile(context),
             ),
           ],
@@ -424,77 +397,132 @@ class ContactOwnerScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailPair(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
             width: 70,
-            child: Text(label, style: const TextStyle(color: paper, fontSize: 13, fontWeight: FontWeight.w600)),
+            child: Text(label, style: const TextStyle(color: muted, fontSize: 13, fontWeight: FontWeight.w600)),
           ),
-          Expanded(
-            child: Text(value, style: const TextStyle(color: muted, fontSize: 13)),
-          ),
+          Text(value, style: const TextStyle(color: paper, fontSize: 13, fontWeight: FontWeight.w600)),
         ],
       ),
     );
   }
 
-  Widget _socialIconTile({
-    required Widget iconWidget,
-    required Color backgroundColor,
-    required Color borderColor,
-    required String tooltip,
+  Widget _socialButton({
+    required Color bgColor,
+    Color? borderColor,
+    required Widget icon,
     required VoidCallback onTap,
   }) {
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: borderColor, width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: borderColor.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: borderColor ?? Colors.transparent),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Center(child: icon),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required bool isPrimary,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: isPrimary
+            ? const LinearGradient(
+                colors: [gold, goldDark],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              )
+            : null,
+        color: isPrimary ? null : cardBg,
+        border: isPrimary ? null : Border.all(color: hairline),
+        boxShadow: isPrimary
+            ? [
+                BoxShadow(color: gold.withValues(alpha: 0.4), blurRadius: 18, offset: const Offset(0, 8)),
+              ]
+            : null,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 16, color: isPrimary ? goldInk : paper),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isPrimary ? goldInk : paper,
+                fontSize: 13.5,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            alignment: Alignment.center,
-            child: iconWidget,
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _FeatureChip extends StatelessWidget {
+class _ToolChip extends StatelessWidget {
   final String label;
-  const _FeatureChip(this.label);
+  final Color iconColor;
+  final IconData icon;
+  final bool isDanger;
+
+  const _ToolChip({
+    required this.label,
+    required this.iconColor,
+    required this.icon,
+    this.isDanger = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFF151A24),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0x1AF4EFE6)),
+        color: const Color(0xFF101426),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: isDanger ? const Color(0x66FF6E6E) : const Color(0x248CA0FF),
+        ),
       ),
-      child: Text(label, style: const TextStyle(color: Color(0xFFF4EFE6), fontSize: 12, fontWeight: FontWeight.w500)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: iconColor),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: isDanger ? const Color(0xFFFF9A9A) : const Color(0xFFF1F4FC),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
