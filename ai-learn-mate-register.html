@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Learn Mate — Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A1130;
+  --card:rgba(15,22,55,.72);
+  --field:rgba(6,10,28,.75);
+  --line:#3D6BFF;
+  --line-dim:rgba(90,140,255,.35);
+  --text:#F1F4FF;
+  --muted:#9DAEDB;
+  --gold:#FFC93D;
+  --gold-2:#F5A100;
+  --gold-ink:#241705;
+  --blue:#38B6FF;
+  --violet:#8C6CFF;
+  --pink:#FF6FB0;
+  --green:#33C58C;
+  --r:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 15% 10%, rgba(60,90,255,.35), transparent 60%),
+    radial-gradient(900px 600px at 85% 85%, rgba(255,170,40,.18), transparent 60%),
+    linear-gradient(160deg,#0A1130 0%,#070C22 55%,#0A0F1F 100%);
+  color:var(--text);
+  font-family:Poppins,ui-sans-serif,system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;overflow-x:hidden;position:relative;
+}
+:root[data-theme="light"]{
+  --bg:#EEF1FF;--card:rgba(255,255,255,.88);--field:#F2F4FF;
+  --line:#3D6BFF;--line-dim:rgba(60,90,255,.28);
+  --text:#111A3C;--muted:#5A6690;--gold-ink:#241705;
+}
+:root[data-theme="light"] body{
+  background:
+    radial-gradient(1200px 700px at 15% 10%, rgba(120,150,255,.25), transparent 60%),
+    radial-gradient(900px 600px at 85% 85%, rgba(255,190,90,.20), transparent 60%),
+    linear-gradient(160deg,#F3F5FF 0%,#FFFFFF 60%,#F7F4FF 100%);
+}
+
+/* decorative desk illustration, bottom-left, CSS only */
+.desk{position:fixed;left:0;bottom:0;width:min(46vw,560px);height:min(46vw,560px);z-index:0;pointer-events:none;opacity:.9}
+.desk .glow{position:absolute;left:-10%;bottom:-10%;width:75%;height:75%;
+  background:radial-gradient(circle,rgba(255,190,80,.28),transparent 70%);filter:blur(30px)}
+.desk .laptop{position:absolute;left:8%;bottom:10%;width:44%;height:30%;
+  background:linear-gradient(160deg,#1B2340,#0C1128);border-radius:8px 8px 0 0;
+  box-shadow:0 20px 40px -16px rgba(0,0,0,.7);transform:perspective(600px) rotateX(4deg)}
+.desk .laptop::before{content:"";position:absolute;inset:8% 8% 14%;border-radius:4px;
+  background:radial-gradient(circle at 50% 40%,rgba(255,196,61,.25),transparent 70%),#0A0E20;
+  box-shadow:inset 0 0 30px rgba(255,196,61,.12)}
+.desk .laptop::after{content:"";position:absolute;left:-4%;right:-4%;bottom:-6%;height:8%;
+  background:linear-gradient(160deg,#232B4E,#12172E);border-radius:4px}
+.desk .books{position:absolute;left:1%;bottom:8%;width:16%;height:26%}
+.desk .books i{position:absolute;left:0;right:0;height:32%;border-radius:3px}
+.desk .books i:nth-child(1){bottom:0;background:linear-gradient(90deg,#2E7BD6,#1D4FA0)}
+.desk .books i:nth-child(2){bottom:32%;background:linear-gradient(90deg,#8C4FD6,#5A2E9E)}
+.desk .books i:nth-child(3){bottom:64%;background:linear-gradient(90deg,#F5A100,#C97800)}
+.desk .plant{position:absolute;right:8%;bottom:14%;width:9%;height:18%}
+.desk .plant .pot{position:absolute;bottom:0;left:20%;right:20%;height:38%;background:linear-gradient(160deg,#6B4A2A,#3E2A17);border-radius:3px 3px 8px 8px}
+.desk .plant .leaf{position:absolute;bottom:32%;left:50%;width:3px;height:60%;background:#3E7A4E;border-radius:2px;transform-origin:bottom center}
+.desk .plant .leaf:nth-child(2){transform:translateX(-4px) rotate(-18deg)}
+.desk .plant .leaf:nth-child(3){transform:translateX(4px) rotate(16deg)}
+.desk .plant .leaf:nth-child(4){transform:translateX(0) rotate(2deg) scaleY(1.15)}
+@media (max-width:800px){.desk{display:none}}
+
+.wrap{position:relative;z-index:1;max-width:1320px;margin:0 auto;padding:30px 24px 40px}
+
+/* top */
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:44px;height:44px;flex:none}
+.brand-name{font-size:24px;font-weight:800;letter-spacing:-.01em;line-height:1}
+.brand-name span{color:var(--gold)}
+.brand-sub{margin-top:5px;font-size:13px;font-weight:600;color:var(--blue)}
+
+.toggle{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--card);border:1px solid var(--line-dim)}
+.toggle button{width:36px;height:30px;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:.15s}
+.toggle button[aria-pressed="true"]{background:var(--line);color:#fff}
+
+/* hero copy shown behind/around the auth card on wide screens */
+.hero-copy{max-width:520px;margin:44px 0 0}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:7px 14px;border-radius:999px;
+  border:1px solid var(--line-dim);background:var(--card);font-size:13px;font-weight:600}
+.hero-copy h1{font-size:clamp(30px,3.6vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.02em;margin:18px 0 14px}
+.hero-copy h1 em{font-style:normal;background:linear-gradient(100deg,var(--gold),#FFE28A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-copy p{color:var(--muted);font-size:14.5px;line-height:1.65;margin:0 0 22px;max-width:42ch}
+
+.feats{display:grid;grid-template-columns:repeat(5,64px);gap:12px;margin-bottom:26px}
+@media (max-width:520px){.feats{grid-template-columns:repeat(4,1fr)}}
+.feat{text-align:center}
+.feat .tile{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;margin:0 auto 6px;
+  border:1px solid var(--line-dim);background:var(--card)}
+.feat span{display:block;font-size:10.5px;font-weight:600;color:var(--muted)}
+
+.script{font-family:Caveat,cursive;font-size:30px;font-weight:700;line-height:1.05;margin:0}
+.script small{display:block;font-size:30px;color:var(--gold)}
+
+/* auth stage */
+.stage{display:flex;justify-content:center;margin-top:10px}
+.auth-card{width:100%;max-width:440px;position:relative;border-radius:20px;padding:34px 32px 28px;
+  background:var(--card);backdrop-filter:blur(16px);
+  border:1px solid var(--line-dim);
+  box-shadow:0 0 0 1px rgba(61,107,255,.18), 0 40px 90px -40px rgba(0,0,0,.85), 0 0 60px -20px rgba(61,107,255,.45);
+}
+.auth-card .head{text-align:center;margin-bottom:24px}
+.auth-card .mini{width:38px;height:38px;margin:0 auto 10px;display:block}
+.auth-card .wordmark{font-size:18px;font-weight:800;margin-bottom:14px}
+.auth-card .wordmark span{color:var(--gold)}
+.auth-card h2{font-size:24px;font-weight:800;margin:0 0 6px}
+.auth-card .lede{margin:0;font-size:13.5px;color:var(--muted)}
+
+.field{position:relative;margin-bottom:13px}
+.field input{width:100%;height:50px;padding:0 46px;background:var(--field);color:var(--text);
+  border:1px solid var(--line-dim);border-radius:var(--r);font:inherit;font-size:14.5px;
+  transition:border-color .15s, box-shadow .15s}
+.field input::placeholder{color:var(--muted)}
+.field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,201,61,.18)}
+.field .lead{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:9px;
+  background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.eye:hover{color:var(--text)}
+
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 0 20px;font-size:13.5px}
+.check{display:flex;align-items:center;gap:9px;cursor:pointer;color:var(--muted)}
+.check input{appearance:none;width:18px;height:18px;border-radius:5px;border:1px solid var(--line-dim);
+  background:var(--field);cursor:pointer;display:grid;place-items:center}
+.check input:checked{background:var(--line);border-color:var(--line)}
+.check input:checked::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+a{color:var(--blue);text-decoration:none;font-weight:600}
+a:hover{text-decoration:underline}
+.row a{color:var(--gold)}
+
+.btn-primary{width:100%;height:52px;border:0;border-radius:var(--r);cursor:pointer;
+  background:linear-gradient(180deg,var(--gold),var(--gold-2));color:var(--gold-ink);
+  font:inherit;font-size:16px;font-weight:800;box-shadow:0 16px 36px -16px rgba(255,170,30,.75);
+  transition:filter .15s, transform .12s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:hover{filter:brightness(1.05)}
+.btn-primary:active{transform:translateY(1px)}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:"";height:1px;flex:1;background:var(--line-dim)}
+
+.btn-ghost{width:100%;height:47px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--field);color:var(--text);border:1px solid var(--line-dim);border-radius:var(--r);
+  font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:border-color .15s}
+.btn-ghost:hover{border-color:var(--line)}
+
+.foot{text-align:center;font-size:13px;color:var(--muted);margin-top:16px}
+.secure{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:18px}
+.secure b{display:block;font-size:12.5px;font-weight:700}
+.secure em{display:block;font-style:normal;font-size:11px;color:var(--muted)}
+
+.rolelbl{font-size:13px;font-weight:700;margin:2px 0 9px}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px}
+.role{background:var(--field);border:1px solid var(--line-dim);border-radius:var(--r);padding:12px 6px;
+  text-align:center;cursor:pointer;color:var(--muted);font:inherit;transition:.15s}
+.role strong{display:block;font-size:13px;font-weight:700;margin-top:6px;color:inherit}
+.role em{display:block;font-style:normal;font-size:10.5px;margin-top:2px}
+.role[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:rgba(255,201,61,.1)}
+
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* bottom trust bar */
+.bar{margin-top:44px;padding-top:20px;border-top:1px solid var(--line-dim);
+  display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap}
+.trust{display:flex;align-items:center;gap:9px}
+.trust b{display:block;font-size:12px;font-weight:700}
+.trust em{display:block;font-style:normal;font-size:11.5px;color:var(--muted)}
+.cta-script{display:flex;align-items:center;gap:11px;margin-left:auto}
+@media (max-width:900px){.cta-script{margin-left:0;width:100%;justify-content:center}}
+.cta-script span{font-family:Caveat,cursive;font-size:26px;font-weight:700}
+.cta-round{width:38px;height:38px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;
+  background:linear-gradient(180deg,var(--gold),var(--gold-2));color:var(--gold-ink)}
+</style>
+</head>
+<body>
+<div class="desk" aria-hidden="true">
+  <div class="glow"></div>
+  <div class="books"><i></i><i></i><i></i></div>
+  <div class="laptop"></div>
+  <div class="plant"><div class="pot"></div><div class="leaf"></div><div class="leaf"></div><div class="leaf"></div></div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+        <path d="M22 14C18.7 11 13.9 10.2 9 10.7c-.9.1-1.6.9-1.6 1.8v18.6c0 1.1.9 1.9 2 1.8 4.4-.4 8.8.6 12.2 3.3 3.4-2.7 7.8-3.7 12.2-3.3 1.1.1 2-.7 2-1.8V12.5c0-.9-.7-1.7-1.6-1.8-4.9-.5-9.7.3-13.2 3.3Z" stroke="var(--gold)" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M22 14v22.3" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M33.5 4l1 2.6 2.6 1-2.6 1L33.5 11l-1-2.6-2.6-1 2.6-1L33.5 4Z" fill="var(--gold)"/>
+      </svg>
+      <div>
+        <div class="brand-name">AI Learn <span>Mate</span></div>
+        <div class="brand-sub">Learn &middot; Practice &middot; Grow</div>
+      </div>
+    </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button id="lightBtn" aria-pressed="false" aria-label="Light theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button id="darkBtn" aria-pressed="true" aria-label="Dark theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="hero-copy">
+    <span class="badge">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><path d="M9.5 4.5A2.5 2.5 0 0 0 7 7a2.5 2.5 0 0 0-1 4.8A2.5 2.5 0 0 0 7.5 16a2.5 2.5 0 0 0 4.5-1.5v-8a2 2 0 0 0-2.5-2ZM14.5 4.5A2.5 2.5 0 0 1 17 7a2.5 2.5 0 0 1 1 4.8A2.5 2.5 0 0 1 16.5 16 2.5 2.5 0 0 1 12 14.5"/></svg>
+      Your AI Learning Companion
+    </span>
+    <h1>Smarter Learning for a <em>Brighter Future</em></h1>
+    <p>AI Learn Mate brings together the best AI tools to help you learn, practice, revise and achieve your goals — all in one place.</p>
+
+    <div class="feats">
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><path d="M9.5 4.5A2.5 2.5 0 0 0 7 7a2.5 2.5 0 0 0-1 4.8A2.5 2.5 0 0 0 7.5 16a2.5 2.5 0 0 0 4.5-1.5v-8a2 2 0 0 0-2.5-2ZM14.5 4.5A2.5 2.5 0 0 1 17 7a2.5 2.5 0 0 1 1 4.8A2.5 2.5 0 0 1 16.5 16 2.5 2.5 0 0 1 12 14.5"/></svg></div><span>AI Tutor</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8"><rect x="3" y="5" width="15" height="12" rx="2.5"/><path d="M21 8v9.5A2.5 2.5 0 0 1 18.5 20H7"/></svg></div><span>Flashcards</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="m9 14 2 2 4-4"/></svg></div><span>Quick Quiz</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="m8.5 12.3 2.4 2.4 4.6-5"/></svg></div><span>Study Planner</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg></div><span>Analytics</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8"><rect x="8.5" y="8.5" width="7" height="7" rx="1.6"/><path d="M4 8.5V6a2 2 0 0 1 2-2h2.5M20 15.5V18a2 2 0 0 1-2 2h-2.5"/></svg></div><span>Scanner</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg></div><span>Voice Tutor</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.8l2.4 1.6"/></svg></div><span>Pomodoro</span></div>
+      <div class="feat"><div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/></svg></div><span>Mistake Bank</span></div>
+    </div>
+
+    <p class="script">Small Steps,<small>Big Dreams.</small></p>
+  </div>
+
+  <div class="stage">
+    <!-- SIGN IN -->
+    <section class="auth-card panel" id="panel-signin">
+      <div class="head">
+        <svg class="mini" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <path d="M22 14C18.7 11 13.9 10.2 9 10.7c-.9.1-1.6.9-1.6 1.8v18.6c0 1.1.9 1.9 2 1.8 4.4-.4 8.8.6 12.2 3.3 3.4-2.7 7.8-3.7 12.2-3.3 1.1.1 2-.7 2-1.8V12.5c0-.9-.7-1.7-1.6-1.8-4.9-.5-9.7.3-13.2 3.3Z" stroke="var(--gold)" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M22 14v22.3" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M33.5 4l1 2.6 2.6 1-2.6 1L33.5 11l-1-2.6-2.6-1 2.6-1L33.5 4Z" fill="var(--gold)"/>
+        </svg>
+        <div class="wordmark">AI Learn <span>Mate</span></div>
+        <h2>Welcome Back!</h2>
+        <p class="lede">Sign in to continue your learning journey.</p>
+      </div>
+
+      <div class="field">
+        <span class="lead"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
+        <input type="text" placeholder="Email or Username" autocomplete="username">
+      </div>
+      <div class="field">
+        <span class="lead"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="3"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg></span>
+        <input id="p1" type="password" placeholder="Password" autocomplete="current-password">
+        <button class="eye" type="button" data-eye="p1" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+
+      <div class="row">
+        <label class="check"><input type="checkbox" checked> Remember me</label>
+        <a href="#">Forgot password?</a>
+      </div>
+
+      <button class="btn-primary">Sign In
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6.5 19 12l-6.5 5.5"/></svg>
+      </button>
+
+      <div class="divider">OR</div>
+
+      <button class="btn-ghost">
+        <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.7 12.4c0-.7-.06-1.36-.18-2H12v3.84h5.44a4.65 4.65 0 0 1-2.02 3.05v2.54h3.26c1.9-1.76 3.02-4.35 3.02-7.43Z"/><path fill="#34A853" d="M12 22c2.73 0 5.02-.9 6.68-2.45l-3.26-2.53c-.9.61-2.06.97-3.42.97-2.63 0-4.86-1.77-5.66-4.16H3.98v2.6A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.34 13.83a6 6 0 0 1 0-3.66v-2.6H3.98a10 10 0 0 0 0 8.86l2.36-2.6Z"/><path fill="#EA4335" d="M12 5.98c1.48 0 2.8.51 3.85 1.5l2.88-2.88C16.99 2.98 14.7 2 12 2a10 10 0 0 0-8.02 4.57l2.36 2.6C7.14 7.75 9.37 5.98 12 5.98Z"/></svg>
+        Continue with Google
+      </button>
+      <button class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.2-2.8.8-3.6.8-.7 0-1.8-.8-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.9-2.2.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-.9-2.5-3.7ZM14 5.9c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3Z"/></svg>
+        Continue with Apple
+      </button>
+
+      <p class="foot">Don't have an account? <a href="#" data-goto="signup">Register</a></p>
+
+      <div class="secure">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.4-3.1 8.1-7.5 9-4.4-.9-7.5-4.6-7.5-9V6L12 3Z"/></svg>
+        <div><b>Secure &amp; Private</b><em>Your data is safe with us</em></div>
+      </div>
+    </section>
+
+    <!-- SIGN UP -->
+    <section class="auth-card panel active" id="panel-signup">
+      <div class="head">
+        <svg class="mini" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <path d="M22 14C18.7 11 13.9 10.2 9 10.7c-.9.1-1.6.9-1.6 1.8v18.6c0 1.1.9 1.9 2 1.8 4.4-.4 8.8.6 12.2 3.3 3.4-2.7 7.8-3.7 12.2-3.3 1.1.1 2-.7 2-1.8V12.5c0-.9-.7-1.7-1.6-1.8-4.9-.5-9.7.3-13.2 3.3Z" stroke="var(--gold)" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M22 14v22.3" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M33.5 4l1 2.6 2.6 1-2.6 1L33.5 11l-1-2.6-2.6-1 2.6-1L33.5 4Z" fill="var(--gold)"/>
+        </svg>
+        <div class="wordmark">AI Learn <span>Mate</span></div>
+        <h2>Create Your Account</h2>
+        <p class="lede">Start your learning journey today and unlock your full potential.</p>
+      </div>
+
+      <div class="field">
+        <span class="lead"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg></span>
+        <input type="text" placeholder="Full Name" autocomplete="name">
+      </div>
+      <div class="field">
+        <span class="lead"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>
+        <input type="email" placeholder="Email Address" autocomplete="email">
+      </div>
+      <div class="field">
+        <span class="lead"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="3"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg></span>
+        <input id="p2" type="password" placeholder="Password" autocomplete="new-password">
+        <button class="eye" type="button" data-eye="p2" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="field">
+        <span class="lead"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="3"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg></span>
+        <input id="p3" type="password" placeholder="Confirm Password" autocomplete="new-password">
+        <button class="eye" type="button" data-eye="p3" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+
+      <p class="rolelbl" id="rl">Select Your Role</p>
+      <div class="roles" role="group" aria-labelledby="rl">
+        <button class="role" aria-pressed="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:block;margin:0 auto"><path d="M12 4 2.5 8.5 12 13l9.5-4.5L12 4Z"/><path d="M6.5 11v4.5c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5V11"/></svg>
+          <strong>Student</strong><em>Learn &amp; Grow</em>
+        </button>
+        <button class="role" aria-pressed="false">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:block;margin:0 auto"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6M12 16v4"/></svg>
+          <strong>Teacher</strong><em>Teach &amp; Inspire</em>
+        </button>
+        <button class="role" aria-pressed="false">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:block;margin:0 auto"><path d="M12 20.5s-7.5-4.3-7.5-9.3a4.2 4.2 0 0 1 7.5-2.6 4.2 4.2 0 0 1 7.5 2.6c0 5-7.5 9.3-7.5 9.3Z"/></svg>
+          <strong>Parent</strong><em>Support &amp; Guide</em>
+        </button>
+      </div>
+
+      <button class="btn-primary">Create Account
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6.5 19 12l-6.5 5.5"/></svg>
+      </button>
+
+      <div class="divider">OR</div>
+
+      <button class="btn-ghost">
+        <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.7 12.4c0-.7-.06-1.36-.18-2H12v3.84h5.44a4.65 4.65 0 0 1-2.02 3.05v2.54h3.26c1.9-1.76 3.02-4.35 3.02-7.43Z"/><path fill="#34A853" d="M12 22c2.73 0 5.02-.9 6.68-2.45l-3.26-2.53c-.9.61-2.06.97-3.42.97-2.63 0-4.86-1.77-5.66-4.16H3.98v2.6A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.34 13.83a6 6 0 0 1 0-3.66v-2.6H3.98a10 10 0 0 0 0 8.86l2.36-2.6Z"/><path fill="#EA4335" d="M12 5.98c1.48 0 2.8.51 3.85 1.5l2.88-2.88C16.99 2.98 14.7 2 12 2a10 10 0 0 0-8.02 4.57l2.36 2.6C7.14 7.75 9.37 5.98 12 5.98Z"/></svg>
+        Continue with Google
+      </button>
+      <button class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.2-2.8.8-3.6.8-.7 0-1.8-.8-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.9-2.2.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-.9-2.5-3.7ZM14 5.9c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3Z"/></svg>
+        Continue with Apple
+      </button>
+
+      <p class="foot">Already have an account? <a href="#" data-goto="signin">Sign In</a></p>
+    </section>
+  </div>
+
+  <footer class="bar">
+    <div class="trust">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.7"><path d="M12 4 2.5 8.5 12 13l9.5-4.5L12 4Z"/><path d="M6.5 11v4c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5v-4"/></svg>
+      <div><b>Personalized</b><em>Learning</em></div>
+    </div>
+    <div class="trust">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.7"><path d="M12 3l7.5 3v6c0 4.4-3.1 8.1-7.5 9-4.4-.9-7.5-4.6-7.5-9V6L12 3Z"/></svg>
+      <div><b>Safe &amp; Secure</b><em>Your Data</em></div>
+    </div>
+    <div class="trust">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.7"><path d="M13.5 2.5 4.5 13.5H11l-.5 8 9-11H13l.5-8Z"/></svg>
+      <div><b>Powered by</b><em>Advanced AI</em></div>
+    </div>
+    <div class="trust">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.7"><path d="M12 20.5s-7.5-4.3-7.5-9.3a4.2 4.2 0 0 1 7.5-2.6 4.2 4.2 0 0 1 7.5 2.6c0 5-7.5 9.3-7.5 9.3Z"/></svg>
+      <div><b>Built for</b><em>Better You</em></div>
+    </div>
+    <div class="cta-script">
+      <span>Let's Learn Together</span>
+      <button class="cta-round" aria-label="Get started">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6.5 19 12l-6.5 5.5"/></svg>
+      </button>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,L=document.getElementById('lightBtn'),D=document.getElementById('darkBtn');
+  function setTheme(t){root.setAttribute('data-theme',t);L.setAttribute('aria-pressed',t==='light');D.setAttribute('aria-pressed',t==='dark');try{localStorage.setItem('alm-theme',t)}catch(e){}}
+  try{var s=localStorage.getItem('alm-theme');if(s)setTheme(s)}catch(e){}
+  L.addEventListener('click',function(){setTheme('light')});
+  D.addEventListener('click',function(){setTheme('dark')});
+
+  document.querySelectorAll('.eye').forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=document.getElementById(b.dataset.eye),show=i.type==='password';
+      i.type=show?'text':'password';
+      b.setAttribute('aria-label',show?'Hide password':'Show password');
+    });
+  });
+
+  document.querySelectorAll('.roles').forEach(function(g){
+    g.addEventListener('click',function(e){
+      var b=e.target.closest('.role');if(!b)return;
+      g.querySelectorAll('.role').forEach(function(r){r.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');
+    });
+  });
+
+  // sign in <-> sign up switching. App opens on Sign In by default.
+  document.querySelectorAll('[data-goto]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      var target=a.dataset.goto;
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+      document.getElementById('panel-'+target).classList.add('active');
+    });
+  });
+})();
+</script>
+</body>
+</html>
