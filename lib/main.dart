@@ -11,22 +11,21 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'services/user_provider.dart';
 import 'services/learning_provider.dart';
-
 import 'services/quiz_provider.dart';
-
 import 'services/mastery_provider.dart';
-
 import 'services/flashcard_provider.dart';
-
 import 'services/planner_provider.dart';
 import 'services/exam_provider.dart';
-
 import 'services/analytics_provider.dart';
 import 'services/achievement_provider.dart';
+import 'services/pomodoro_timer_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (_) {}
+  
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Hive.initFlutter();
@@ -52,6 +51,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ExamProvider()),
         ChangeNotifierProvider(create: (_) => AnalyticsProvider()),
         ChangeNotifierProvider(create: (_) => AchievementProvider()),
+        ChangeNotifierProvider(create: (_) => PomodoroTimerProvider()),
       ],
       builder: (context, _) {
         final themeService = Provider.of<ThemeService>(context);
@@ -67,6 +67,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -77,7 +78,8 @@ class AuthGate extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+            backgroundColor: Color(0xFF05070F),
+            body: Center(child: CircularProgressIndicator(color: Color(0xFFFFC44D))),
           );
         }
         if (snapshot.hasData) {
