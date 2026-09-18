@@ -88,6 +88,13 @@ class ThemeService with ChangeNotifier {
         ),
         hintStyle: const TextStyle(color: AppColors.secondaryText),
       ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.card,
+        selectedItemColor: AppColors.accent,
+        unselectedItemColor: AppColors.secondaryText,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
     );
   }
 

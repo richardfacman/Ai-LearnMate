@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../services/groq_service.dart';
 import '../../services/nvidia_service.dart';
 import '../../services/ai/ai_provider_manager.dart';
@@ -498,6 +499,7 @@ class _ChatScreenState extends State<ChatScreen> {
       color: surface,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: SingleChildScrollView(
+        controller: ScrollController(initialScrollOffset: 0),
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: isDesktop ? MainAxisAlignment.center : MainAxisAlignment.start,
@@ -506,6 +508,7 @@ class _ChatScreenState extends State<ChatScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ChoiceChip(
+                showCheckmark: false,
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -551,6 +554,7 @@ class _ChatScreenState extends State<ChatScreen> {
       color: surface,
       padding: const EdgeInsets.only(bottom: 8, left: 12, right: 12),
       child: SingleChildScrollView(
+        controller: ScrollController(initialScrollOffset: 0),
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: isDesktop ? MainAxisAlignment.center : MainAxisAlignment.start,
@@ -559,6 +563,7 @@ class _ChatScreenState extends State<ChatScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ChoiceChip(
+                showCheckmark: false,
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -686,9 +691,18 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText(
-                  text,
-                  style: const TextStyle(color: paper, fontSize: 14.5, height: 1.55),
+                MarkdownBody(
+                  data: text,
+                  styleSheet: MarkdownStyleSheet(
+                    p: const TextStyle(color: paper, fontSize: 14.5, height: 1.55),
+                    strong: const TextStyle(color: paper, fontWeight: FontWeight.bold),
+                    h1: const TextStyle(color: paper),
+                    h2: const TextStyle(color: paper),
+                    h3: const TextStyle(color: paper),
+                    h4: const TextStyle(color: paper),
+                    listBullet: const TextStyle(color: paper),
+                    code: TextStyle(color: paper, backgroundColor: surfaceHi),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 const Divider(color: hairline, height: 1),
@@ -753,6 +767,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 child: TextField(
                   controller: _msgCtrl,
+                  cursorColor: gold,
                   style: const TextStyle(color: paper, fontSize: 14),
                   maxLines: 4,
                   minLines: 1,
