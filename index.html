@@ -470,11 +470,11 @@ a:hover{text-decoration:underline}
   D.addEventListener('click',function(){set('dark')});
 
   document.querySelectorAll('.eye').forEach(function(b){
-    b.addEventListener('click',function((
+    b.addEventListener('click',function(){
       var i=document.getElementById(b.dataset.eye),show=i.type==='password';
       i.type=show?'text':'password';
       b.setAttribute('aria-label',show?'Hide password':'Show password');
-    ));
+    });
   });
 
   document.querySelectorAll('.roles').forEach(function(g){
