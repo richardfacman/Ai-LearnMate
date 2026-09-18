@@ -36,14 +36,14 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeDashboard(),
     ChatScreen(),
     NotesScreen(),
-    TimerScreen(),
+    AnalyticsScreen(),
     ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF05070F),
+      backgroundColor: const Color(0xFF0B0B14),
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
@@ -69,12 +69,12 @@ class HomeDashboard extends StatefulWidget {
 
 class _HomeDashboardState extends State<HomeDashboard> {
   // Theme Tokens
-  static const Color bgNavy = Color(0xFF05070F);
+  static const Color bgNavy = Color(0xFF0B0B14);
   static const Color ink = Color(0xFF0B0E14);
   static const Color surface = Color(0xFF151A24);
-  static const Color cardNavy = Color(0xFF0F1422);
+  static const Color cardNavy = Color(0xFF15151F);
   static const Color surfaceHi = Color(0xFF181F33);
-  static const Color gold = Color(0xFFF0A93E);
+  static const Color gold = Color(0xFFFFB020);
   static const Color paper = Color(0xFFF4EFE6);
   static const Color muted = Color(0xFF8B93A6);
   static const Color hairline = Color(0x1AF4EFE6);

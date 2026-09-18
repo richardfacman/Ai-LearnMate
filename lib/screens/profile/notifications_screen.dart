@@ -20,7 +20,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   // Theme Tokens
   static const Color ink = Color(0xFF0B0E14);
   static const Color surface = Color(0xFF151A24);
-  static const Color gold = Color(0xFFF0A93E);
+  static const Color gold = Color(0xFFFFB020);
   static const Color paper = Color(0xFFF4EFE6);
   static const Color muted = Color(0xFF8B93A6);
   static const Color hairline = Color(0x1AF4EFE6);

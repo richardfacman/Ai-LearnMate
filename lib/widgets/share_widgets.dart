@@ -4,9 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/shared_content.dart';
 import '../services/share_service.dart';
 
-const _accent = Color(0xFFF0A93E);
-const _card = Color(0xFF0F1422);
-const _bg = Color(0xFF05070F);
+const _accent = Color(0xFFFFB020);
+const _card = Color(0xFF15151F);
+const _bg = Color(0xFF0B0B14);
 
 /// Call this from a note / flashcard-set / quiz detail screen's app bar
 /// action to share that item.

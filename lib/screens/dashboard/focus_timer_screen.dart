@@ -7,9 +7,9 @@ import '../../services/pomodoro_timer_provider.dart';
 class FocusTimerScreen extends StatelessWidget {
   const FocusTimerScreen({super.key});
 
-  static const _bg = Color(0xFF05070F);
-  static const _card = Color(0xFF0F1422);
-  static const _accent = Color(0xFFF0A93E);
+  static const _bg = Color(0xFF0B0B14);
+  static const _card = Color(0xFF15151F);
+  static const _accent = Color(0xFFFFB020);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class FocusTimerScreen extends StatelessWidget {
           title: const Text('Focus Timer', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'serif')),
           actions: [
             IconButton(
-              icon: const Icon(Icons.settings_outlined, color: Color(0xFFF0A93E)),
+              icon: const Icon(Icons.settings_outlined, color: Color(0xFFFFB020)),
               onPressed: () => _openSettingsSheet(context),
             ),
           ],
@@ -99,9 +99,9 @@ class _ModeSelector extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 4),
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFFF0A93E).withOpacity(0.18) : const Color(0xFF0F1422),
+              color: selected ? const Color(0xFFFFB020).withOpacity(0.18) : const Color(0xFF15151F),
               border: Border.all(
-                color: selected ? const Color(0xFFF0A93E) : const Color(0x1AF4EFE6),
+                color: selected ? const Color(0xFFFFB020) : const Color(0x1AF4EFE6),
                 width: selected ? 1.5 : 1.0,
               ),
               borderRadius: BorderRadius.circular(14),
@@ -110,7 +110,7 @@ class _ModeSelector extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: selected ? const Color(0xFFF0A93E) : const Color(0xFF8B93A6),
+                color: selected ? const Color(0xFFFFB020) : const Color(0xFF8B93A6),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -195,7 +195,7 @@ class _Controls extends StatelessWidget {
           onTap: timer.isRunning ? timer.pause : timer.start,
           background: accent,
           large: true,
-          iconColor: const Color(0xFF0B0E14),
+          iconColor: const Color(0xFF0B0B14),
         ),
         const SizedBox(width: 24),
         _RoundButton(icon: Icons.skip_next_rounded, onTap: timer.skip, background: card),
@@ -218,7 +218,7 @@ class _RoundButton extends StatelessWidget {
   final bool large;
   final Color iconColor;
 
-  static const _accentColor = Color(0xFFF0A93E);
+  static const _accentColor = Color(0xFFFFB020);
 
   @override
   Widget build(BuildContext context) {
@@ -309,7 +309,7 @@ class _DurationSettingsSheetState extends State<_DurationSettingsSheet> {
                 );
                 Navigator.pop(context);
               },
-              child: const Text('Save Durations', style: TextStyle(color: Color(0xFF0B0E14), fontWeight: FontWeight.bold)),
+              child: const Text('Save Durations', style: TextStyle(color: Color(0xFF0B0B14), fontWeight: FontWeight.bold)),
             ),
           ),
         ],

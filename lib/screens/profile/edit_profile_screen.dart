@@ -23,13 +23,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _loading = false;
   String _selectedGraphicAvatar = "🤖 AI Neural";
   String _selectedGraphicBanner = "🌌 Deep Space Nebula";
-  Color _selectedAccentColor = const Color(0xFFF0A93E);
+  Color _selectedAccentColor = const Color(0xFFFFB020);
 
   // Theme Tokens
   static const Color ink = Color(0xFF0B0E14);
   static const Color surface = Color(0xFF151A24);
   static const Color surfaceHi = Color(0xFF181F33);
-  static const Color gold = Color(0xFFF0A93E);
+  static const Color gold = Color(0xFFFFB020);
   static const Color paper = Color(0xFFF4EFE6);
   static const Color muted = Color(0xFF8B93A6);
   static const Color hairline = Color(0x1AF4EFE6);
@@ -37,7 +37,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final List<Map<String, dynamic>> _graphicAvatars = [
     {"name": "🤖 AI Neural", "icon": Icons.smart_toy_rounded, "color": const Color(0xFF00E5FF)},
     {"name": "🎨 Cyber Scholar", "icon": Icons.palette_rounded, "color": const Color(0xFFB388FF)},
-    {"name": "🎓 Gold Fellow", "icon": Icons.school_rounded, "color": const Color(0xFFF0A93E)},
+    {"name": "🎓 Gold Fellow", "icon": Icons.school_rounded, "color": const Color(0xFFFFB020)},
     {"name": "🌟 Starlight", "icon": Icons.star_rounded, "color": const Color(0xFFFFD54F)},
     {"name": "🚀 Cosmic Voyager", "icon": Icons.rocket_launch_rounded, "color": const Color(0xFFFF80AB)},
     {"name": "📜 Socratic Sage", "icon": Icons.menu_book_rounded, "color": const Color(0xFF34D399)},
@@ -46,7 +46,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   ];
 
   final List<Color> _graphicAccentColors = [
-    const Color(0xFFF0A93E), // Gold
+    const Color(0xFFFFB020), // Gold
     const Color(0xFF00E5FF), // Cyan
     const Color(0xFFB388FF), // Violet
     const Color(0xFF34D399), // Emerald

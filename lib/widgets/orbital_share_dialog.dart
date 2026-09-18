@@ -30,7 +30,7 @@ class _OrbitalShareDialogState extends State<OrbitalShareDialog> with SingleTick
   late AnimationController _animController;
   late Animation<double> _scaleAnimation;
 
-  static const Color gold = Color(0xFFF0A93E);
+  static const Color gold = Color(0xFFFFB020);
   static const Color ink = Color(0xFF0B0E14);
   static const Color surface = Color(0xFF151A24);
 

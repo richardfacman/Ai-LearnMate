@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
-import 'signup_screen.dart';
+import '../../services/theme_service.dart';
+import '../../widgets/app_logo.dart';
 import 'forgot_password.dart';
 import 'social_security_verification_screen.dart';
 import '../dashboard/home_screen.dart';
@@ -37,16 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final _auth = AuthService();
 
-  // Color Tokens
-  static const Color bgNavy = Color(0xFF05070F);
-  static const Color cardNavy = Color(0xFF0F1422);
-  static const Color surfaceHi = Color(0xFF181F33);
-  static const Color goldLight = Color(0xFFFFC44D);
-  static const Color goldDark = Color(0xFFEE9F16);
-  static const Color textPaper = Color(0xFFF4EFE6);
-  static const Color textMuted = Color(0xFF8B93A6);
-  static const Color hairline = Color(0x1AF4EFE6);
-
+  // Color Tokens - Moved to AppColors, using those directly
   static const Color accentCyan = Color(0xFF00E5FF);
   static const Color accentViolet = Color(0xFFB388FF);
   static const Color accentPink = Color(0xFFFF80AB);
@@ -156,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final isTablet = size.width > 750 && size.width <= 1100;
 
     return Scaffold(
-      backgroundColor: bgNavy,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // Background Glowing Color Blobs & Star-dots
@@ -180,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 450,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: goldDark.withOpacity(0.08),
+                color: AppColors.accent.withOpacity(0.08),
               ),
             ),
           ),
@@ -205,8 +197,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               Row(
                                 children: const [
-                                  Text("AI Learn ", style: TextStyle(color: textPaper, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'serif')),
-                                  Text("Mate", style: TextStyle(color: goldLight, fontSize: 22, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                                  Text("AI Learn ", style: TextStyle(color: AppColors.primaryText, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                                  Text("Mate", style: TextStyle(color: AppColors.accent, fontSize: 22, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
                                 ],
                               ),
                               const Text(
@@ -222,23 +214,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: cardNavy,
+                          color: AppColors.card,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: hairline),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(6),
-                              child: const Icon(Icons.wb_sunny_outlined, color: textMuted, size: 16),
+                              child: const Icon(Icons.wb_sunny_outlined, color: AppColors.secondaryText, size: 16),
                             ),
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: const BoxDecoration(
-                                color: goldDark,
+                                color: AppColors.accent,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.nightlight_round, color: bgNavy, size: 16),
+                              child: const Icon(Icons.nightlight_round, color: AppColors.background, size: 16),
                             ),
                           ],
                         ),
@@ -308,9 +300,9 @@ class _LoginScreenState extends State<LoginScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: cardNavy,
+            color: AppColors.card,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: hairline),
+            border: Border.all(color: AppColors.border),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -319,7 +311,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(width: 8),
               Text(
                 "Your AI learning companion",
-                style: TextStyle(color: textPaper, fontSize: 12, fontWeight: FontWeight.w500),
+                style: TextStyle(color: AppColors.primaryText, fontSize: 12, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -330,14 +322,14 @@ class _LoginScreenState extends State<LoginScreen> {
         Text.rich(
           TextSpan(
             text: "Smarter learning\nfor a ",
-            style: const TextStyle(color: textPaper, fontSize: 38, fontWeight: FontWeight.bold, height: 1.15, fontFamily: 'serif'),
+            style: const TextStyle(color: AppColors.primaryText, fontSize: 38, fontWeight: FontWeight.bold, height: 1.15, fontFamily: 'serif'),
             children: [
               TextSpan(
                 text: "brighter\nfuture",
                 style: TextStyle(
                   foreground: Paint()
                     ..shader = const LinearGradient(
-                      colors: [goldLight, goldDark],
+                      colors: [AppColors.accent, AppColors.accent],
                     ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                   fontSize: 38,
                   fontStyle: FontStyle.italic,
@@ -353,7 +345,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Paragraph
         const Text(
           "AI Learn Mate brings the tools you need to learn, practise and revise into one place — and remembers every question you got wrong until you finally get it right.",
-          style: TextStyle(color: textMuted, fontSize: 13.5, height: 1.5),
+          style: TextStyle(color: AppColors.secondaryText, fontSize: 13.5, height: 1.5),
         ),
         const SizedBox(height: 28),
 
@@ -368,11 +360,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: cardNavy,
+                      color: AppColors.card,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: goldDark.withOpacity(0.5), width: 1.5),
+                      border: Border.all(color: AppColors.accent.withOpacity(0.5), width: 1.5),
                       boxShadow: [
-                        BoxShadow(color: goldDark.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
+                        BoxShadow(color: AppColors.accent.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
                       ],
                     ),
                     child: Column(
@@ -381,21 +373,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Icon(Icons.chat_bubble_outline_rounded, color: goldLight, size: 22),
+                            const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.accent, size: 22),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: goldDark.withOpacity(0.2),
+                                color: AppColors.accent.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Text("Most used", style: TextStyle(color: goldLight, fontSize: 10, fontWeight: FontWeight.bold)),
+                              child: const Text("Most used", style: TextStyle(color: AppColors.accent, fontSize: 10, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
                         const SizedBox(height: 20),
-                        const Text("Mistake Bank", style: TextStyle(color: textPaper, fontSize: 14, fontWeight: FontWeight.bold)),
+                        const Text("Mistake Bank", style: TextStyle(color: AppColors.primaryText, fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 2),
-                        const Text("Missed questions return until they stick", style: TextStyle(color: textMuted, fontSize: 11)),
+                        const Text("Missed questions return until they stick", style: TextStyle(color: AppColors.secondaryText, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -448,7 +440,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Script Accent Line
         const Text(
           "Small steps, big dreams.",
-          style: TextStyle(color: goldLight, fontSize: 18, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'serif'),
+          style: TextStyle(color: AppColors.accent, fontSize: 18, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'serif'),
         ),
       ],
     );
@@ -458,9 +450,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: cardNavy,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: hairline),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -469,7 +461,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(color: textPaper, fontSize: 12, fontWeight: FontWeight.w600),
+              style: const TextStyle(color: AppColors.primaryText, fontSize: 12, fontWeight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -483,9 +475,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: cardNavy,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: goldDark.withOpacity(0.3), width: 1.2),
+        border: Border.all(color: AppColors.accent.withOpacity(0.3), width: 1.2),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8)),
         ],
@@ -498,15 +490,15 @@ class _LoginScreenState extends State<LoginScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              Text("AI Learn ", style: TextStyle(color: textPaper, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'serif')),
-              Text("Mate", style: TextStyle(color: goldLight, fontSize: 16, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+              Text("AI Learn ", style: TextStyle(color: AppColors.primaryText, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+              Text("Mate", style: TextStyle(color: AppColors.accent, fontSize: 16, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
             ],
           ),
           const SizedBox(height: 16),
 
-          const Text("Welcome back", style: TextStyle(color: textPaper, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+          const Text("Welcome back", style: TextStyle(color: AppColors.primaryText, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif')),
           const SizedBox(height: 4),
-          const Text("12 questions are due for review today.", style: TextStyle(color: textMuted, fontSize: 12)),
+          const Text("12 questions are due for review today.", style: TextStyle(color: AppColors.secondaryText, fontSize: 12)),
           const SizedBox(height: 24),
 
           // Email Field
@@ -536,19 +528,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Checkbox(
                       value: _rememberMe,
                       onChanged: (val) => setState(() => _rememberMe = val!),
-                      activeColor: goldDark,
-                      checkColor: bgNavy,
-                      side: const BorderSide(color: textMuted),
+                      activeColor: AppColors.accent,
+                      checkColor: AppColors.background,
+                      side: const BorderSide(color: AppColors.secondaryText),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text("Remember me", style: TextStyle(color: textPaper, fontSize: 12)),
+                  const Text("Remember me", style: TextStyle(color: AppColors.primaryText, fontSize: 12)),
                 ],
               ),
               GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPasswordScreen())),
-                child: const Text("Forgot password?", style: TextStyle(color: goldLight, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: const Text("Forgot password?", style: TextStyle(color: AppColors.accent, fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -558,7 +550,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _buildGoldButton("Sign in", _loginLoading, _handleLogin),
           const SizedBox(height: 16),
 
-          const Text("or", style: TextStyle(color: textMuted, fontSize: 12)),
+          const Text("or", style: TextStyle(color: AppColors.secondaryText, fontSize: 12)),
           const SizedBox(height: 16),
 
           // Social Buttons Row
@@ -569,9 +561,9 @@ class _LoginScreenState extends State<LoginScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: bgNavy,
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: hairline),
+              border: Border.all(color: AppColors.border),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -579,7 +571,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Icon(Icons.shield_outlined, color: accentCyan, size: 16),
                 SizedBox(width: 8),
                 Expanded(
-                  child: Text("Secure and private — Your notes and answers stay yours", style: TextStyle(color: textMuted, fontSize: 11)),
+                  child: Text("Secure and private — Your notes and answers stay yours", style: TextStyle(color: AppColors.secondaryText, fontSize: 11)),
                 ),
               ],
             ),
@@ -594,9 +586,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: cardNavy,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: hairline),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8)),
         ],
@@ -609,15 +601,15 @@ class _LoginScreenState extends State<LoginScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              Text("AI Learn ", style: TextStyle(color: textPaper, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'serif')),
-              Text("Mate", style: TextStyle(color: goldLight, fontSize: 16, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+              Text("AI Learn ", style: TextStyle(color: AppColors.primaryText, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+              Text("Mate", style: TextStyle(color: AppColors.accent, fontSize: 16, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontFamily: 'serif')),
             ],
           ),
           const SizedBox(height: 16),
 
-          const Text("Create your account", style: TextStyle(color: textPaper, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+          const Text("Create your account", style: TextStyle(color: AppColors.primaryText, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif')),
           const SizedBox(height: 4),
-          const Text("Under a minute. No card, no trial countdown.", style: TextStyle(color: textMuted, fontSize: 12)),
+          const Text("Under a minute. No card, no trial countdown.", style: TextStyle(color: AppColors.secondaryText, fontSize: 12)),
           const SizedBox(height: 24),
 
           _buildDarkField(_regName, "Full name", Icons.person_outline, false),
@@ -646,7 +638,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Three-Way Role Selector
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text("Select your role", style: TextStyle(color: textPaper, fontSize: 12, fontWeight: FontWeight.bold)),
+            child: Text("Select your role", style: TextStyle(color: AppColors.primaryText, fontSize: 12, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 8),
           Row(
@@ -663,7 +655,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _buildGoldButton("Create account", _regLoading, _handleRegister),
           const SizedBox(height: 16),
 
-          const Text("or", style: TextStyle(color: textMuted, fontSize: 12)),
+          const Text("or", style: TextStyle(color: AppColors.secondaryText, fontSize: 12)),
           const SizedBox(height: 16),
 
           _buildSocialButtonsRow(),
@@ -681,16 +673,16 @@ class _LoginScreenState extends State<LoginScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? goldDark.withOpacity(0.12) : bgNavy,
+          color: isSelected ? AppColors.accent.withOpacity(0.12) : AppColors.background,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? goldDark : hairline, width: isSelected ? 1.5 : 1),
+          border: Border.all(color: isSelected ? AppColors.accent : AppColors.border, width: isSelected ? 1.5 : 1),
         ),
         child: Column(
           children: [
-            Icon(icon, color: isSelected ? goldLight : textMuted, size: 18),
+            Icon(icon, color: isSelected ? AppColors.accent : AppColors.secondaryText, size: 18),
             const SizedBox(height: 4),
-            Text(title, style: TextStyle(color: isSelected ? goldLight : textPaper, fontSize: 11, fontWeight: FontWeight.bold)),
-            Text(sub, style: TextStyle(color: isSelected ? goldLight.withOpacity(0.8) : textMuted, fontSize: 9)),
+            Text(title, style: TextStyle(color: isSelected ? AppColors.accent : AppColors.primaryText, fontSize: 11, fontWeight: FontWeight.bold)),
+            Text(sub, style: TextStyle(color: isSelected ? AppColors.accent.withOpacity(0.8) : AppColors.secondaryText, fontSize: 9)),
           ],
         ),
       ),
@@ -710,17 +702,17 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: Ink(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [goldLight, goldDark]),
+            gradient: const LinearGradient(colors: [AppColors.accent, AppColors.accent]),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
-              BoxShadow(color: goldDark.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+              BoxShadow(color: AppColors.accent.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
             ],
           ),
           child: Container(
             alignment: Alignment.center,
             child: isLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: bgNavy, strokeWidth: 2))
-                : Text(text, style: const TextStyle(color: bgNavy, fontSize: 15, fontWeight: FontWeight.bold)),
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.background, strokeWidth: 2))
+                : Text(text, style: const TextStyle(color: AppColors.background, fontSize: 15, fontWeight: FontWeight.bold)),
           ),
         ),
       ),
@@ -736,8 +728,8 @@ class _LoginScreenState extends State<LoginScreen> {
           child: OutlinedButton(
             onPressed: _handleGoogleSignIn,
             style: OutlinedButton.styleFrom(
-              backgroundColor: bgNavy,
-              side: const BorderSide(color: hairline),
+              backgroundColor: AppColors.background,
+              side: const BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: Row(
@@ -745,7 +737,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: const [
                 GoogleBrandLogo(size: 18),
                 SizedBox(width: 10),
-                Text("Continue with Google", style: TextStyle(color: textPaper, fontSize: 13, fontWeight: FontWeight.bold)),
+                Text("Continue with Google", style: TextStyle(color: AppColors.primaryText, fontSize: 13, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -758,16 +750,16 @@ class _LoginScreenState extends State<LoginScreen> {
           child: OutlinedButton(
             onPressed: _handleGoogleSignIn,
             style: OutlinedButton.styleFrom(
-              backgroundColor: bgNavy,
-              side: const BorderSide(color: hairline),
+              backgroundColor: AppColors.background,
+              side: const BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(Icons.apple_rounded, color: textPaper, size: 20),
+                Icon(Icons.apple_rounded, color: AppColors.primaryText, size: 20),
                 SizedBox(width: 10),
-                Text("Continue with Apple", style: TextStyle(color: textPaper, fontSize: 13, fontWeight: FontWeight.bold)),
+                Text("Continue with Apple", style: TextStyle(color: AppColors.primaryText, fontSize: 13, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -800,9 +792,9 @@ class _LoginScreenState extends State<LoginScreen> {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: bgNavy,
+            color: AppColors.background,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: hairline),
+            border: Border.all(color: AppColors.border),
           ),
           alignment: Alignment.center,
           child: child,
@@ -821,21 +813,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: bgNavy,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: hairline),
+        border: Border.all(color: AppColors.border),
       ),
       child: TextField(
         controller: controller,
         obscureText: isPassword && obscure,
-        style: const TextStyle(color: textPaper, fontSize: 13.5),
+        style: const TextStyle(color: AppColors.primaryText, fontSize: 13.5),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: textMuted, fontSize: 13),
-          prefixIcon: Icon(icon, color: textMuted, size: 18),
+          hintStyle: const TextStyle(color: AppColors.secondaryText, fontSize: 13),
+          prefixIcon: Icon(icon, color: AppColors.secondaryText, size: 18),
           suffixIcon: isPassword && onToggleObscure != null
               ? IconButton(
-                  icon: Icon(obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: textMuted, size: 18),
+                  icon: Icon(obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: AppColors.secondaryText, size: 18),
                   onPressed: onToggleObscure,
                 )
               : null,
@@ -852,10 +844,10 @@ class _LoginScreenState extends State<LoginScreen> {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: goldLight, width: 1.5),
+        border: Border.all(color: AppColors.accent, width: 1.5),
       ),
       alignment: Alignment.center,
-      child: Icon(Icons.menu_book_rounded, color: goldLight, size: size * 0.6),
+      child: Icon(Icons.menu_book_rounded, color: AppColors.accent, size: size * 0.6),
     );
   }
 
@@ -879,16 +871,16 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const Text(
               "Let's learn together",
-              style: TextStyle(color: textPaper, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'serif'),
+              style: TextStyle(color: AppColors.primaryText, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'serif'),
             ),
             const SizedBox(width: 12),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(
-                color: goldDark,
+                color: AppColors.accent,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_forward_rounded, color: bgNavy, size: 18),
+              child: const Icon(Icons.arrow_forward_rounded, color: AppColors.background, size: 18),
             ),
           ],
         ),
