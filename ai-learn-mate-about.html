@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About & Contact Owner — AI Learn Mate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070F;
+  --panel:rgba(16,20,38,.66);
+  --panel-2:rgba(28,32,58,.5);
+  --field:rgba(6,9,20,.8);
+  --line:rgba(140,160,255,.14);
+  --line-2:rgba(150,170,255,.30);
+  --text:#F1F4FC;
+  --muted:#8D9AC2;
+  --gold:#FFC44D;
+  --gold-2:#EE9F16;
+  --gold-ink:#1D1404;
+  --violet:#8C86FF;
+  --cyan:#4FC3E8;
+  --pink:#FF80B8;
+  --fb:#1877F2;
+  --mail:#EA4335;
+  --li:#0A66C2;
+  --r:14px;
+  --r-lg:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100vh;position:relative;overflow-x:hidden;
+}
+:root[data-theme="light"]{
+  --bg:#F6F4FF;--panel:rgba(255,255,255,.88);--panel-2:rgba(255,255,255,.7);
+  --field:#F0F0FA;--line:rgba(30,40,90,.13);--line-2:rgba(30,40,90,.24);
+  --text:#111731;--muted:#5C6690;--gold-ink:#241703;
+}
+.field-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.field-bg i{position:absolute;border-radius:50%;filter:blur(100px);display:block}
+.field-bg i:nth-child(1){width:38vw;height:38vw;left:-8%;top:-12%;background:rgba(90,96,255,.22)}
+.field-bg i:nth-child(2){width:32vw;height:32vw;right:-10%;bottom:-14%;background:rgba(255,180,60,.10)}
+:root[data-theme="light"] .field-bg{opacity:.5}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;mix-blend-mode:overlay}
+
+.shell{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 20px 60px}
+
+/* header */
+.head{display:flex;align-items:center;gap:14px;padding:18px 0;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:linear-gradient(180deg,rgba(5,7,15,.85),rgba(5,7,15,.4));backdrop-filter:blur(10px);z-index:5}
+.back{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel);
+  color:var(--text);display:grid;place-items:center;cursor:pointer;flex:none}
+.back:hover{border-color:var(--line-2)}
+.head h1{font-size:16px;font-weight:700;margin:0}
+
+/* hero */
+.hero{padding:34px 0 6px}
+.hero h2{font-family:Fraunces,serif;font-size:clamp(30px,4vw,40px);font-weight:700;margin:0 0 6px;letter-spacing:-.02em}
+.hero p{margin:0;color:var(--muted);font-size:15px}
+.hero p b{color:var(--text);font-weight:600}
+
+/* profile card */
+.profile-card{position:relative;margin-top:26px;border-radius:var(--r-lg);padding:26px;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));backdrop-filter:blur(18px);
+  border:1px solid var(--line);box-shadow:0 40px 90px -50px rgba(0,0,0,.9);
+  display:grid;grid-template-columns:180px 1fr auto;gap:26px}
+@media (max-width:720px){.profile-card{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.photo-wrap{width:180px;height:220px;border-radius:16px;overflow:hidden;border:2px solid var(--gold);
+  box-shadow:0 20px 44px -20px rgba(255,196,77,.4);flex:none}
+.photo-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+
+.about-col h3{font-family:Fraunces,serif;font-size:19px;font-weight:600;margin:2px 0 10px}
+.about-col p{margin:0;color:var(--muted);font-size:13.8px;line-height:1.7;max-width:44ch}
+
+.details-col{min-width:180px}
+.details-col h3{font-family:Fraunces,serif;font-size:19px;font-weight:600;margin:2px 0 12px}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;margin-bottom:16px}
+.dl dt{color:var(--muted);font-weight:600}
+.dl dd{margin:0;font-weight:600}
+.social-row{display:flex;gap:9px;flex-wrap:wrap}
+.social-row a, .social-row button{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+  color:#fff;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .15s,filter .15s}
+.social-row a:hover, .social-row button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.s-fb{background:var(--fb)}
+.s-mail{background:var(--mail)}
+.s-li{background:var(--li)}
+.s-x{background:#000;border:1px solid var(--line-2)}
+.s-share{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+
+/* feedback row */
+.section-lbl{margin-top:34px;font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--gold);text-transform:uppercase}
+.feedback-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-top:12px}
+@media (max-width:640px){.feedback-row{grid-template-columns:1fr}}
+.fbtn{display:flex;align-items:center;justify-content:center;gap:9px;height:48px;border-radius:12px;
+  border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;font-size:13.5px;font-weight:700;
+  cursor:pointer;transition:border-color .16s,transform .16s}
+.fbtn:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.fbtn.primary{border:0;background:linear-gradient(180deg,var(--gold),var(--gold-2));color:var(--gold-ink);
+  box-shadow:0 16px 36px -18px rgba(255,170,30,.75)}
+
+/* about product */
+.about-product{margin-top:16px;color:var(--muted);font-size:13.8px;line-height:1.7;max-width:64ch}
+.tool-grid{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.tool-chip{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;
+  border:1px solid var(--line);background:var(--panel);font-size:12.5px;font-weight:600;color:var(--text)}
+.tool-chip.danger{border-color:rgba(255,110,110,.4);color:#FF9A9A}
+.tool-chip .swatch{width:16px;height:16px;border-radius:5px;display:grid;place-items:center;flex:none}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="field-bg" aria-hidden="true"><i></i><i></i></div>
+<svg width="0" height="0"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter></svg>
+<div class="grain" style="filter:url(#n)" aria-hidden="true"></div>
+
+<div class="shell">
+  <header class="head">
+    <button class="back" aria-label="Back">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    </button>
+    <h1>About &amp; Contact Owner</h1>
+  </header>
+
+  <section class="hero">
+    <h2>Hello!</h2>
+    <p>I'm <b>Foysal Ahmed</b>, Project Owner &amp; Developer of AI Learn Mate.</p>
+  </section>
+
+  <section class="profile-card">
+    <div class="photo-wrap">
+      <img src="data:image/jpeg;base64,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" alt="Foysal Ahmed">
+    </div>
+
+    <div class="about-col">
+      <h3>About me</h3>
+      <p>I am a passionate software developer and AI engineer dedicated to building AI Learn Mate — an adaptive, all-in-one learning system that brings personalized study tools, flashcards, quizzes, and AI tutoring to students worldwide.</p>
+    </div>
+
+    <div class="details-col">
+      <h3>Details</h3>
+      <dl class="dl">
+        <dt>Name:</dt><dd>Foysal Ahmed</dd>
+        <dt>Role:</dt><dd>Project Owner &amp; Developer</dd>
+        <dt>Project:</dt><dd>AI Learn Mate</dd>
+        <dt>Location:</dt><dd>Bangladesh</dd>
+      </dl>
+      <div class="social-row">
+        <a class="s-fb" href="#" aria-label="Facebook"><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M13.5 21v-7.8h2.6l.4-3h-3V8.2c0-.9.2-1.5 1.6-1.5h1.6V4.1C15.9 4 15 4 14 4c-2.4 0-4 1.5-4 4.2v2H7.5v3H10V21h3.5Z"/></svg></a>
+        <a class="s-mail" href="mailto:hello@ailearnmate.app" aria-label="Email"><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11Zm1.7.2 7.3 5.6 7.3-5.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="s-li" href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.3c0-1.27-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.8V21h-4V9Z"/></svg></a>
+        <a class="s-x" href="#" aria-label="X / Twitter"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M4 4l16 16M20 4 4 20"/></svg></a>
+        <button class="s-share" aria-label="Share">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7 15.7 6.6M8.3 13.3l7.4 4.1"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-lbl">Need assistance or have feedback?</div>
+  <div class="feedback-row">
+    <button class="fbtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9V6a3 3 0 0 1 6 0v3M6 9h12v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V9ZM4.5 12h-1M20.5 12h-1M7 6 5.5 4.5M17 6l1.5-1.5"/></svg>
+      Report bug
+    </button>
+    <button class="fbtn primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg>
+      Feedback
+    </button>
+    <button class="fbtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.9 1 1 1.7l.1.5h5l.1-.5c.1-.7.5-1.3 1-1.7A6 6 0 0 0 12 3Z"/></svg>
+      Suggest
+    </button>
+  </div>
+
+  <div class="section-lbl">About AI Learn Mate</div>
+  <p class="about-product">AI Learn Mate integrates 10 intelligent study tools into one adaptive learning engine:</p>
+  <div class="tool-grid">
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M9.5 4.5A2.5 2.5 0 0 0 7 7a2.5 2.5 0 0 0-1 4.8A2.5 2.5 0 0 0 7.5 16a2.5 2.5 0 0 0 4.5-1.5v-8a2 2 0 0 0-2.5-2Z"/></svg></span> AI Tutor</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2"><rect x="3" y="5" width="15" height="12" rx="2.5"/></svg></span> Smart Flashcards</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></span> Quick Quiz</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/></svg></span> Study Planner</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="2" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg></span> Analytics</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="8.5" y="8.5" width="7" height="7" rx="1.6"/></svg></span> Scanner</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/></svg></span> Voice Tutor</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13.5" r="7.5"/></svg></span> Pomodoro</span>
+    <span class="tool-chip danger"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF9A9A" stroke-width="2"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/></svg></span> Mistake Bank</span>
+    <span class="tool-chip"><span class="swatch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></span> Adaptive Learning</span>
+  </div>
+</div>
+</body>
+</html>
