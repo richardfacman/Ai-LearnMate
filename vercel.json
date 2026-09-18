@@ -1,10 +1,21 @@
 {
-  "buildCommand": "bash vercel-build.sh",
-  "outputDirectory": "build/web",
+  "outputDirectory": ".",
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/about",
+      "destination": "/ai-learn-mate-about.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/ai-learn-mate-app.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/ai-learn-mate-register.html"
+    },
+    {
+      "source": "/tutor",
+      "destination": "/ai-study-tutor-chat-responsive.html"
     }
   ]
 }
