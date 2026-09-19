@@ -10,6 +10,10 @@
       "destination": "/ai-learn-mate-about.html"
     },
     {
+      "source": "/profile",
+      "destination": "/ai-learn-mate-profile.html"
+    },
+    {
       "source": "/app",
       "destination": "/ai-learn-mate-app.html"
     },

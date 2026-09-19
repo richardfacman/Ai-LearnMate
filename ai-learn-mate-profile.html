@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile — AI Learn Mate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070F;
+  --panel:rgba(16,20,38,.66);
+  --panel-top:rgba(28,32,58,.55);
+  --field:rgba(6,9,20,.8);
+  --line:rgba(140,160,255,.14);
+  --line-2:rgba(150,170,255,.30);
+  --text:#F1F4FC;
+  --muted:#8D9AC2;
+  --gold:#FFC44D;
+  --gold-2:#EE9F16;
+  --gold-ink:#1D1404;
+  --violet:#8C86FF;
+  --cyan:#4FC3E8;
+  --pink:#FF80B8;
+  --danger:#FF6B6B;
+  --r:14px;
+  --r-lg:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100vh;position:relative;overflow-x:hidden;
+  padding-bottom:80px;
+}
+
+/* Background atmospheric glow */
+.field-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.field-bg i{position:absolute;border-radius:50%;filter:blur(100px);display:block}
+.field-bg i:nth-child(1){width:45vw;height:45vw;left:-10%;top:-10%;background:rgba(90,96,255,.20);animation:drift 30s ease-in-out infinite}
+.field-bg i:nth-child(2){width:38vw;height:38vw;right:-10%;bottom:10%;background:rgba(255,180,60,.09);animation:drift 36s ease-in-out infinite reverse}
+@keyframes drift{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(3%,-3%,0) scale(1.08)}}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;mix-blend-mode:overlay}
+
+.shell{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 20px 40px}
+
+/* Top Bar */
+.head{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:linear-gradient(180deg,rgba(5,7,15,.9),rgba(5,7,15,.5));backdrop-filter:blur(12px);z-index:10}
+.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--panel);
+  color:var(--text);display:grid;place-items:center;cursor:pointer;flex:none;transition:border-color .15s}
+.icon-btn:hover{border-color:var(--line-2)}
+.head h1{font-size:16px;font-weight:700;margin:0;font-family:Fraunces,serif}
+
+/* Header Profile Card */
+.profile-header{text-align:center;padding:26px 0 10px}
+.avatar-wrap{position:relative;width:96px;height:96px;margin:0 auto 14px;border-radius:50%;
+  padding:3px;background:linear-gradient(180deg,var(--gold),var(--gold-2));
+  box-shadow:0 16px 36px -14px rgba(255,196,77,.45)}
+.avatar-wrap img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.profile-header h2{font-family:Fraunces,serif;font-size:24px;font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
+.profile-header .sub{color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:12px}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;
+  background:rgba(255,196,77,.12);border:1px solid rgba(255,196,77,.35);color:var(--gold);font-size:12px;font-weight:700}
+
+/* Stats Row */
+.stats-card{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;margin-top:22px;border-radius:var(--r-lg);
+  background:var(--line);border:1px solid var(--line);overflow:hidden;box-shadow:0 20px 40px -20px rgba(0,0,0,.8)}
+.stat-col{background:linear-gradient(180deg,var(--panel-top),var(--panel));padding:16px 10px;text-align:center;backdrop-filter:blur(16px)}
+.stat-col b{display:block;font-size:18px;font-weight:800;color:var(--gold);font-family:Fraunces,serif}
+.stat-col span{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-weight:600}
+
+/* Section Labels & Glass Rows */
+.sec-label{margin:28px 0 10px;font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--gold);text-transform:uppercase}
+
+.glass-card{border-radius:var(--r-lg);background:linear-gradient(180deg,var(--panel-top),var(--panel));
+  backdrop-filter:blur(18px);border:1px solid var(--line);overflow:hidden;box-shadow:0 24px 50px -30px rgba(0,0,0,.9)}
+
+.row-item{display:flex;align-items:center;gap:14px;padding:15px 18px;color:var(--text);
+  text-decoration:none;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
+.row-item:last-child{border-bottom:0}
+.row-item:hover{background:rgba(255,255,255,.03)}
+.row-ic{width:32px;height:32px;border-radius:10px;background:var(--field);display:grid;place-items:center;flex:none}
+.row-item span{flex:1;font-size:13.5px;font-weight:600}
+.row-item .chev{color:var(--muted)}
+
+/* Progress Row Details */
+.prog-info{flex:1;min-width:0}
+.prog-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:13px;font-weight:600}
+.prog-bar{height:6px;border-radius:999px;background:var(--field);overflow:hidden}
+.prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold-2))}
+
+/* Buttons */
+.btn-logout{width:100%;height:50px;margin-top:32px;border-radius:var(--r);
+  border:1px solid rgba(255,107,107,.4);background:rgba(255,107,107,.08);color:var(--danger);
+  font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:background .15s, border-color .15s}
+.btn-logout:hover{background:rgba(255,107,107,.15);border-color:var(--danger)}
+
+.app-ver{text-align:center;font-size:12px;color:var(--muted);margin-top:16px}
+
+/* Bottom Nav Bar (5 Icons) */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:100;display:flex;justify-content:space-around;align-items:center;
+  padding:10px 10px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+  background:rgba(9,11,22,.94);backdrop-filter:blur(16px)}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);
+  font-size:10.5px;font-weight:600;text-decoration:none;cursor:pointer}
+.bnav-item.active{color:var(--gold)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="field-bg" aria-hidden="true"><i></i><i></i></div>
+<svg width="0" height="0"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter></svg>
+<div class="grain" style="filter:url(#n)" aria-hidden="true"></div>
+
+<div class="shell">
+  <!-- Top Bar -->
+  <header class="head">
+    <button class="icon-btn" aria-label="Back" onclick="window.location.href='/'">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    </button>
+    <h1>Profile</h1>
+    <button class="icon-btn" aria-label="Settings" onclick="window.location.href='/about'">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+    </button>
+  </header>
+
+  <!-- Profile Header -->
+  <section class="profile-header">
+    <div class="avatar-wrap">
+      <img src="assets/images/foysal_ahmed.jpg" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/richardfacman/Ai-LearnMate/main/assets/images/foysal_ahmed.jpg';" alt="Foysal Ahmed">
+    </div>
+    <h2>Foysal Ahmed</h2>
+    <div class="sub">Student &middot; Level 1</div>
+    <div class="streak-badge">🔥 0 day streak</div>
+  </section>
+
+  <!-- Stats Grid -->
+  <section class="stats-card">
+    <div class="stat-col">
+      <b>0 XP</b>
+      <span>EARNED</span>
+    </div>
+    <div class="stat-col">
+      <b>1</b>
+      <span>LEVEL</span>
+    </div>
+    <div class="stat-col">
+      <b>0</b>
+      <span>BADGES</span>
+    </div>
+  </section>
+
+  <!-- Study Progress -->
+  <div class="sec-label">Study Progress</div>
+  <section class="glass-card">
+    <div class="row-item">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="prog-info">
+        <div class="prog-top"><span>Mathematics</span><span style="color:var(--gold)">45%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:45%"></div></div>
+      </div>
+    </div>
+    <div class="row-item">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linejoin="round"><path d="M10 2v7.5M14 2v7.5M8.5 2h7M12 9.5a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/></svg></div>
+      <div class="prog-info">
+        <div class="prog-top"><span>Computer Science</span><span style="color:var(--gold)">80%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:80%"></div></div>
+      </div>
+    </div>
+    <div class="row-item">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+      <div class="prog-info">
+        <div class="prog-top"><span>Physics &amp; AI</span><span style="color:var(--gold)">30%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:30%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Account -->
+  <div class="sec-label">Account</div>
+  <section class="glass-card">
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg></div>
+      <span>Edit Profile</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h22s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+      <span>Notification Settings</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg></div>
+      <span>Study Preferences</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><path d="M12 3l7.5 3v6c0 4.4-3.1 8.1-7.5 9-4.4-.9-7.5-4.6-7.5-9V6L12 3Z"/></svg></div>
+      <span>Privacy &amp; Data</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+      <span>About &amp; Contact Owner</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+  </section>
+
+  <!-- Support -->
+  <div class="sec-label">Support</div>
+  <section class="glass-card">
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.8"><path d="M9 9V6a3 3 0 0 1 6 0v3M6 9h12v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V9Z"/></svg></div>
+      <span>Report Bug</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <span>Send Feedback</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="row-item" onclick="window.location.href='/about'">
+      <div class="row-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <span>Rate the App</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+  </section>
+
+  <!-- Logout Button -->
+  <button class="btn-logout" onclick="window.location.href='/'">Log Out</button>
+
+  <div class="app-ver">AI Learn Mate v1.0.0</div>
+</div>
+
+<!-- Bottom Navigation Bar (5 Icons) -->
+<nav class="bnav">
+  <a class="bnav-item" href="/">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg>
+    Home
+  </a>
+  <a class="bnav-item" href="/tutor">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg>
+    Chat
+  </a>
+  <a class="bnav-item" href="/about">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+    Study
+  </a>
+  <a class="bnav-item" href="/about">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg>
+    Progress
+  </a>
+  <a class="bnav-item active" href="/profile">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg>
+    Profile
+  </a>
+</nav>
+
+</body>
+</html>
