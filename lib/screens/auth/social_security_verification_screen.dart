@@ -57,10 +57,7 @@ class _SocialSecurityVerificationScreenState extends State<SocialSecurityVerific
         // Returning user with verified password: auto-advance after brief security verification check
         await Future.delayed(const Duration(milliseconds: 800));
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } else {
         if (mounted) {
@@ -146,10 +143,7 @@ class _SocialSecurityVerificationScreenState extends State<SocialSecurityVerific
           ),
         );
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       _showError("Security setup error: $e");

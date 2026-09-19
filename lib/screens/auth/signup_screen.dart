@@ -368,7 +368,7 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       await _auth.signUp(_name.text, _email.text, _password.text);
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       _showError(e.toString());

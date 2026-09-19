@@ -79,10 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _auth.login(email, pwd);
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       if (mounted) {
@@ -118,10 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _auth.signUp(name, email, p1);
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       _showError(e.toString());
