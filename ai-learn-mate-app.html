@@ -1,1058 +1,445 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Learn Mate - Learn • Practice • Grow</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-color: #0A1130;
-            --card-bg: rgba(18, 24, 48, 0.75);
-            --card-border: rgba(59, 130, 246, 0.25);
-            --card-border-glow: rgba(59, 130, 246, 0.5);
-            --text-main: #FFFFFF;
-            --text-muted: #94A3B8;
-            --gold-primary: #FFB020;
-            --gold-gradient: linear-gradient(135deg, #FFC93D 0%, #F5A100 100%);
-            --input-bg: rgba(10, 17, 48, 0.6);
-            --glow-blue: rgba(59, 130, 246, 0.15);
-            --glow-gold: rgba(245, 161, 0, 0.12);
-        }
-
-        body.light-theme {
-            --bg-color: #F8FAFC;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --card-border: rgba(59, 130, 246, 0.2);
-            --card-border-glow: rgba(59, 130, 246, 0.4);
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --input-bg: rgba(241, 245, 249, 0.8);
-            --glow-blue: rgba(59, 130, 246, 0.08);
-            --glow-gold: rgba(245, 161, 0, 0.06);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Background Glow Blobs */
-        .glow-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: 0;
-            pointer-events: none;
-        }
-        .blob-1 {
-            top: -100px;
-            left: -100px;
-            width: 500px;
-            height: 500px;
-            background: var(--glow-blue);
-        }
-        .blob-2 {
-            top: 30%;
-            right: -150px;
-            width: 600px;
-            height: 600px;
-            background: var(--glow-gold);
-        }
-        .blob-3 {
-            bottom: -100px;
-            left: 20%;
-            width: 500px;
-            height: 500px;
-            background: var(--glow-blue);
-        }
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 24px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Top Bar */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .brand-icon {
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 176, 32, 0.1);
-            border: 1.5px solid var(--gold-primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gold-primary);
-            font-size: 20px;
-            box-shadow: 0 0 15px rgba(255, 176, 32, 0.2);
-        }
-
-        .brand-text h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .brand-text h1 span {
-            color: var(--gold-primary);
-        }
-
-        .brand-text p {
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-
-        .theme-toggle {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 30px;
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-
-        .theme-toggle button {
-            background: transparent;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .theme-toggle button.active {
-            background: #3B82F6;
-            color: #FFFFFF;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-        }
-
-        /* Main Layout */
-        .main-grid {
-            display: grid;
-            grid-cols: 1fr;
-            gap: 48px;
-            align-items: start;
-        }
-
-        @media (min-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1.1fr 0.9fr;
-                gap: 64px;
-            }
-        }
-
-        /* Hero Section */
-        .hero-section {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #60A5FA;
-            width: fit-content;
-            backdrop-filter: blur(8px);
-        }
-
-        .hero-title {
-            font-size: 38px;
-            font-weight: 800;
-            line-height: 1.15;
-            letter-spacing: -1px;
-        }
-
-        @media (min-width: 768px) {
-            .hero-title {
-                font-size: 48px;
-            }
-        }
-
-        .gradient-text {
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-desc {
-            font-size: 15px;
-            line-height: 1.6;
-            color: var(--text-muted);
-            max-width: 520px;
-        }
-
-        /* Feature Grid (3x3) */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 8px;
-            max-width: 500px;
-        }
-
-        .feature-tile {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 16px 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-            transition: all 0.25s ease;
-        }
-
-        .feature-tile:hover {
-            border-color: var(--card-border-glow);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .feature-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: rgba(59, 130, 246, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: #60A5FA;
-        }
-
-        .feature-tile:nth-child(2) .feature-icon { color: #A78BFA; background: rgba(167, 139, 250, 0.1); }
-        .feature-tile:nth-child(3) .feature-icon { color: #34D399; background: rgba(52, 211, 153, 0.1); }
-        .feature-tile:nth-child(4) .feature-icon { color: #F472B6; background: rgba(244, 114, 182, 0.1); }
-        .feature-tile:nth-child(5) .feature-icon { color: #38BDF8; background: rgba(56, 189, 248, 0.1); }
-        .feature-tile:nth-child(6) .feature-icon { color: #4ADE80; background: rgba(74, 222, 128, 0.1); }
-        .feature-tile:nth-child(7) .feature-icon { color: #FB7185; background: rgba(251, 113, 133, 0.1); }
-        .feature-tile:nth-child(8) .feature-icon { color: #FBBF24; background: rgba(251, 191, 36, 0.1); }
-        .feature-tile:nth-child(9) .feature-icon { color: #818CF8; background: rgba(129, 140, 248, 0.1); }
-
-        .feature-name {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        /* Handwritten script */
-        .script-text {
-            font-family: 'Caveat', cursive;
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--gold-primary);
-            line-height: 1;
-            margin-top: 12px;
-            text-shadow: 0 0 15px rgba(255, 176, 32, 0.25);
-        }
-        .script-small {
-            font-family: 'Caveat', cursive;
-            font-size: 22px;
-            color: var(--text-muted);
-            margin-bottom: -4px;
-        }
-
-        /* Auth Card Container */
-        .auth-card-container {
-            width: 100%;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            padding: 36px 32px;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(59, 130, 246, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auth-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--gold-gradient);
-        }
-
-        .card-header {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .card-header .brand-logo-small {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 176, 32, 0.1);
-            border: 1.5px solid var(--gold-primary);
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gold-primary);
-            font-size: 18px;
-            margin-bottom: 12px;
-        }
-
-        .card-header h2 {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .card-header h3 {
-            font-size: 26px;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
-        }
-
-        .card-header p {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
-
-        /* Form Controls */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 16px;
-            color: var(--text-muted);
-            font-size: 15px;
-        }
-
-        .form-input {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 14px 16px 14px 46px;
-            font-size: 14px;
-            color: var(--text-main);
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .form-input:focus {
-            border-color: var(--gold-primary);
-            box-shadow: 0 0 0 3px rgba(255, 176, 32, 0.15);
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 16px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        /* Role Selector */
-        .role-selector {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .role-btn {
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .role-btn i {
-            font-size: 14px;
-        }
-
-        .role-btn.active {
-            background: rgba(255, 176, 32, 0.15);
-            border-color: var(--gold-primary);
-            color: var(--gold-primary);
-            box-shadow: 0 0 10px rgba(255, 176, 32, 0.1);
-        }
-
-        /* Form Options */
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: var(--text-muted);
-        }
-
-        .checkbox-label input {
-            accent-color: var(--gold-primary);
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .forgot-link {
-            color: var(--gold-primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Primary Button */
-        .btn-primary {
-            width: 100%;
-            background: var(--gold-gradient);
-            color: #0A1130;
-            border: none;
-            border-radius: 14px;
-            padding: 15px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(245, 161, 0, 0.35);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(245, 161, 0, 0.5);
-        }
-
-        /* Divider */
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 20px 0;
-            color: var(--text-muted);
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .divider::before { margin-right: 12px; }
-        .divider::after { margin-left: 12px; }
-
-        /* Social Buttons */
-        .social-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        .btn-social {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-
-        .btn-social:hover {
-            background: rgba(59, 130, 246, 0.08);
-            border-color: var(--card-border-glow);
-        }
-
-        /* Switch Auth Mode */
-        .auth-switch {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .auth-switch a {
-            color: #38BDF8;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .auth-switch a:hover {
-            text-decoration: underline;
-        }
-
-        /* Security Footer inside card */
-        .card-security {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: rgba(10, 17, 48, 0.4);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 10px;
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .card-security i {
-            color: #38BDF8;
-            font-size: 14px;
-        }
-
-        /* Trust Footer Bar */
-        .trust-footer {
-            margin-top: 64px;
-            padding-top: 32px;
-            border-top: 1px solid var(--card-border);
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .trust-items {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        @media (min-width: 768px) {
-            .trust-items {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .trust-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .trust-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: rgba(59, 130, 246, 0.1);
-            color: #60A5FA;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            flex-shrink: 0;
-        }
-
-        .trust-item:nth-child(2) .trust-icon { color: #A78BFA; background: rgba(167, 139, 250, 0.1); }
-        .trust-item:nth-child(3) .trust-icon { color: #FBBF24; background: rgba(251, 191, 36, 0.1); }
-        .trust-item:nth-child(4) .trust-icon { color: #F472B6; background: rgba(244, 114, 182, 0.1); }
-
-        .trust-text h4 {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .trust-text p {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        /* Bottom Action Banner */
-        .bottom-banner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .bottom-banner-text {
-            font-family: 'Caveat', cursive;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .btn-arrow {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--gold-primary);
-            color: #0A1130;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 176, 32, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .btn-arrow:hover {
-            transform: scale(1.08);
-        }
-
-        /* Toggle Card View Utility */
-        .hidden-card {
-            display: none !important;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Learn Mate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070F;--sidebar:rgba(10,13,26,.92);--panel:rgba(16,20,38,.66);--panel-2:rgba(28,32,58,.5);
+  --field:rgba(6,9,20,.8);--line:rgba(140,160,255,.14);--line-2:rgba(150,170,255,.30);
+  --text:#F1F4FC;--muted:#8D9AC2;--gold:#FFC44D;--gold-2:#EE9F16;--gold-ink:#1D1404;
+  --violet:#8C86FF;--cyan:#4FC3E8;--pink:#FF80B8;--danger:#FF6B6B;--r:14px;--r-lg:20px;--sidebar-w:236px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;position:relative}
+.field-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.field-bg i{position:absolute;border-radius:50%;filter:blur(100px);display:block}
+.field-bg i:nth-child(1){width:38vw;height:38vw;left:-8%;top:-12%;background:rgba(90,96,255,.22)}
+.field-bg i:nth-child(2){width:32vw;height:32vw;right:-10%;bottom:-14%;background:rgba(255,180,60,.1)}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;mix-blend-mode:overlay}
+
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
+
+.sidebar{width:var(--sidebar-w);flex:none;background:var(--sidebar);border-right:1px solid var(--line);
+  backdrop-filter:blur(16px);display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh}
+.side-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 22px;cursor:pointer}
+.side-brand .mark{width:30px;height:30px;flex:none}
+.side-brand b{font-family:Fraunces,serif;font-size:16px;font-weight:600}
+.side-brand b span{color:var(--gold)}
+.side-nav{display:flex;flex-direction:column;gap:3px}
+.side-link{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;color:var(--muted);
+  font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s;border:1px solid transparent;background:none;
+  width:100%;text-align:left;font-family:inherit}
+.side-link:hover{background:var(--panel);color:var(--text)}
+.side-link.active{background:linear-gradient(180deg,rgba(255,196,77,.16),rgba(255,196,77,.05));
+  border-color:rgba(255,196,77,.3);color:var(--gold)}
+.side-link svg{flex:none}
+.side-spacer{flex:1}
+.side-foot{border-top:1px solid var(--line);padding-top:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.side-foot .av{width:34px;height:34px;border-radius:10px;background:linear-gradient(155deg,rgba(255,196,77,.28),rgba(140,134,255,.2));
+  display:grid;place-items:center;font-family:Fraunces,serif;font-weight:700;font-size:13px;color:var(--gold);flex:none}
+.side-foot small{display:block;color:var(--muted);font-size:11.5px}
+.side-foot b{display:block;font-size:12.5px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:100vh}
+.head{min-height:64px;flex:none;padding:14px 26px;display:flex;align-items:center;gap:14px;
+  border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(10,13,26,.7),rgba(10,13,26,.3));
+  backdrop-filter:blur(10px);position:sticky;top:0;z-index:5}
+.hamburger{display:none;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel);
+  color:var(--muted);align-items:center;justify-content:center;cursor:pointer;flex:none}
+.head h1{font-family:Fraunces,serif;font-weight:600;font-size:19px;margin:0}
+.head p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.right-group{margin-left:auto;display:flex;align-items:center;gap:9px}
+.toggle{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--panel);border:1px solid var(--line)}
+.toggle button{width:32px;height:28px;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.toggle button[aria-pressed="true"]{background:linear-gradient(180deg,var(--gold),var(--gold-2));color:var(--gold-ink)}
+
+.content{flex:1;padding:26px;overflow-y:auto}
+.view{display:none;max-width:980px;margin:0 auto}
+.view.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* shared bits */
+.section-lbl{font-size:13px;font-weight:700;margin:26px 0 11px}
+.card{border-radius:var(--r-lg);border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);
+  box-shadow:0 26px 60px -40px rgba(0,0,0,.9)}
+
+/* ---------- HOME ---------- */
+.mood{flex:none;display:flex;align-items:center;gap:7px;padding:10px 15px;border-radius:999px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.mood.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(180deg,rgba(255,196,77,.2),rgba(255,196,77,.07))}
+.moods{display:flex;gap:9px;overflow-x:auto;scrollbar-width:none}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:6px;overflow:hidden}
+.stat{padding:20px 10px;text-align:center;position:relative}
+.stat:not(:last-child)::after{content:"";position:absolute;right:0;top:18%;bottom:18%;width:1px;background:var(--line)}
+.stat b{display:block;font-family:Fraunces,serif;font-size:26px;font-weight:700;color:var(--gold)}
+.stat span{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600}
+.hero-card{position:relative;margin-top:20px;border-radius:var(--r-lg);padding:26px;overflow:hidden;
+  border:1px solid rgba(255,196,77,.4);background:linear-gradient(135deg,rgba(255,196,77,.16),rgba(238,159,22,.05) 55%,var(--panel))}
+.hero-eyebrow{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--gold)}
+.hero-card h2{font-family:Fraunces,serif;font-size:22px;font-weight:600;margin:10px 0 6px}
+.hero-card p{margin:0 0 18px;color:var(--muted);font-size:13.5px}
+.btn-start{display:inline-flex;align-items:center;gap:9px;padding:12px 20px;border:0;border-radius:999px;
+  cursor:pointer;background:linear-gradient(180deg,var(--gold),var(--gold-2));color:var(--gold-ink);font-weight:800;font-size:14px}
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(106px,1fr));gap:10px;margin-top:14px}
+.tool{display:flex;flex-direction:column;gap:9px;padding:13px 12px;border-radius:16px;border:1px solid var(--line);
+  background:var(--panel);cursor:pointer;transition:.16s}
+.tool:hover{transform:translateY(-2px);border-color:var(--line-2)}
+.tool .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.04)}
+.tool b{font-size:12px;font-weight:700}
+
+/* ---------- STUDY ---------- */
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
+.subject-card{padding:18px;border-radius:16px;border:1px solid var(--line);background:var(--panel)}
+.subject-card .top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.subject-card .dot-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none}
+.subject-card b{font-size:15px;font-weight:700}
+.subject-card .pct{margin-left:auto;font-size:12.5px;color:var(--gold);font-weight:700}
+.bar-track{height:6px;border-radius:999px;background:var(--field);overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold-2))}
+.subject-actions{display:flex;gap:8px;margin-top:14px}
+.mini-btn{flex:1;padding:8px 0;text-align:center;border-radius:10px;border:1px solid var(--line);background:var(--field);
+  font-size:11.5px;font-weight:700;color:var(--text);cursor:pointer}
+.mini-btn:hover{border-color:var(--line-2)}
+.add-subject-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  border:1.5px dashed var(--line-2);border-radius:16px;padding:24px;cursor:pointer;color:var(--muted);min-height:140px}
+.add-subject-card:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ---------- PROGRESS ---------- */
+.prog-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.pstat{padding:18px;border-radius:16px;border:1px solid var(--line);background:var(--panel);text-align:center}
+.pstat b{display:block;font-family:Fraunces,serif;font-size:24px;color:var(--gold)}
+.pstat span{font-size:11.5px;color:var(--muted);font-weight:600}
+.week-chart{display:flex;align-items:flex-end;gap:10px;height:120px;padding:16px 18px 0;margin-top:18px}
+.week-chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.week-chart .bar{width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--gold),var(--gold-2));min-height:4px}
+.week-chart .day{font-size:10.5px;color:var(--muted);font-weight:700}
+.badges-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.badge{width:84px;text-align:center;opacity:.4}
+.badge.earned{opacity:1}
+.badge .ic{width:52px;height:52px;border-radius:50%;margin:0 auto 6px;display:grid;place-items:center;
+  border:1px solid var(--line-2);background:var(--panel)}
+.badge.earned .ic{background:linear-gradient(160deg,rgba(255,196,77,.24),rgba(255,196,77,.06));border-color:var(--gold)}
+.badge span{font-size:10.5px;font-weight:700;display:block}
+.streak-grid{display:grid;grid-template-columns:repeat(14,1fr);gap:5px;margin-top:14px}
+.streak-grid i{aspect-ratio:1;border-radius:4px;background:var(--field);border:1px solid var(--line)}
+.streak-grid i.on{background:linear-gradient(160deg,var(--gold),var(--gold-2));border-color:transparent}
+
+/* ---------- PROFILE ---------- */
+.profile-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 0 4px}
+.avatar-lg{width:88px;height:88px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;
+  background:linear-gradient(155deg,rgba(255,196,77,.28),rgba(140,134,255,.2));font-family:Fraunces,serif;
+  font-size:30px;font-weight:700;color:var(--gold);margin-bottom:12px;overflow:hidden}
+.avatar-lg img{width:100%;height:100%;object-fit:cover}
+.profile-head h2{font-family:Fraunces,serif;font-size:22px;margin:0 0 4px}
+.profile-head p{margin:0;color:var(--muted);font-size:13px}
+.streak-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 14px;border-radius:999px;
+  border:1px solid var(--line-2);background:var(--panel-2);font-size:12.5px;font-weight:700;color:var(--gold)}
+.list-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);
+  background:var(--panel);cursor:pointer;margin-bottom:9px;transition:.15s}
+.list-row:hover{border-color:var(--line-2)}
+.list-row .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--field);flex:none}
+.list-row b{font-size:13.5px;font-weight:700;flex:1}
+.list-row svg.chev{color:var(--muted)}
+.logout-btn{width:100%;height:50px;border-radius:14px;border:1px solid rgba(255,107,107,.4);background:transparent;
+  color:var(--danger);font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;margin-top:8px;
+  display:flex;align-items:center;justify-content:center;gap:9px}
+.logout-btn:hover{background:rgba(255,107,107,.08)}
+.ver{text-align:center;color:var(--muted);font-size:11.5px;margin-top:14px}
+
+/* ---------- mobile ---------- */
+.nav{display:none}
+.navitem{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;
+  font-weight:600;cursor:pointer;background:none;border:0;padding:4px 8px;font-family:inherit}
+.navitem.active{color:var(--gold)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8}
+.overlay.show{display:block}
+
+@media (max-width:1080px) and (min-width:761px){
+  :root{--sidebar-w:76px}
+  .side-brand b,.side-link span,.side-foot b,.side-foot small{display:none}
+  .side-brand{justify-content:center;padding-bottom:18px}
+  .side-link{justify-content:center;padding:12px}
+  .side-foot{justify-content:center}
+}
+@media (max-width:760px){
+  .sidebar{position:fixed;left:0;top:0;height:100vh;transform:translateX(-104%);transition:transform .22s ease;z-index:9;width:260px}
+  .sidebar.open{transform:translateX(0)}
+  .hamburger{display:flex}
+  .side-brand b,.side-link span,.side-foot b,.side-foot small{display:block}
+  .side-link{justify-content:flex-start}
+  .side-foot{justify-content:flex-start}
+  .head{padding:12px 14px}
+  .content{padding:16px 14px 90px}
+  .nav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:6;justify-content:space-around;align-items:center;
+    padding:9px 4px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+    background:rgba(9,11,22,.94);backdrop-filter:blur(16px)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
-    <!-- Glow Background Blobs -->
-    <div class="glow-blob blob-1"></div>
-    <div class="glow-blob blob-2"></div>
-    <div class="glow-blob blob-3"></div>
+<div class="field-bg" aria-hidden="true"><i></i><i></i></div>
+<svg width="0" height="0"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter></svg>
+<div class="grain" style="filter:url(#n)" aria-hidden="true"></div>
+<div class="overlay" id="overlay"></div>
 
-    <div class="container">
-        <!-- Top Bar -->
-        <header class="top-bar">
-            <div class="brand">
-                <div class="brand-icon">
-                    <i class="fa-solid fa-book-open"></i>
-                </div>
-                <div class="brand-text">
-                    <h1>AI Learn <span>Mate</span></h1>
-                    <p>Learn • Practice • Grow</p>
-                </div>
-            </div>
-            <div class="theme-toggle">
-                <button id="sunBtn" onclick="setTheme('light')" title="Light Mode">
-                    <i class="fa-solid fa-sun"></i>
-                </button>
-                <button id="moonBtn" class="active" onclick="setTheme('dark')" title="Dark Mode">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-            </div>
-        </header>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand" onclick="window.location.href='/'">
+      <svg class="mark" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+        <path d="M22 14C18.7 11 13.9 10.2 9 10.7c-.9.1-1.6.9-1.6 1.8v18.6c0 1.1.9 1.9 2 1.8 4.4-.4 8.8.6 12.2 3.3 3.4-2.7 7.8-3.7 12.2-3.3 1.1.1 2-.7 2-1.8V12.5c0-.9-.7-1.7-1.6-1.8-4.9-.5-9.7.3-13.2 3.3Z" stroke="var(--gold)" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M22 14v22.3" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M33.5 4l1 2.6 2.6 1-2.6 1L33.5 11l-1-2.6-2.6-1 2.6-1L33.5 4Z" fill="var(--gold)"/>
+      </svg>
+      <b>AI Learn <span>Mate</span></b>
+    </div>
+    <nav class="side-nav">
+      <button class="side-link active" data-view="home">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="side-link" onclick="window.location.href='/tutor'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/><path d="M9 9.5h6M9 12.5h3.5"/></svg>
+        <span>AI Tutor</span>
+      </button>
+      <button class="side-link" data-view="study">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+        <span>Study</span>
+      </button>
+      <button class="side-link" data-view="progress">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg>
+        <span>Progress</span>
+      </button>
+      <button class="side-link" data-view="profile">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+    <div class="side-spacer"></div>
+    <div class="side-foot" onclick="window.location.href='/about'">
+      <div class="av">F</div>
+      <div><b>Foysal Ahmed</b><small>Project Owner &amp; Developer</small></div>
+    </div>
+  </aside>
 
-        <!-- Main Grid Layout -->
-        <div class="main-grid">
-            <!-- Left Hero Section -->
-            <div class="hero-section">
-                <div class="badge">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    Your AI Learning Companion
-                </div>
-                <h1 class="hero-title">
-                    Smarter Learning for a <span class="gradient-text">Brighter Future</span>
-                </h1>
-                <p class="hero-desc">
-                    AI Learn Mate brings together the best AI tools to help you learn, practice, revise and achieve your goals — all in one place.
-                </p>
+  <div class="main">
+    <header class="head">
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div id="headTitle">
+        <h1>Good evening, Foysal</h1>
+        <p>Ready to master something new?</p>
+      </div>
+      <div class="right-group">
+        <div class="toggle" role="group" aria-label="Theme">
+          <button id="lightBtn" aria-pressed="false" aria-label="Light theme"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+          <button id="darkBtn" aria-pressed="true" aria-label="Dark theme"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
+        </div>
+      </div>
+    </header>
 
-                <!-- 3x3 Feature Grid -->
-                <div class="features-grid">
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
-                        <span class="feature-name">AI Tutor</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
-                        <span class="feature-name">Flashcards</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-clipboard-question"></i></div>
-                        <span class="feature-name">Quick Quiz</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-calendar-check"></i></div>
-                        <span class="feature-name">Study Planner</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
-                        <span class="feature-name">Analytics</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-expand"></i></div>
-                        <span class="feature-name">Scanner</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-microphone"></i></div>
-                        <span class="feature-name">Voice Tutor</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-clock"></i></div>
-                        <span class="feature-name">Pomodoro</span>
-                    </div>
-                    <div class="feature-tile">
-                        <div class="feature-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                        <span class="feature-name">Mistake Bank</span>
-                    </div>
-                </div>
+    <div class="content">
 
-                <!-- Handwritten Script -->
-                <div>
-                    <div class="script-small">Small Steps,</div>
-                    <div class="script-text">Big Dreams.</div>
-                </div>
-            </div>
-
-            <!-- Right Auth Card Container -->
-            <div class="auth-card-container">
-                <!-- SIGN IN CARD -->
-                <div id="signInCard" class="auth-card">
-                    <div class="card-header">
-                        <div class="brand-logo-small">
-                            <i class="fa-solid fa-book-open"></i>
-                        </div>
-                        <h2>AI Learn <span>Mate</span></h2>
-                        <h3>Welcome Back!</h3>
-                        <p>Sign in to continue your learning journey.</p>
-                    </div>
-
-                    <form onsubmit="handleSignIn(event)">
-                        <div class="form-group">
-                            <label class="form-label">Email or Username</label>
-                            <div class="input-wrapper">
-                                <i class="fa-regular fa-envelope input-icon"></i>
-                                <input type="text" class="form-input" placeholder="name@example.com" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Password</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="signinPassword" class="form-input" placeholder="••••••••" required>
-                                <button type="button" class="password-toggle" onclick="togglePassword('signinPassword', this)">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="form-options">
-                            <label class="checkbox-label">
-                                <input type="checkbox" checked> Remember me
-                            </label>
-                            <a href="#" class="forgot-link" onclick="alert('Password reset instructions sent to your email.'); return false;">Forgot password?</a>
-                        </div>
-
-                        <button type="submit" class="btn-primary">
-                            Sign In <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </form>
-
-                    <div class="divider">OR</div>
-
-                    <div class="social-buttons">
-                        <button class="btn-social" onclick="alert('Google Sign-In initiated')">
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.95H1.14v3.15C3.16 21.37 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.25c-.25-.72-.38-1.49-.38-2.25s.13-1.53.38-2.25V6.6H1.14C.41 8.12 0 9.83 0 12s.41 3.88 1.14 5.4l4.14-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.16 2.63 1.14 6.6l4.14 3.15c.95-2.84 3.6-4.95 6.72-4.95z"/></svg>
-                            Continue with Google
-                        </button>
-                        <button class="btn-social" onclick="alert('Apple Sign-In initiated')">
-                            <i class="fa-brands fa-apple" style="font-size: 18px;"></i>
-                            Continue with Apple
-                        </button>
-                    </div>
-
-                    <div class="auth-switch">
-                        Don't have an account? <a onclick="switchCard('register')">Register</a>
-                    </div>
-
-                    <div class="card-security">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span>Secure & Private — Your data is safe with us</span>
-                    </div>
-                </div>
-
-                <!-- REGISTER CARD -->
-                <div id="registerCard" class="auth-card hidden-card">
-                    <div class="card-header">
-                        <div class="brand-logo-small">
-                            <i class="fa-solid fa-book-open"></i>
-                        </div>
-                        <h2>AI Learn <span>Mate</span></h2>
-                        <h3>Create Account</h3>
-                        <p>Under a minute. No card, no trial countdown.</p>
-                    </div>
-
-                    <form onsubmit="handleRegister(event)">
-                        <div class="form-group">
-                            <label class="form-label">Full Name</label>
-                            <div class="input-wrapper">
-                                <i class="fa-regular fa-user input-icon"></i>
-                                <input type="text" class="form-input" placeholder="Alex Johnson" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <div class="input-wrapper">
-                                <i class="fa-regular fa-envelope input-icon"></i>
-                                <input type="email" class="form-input" placeholder="name@example.com" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Select Role</label>
-                            <div class="role-selector">
-                                <div class="role-btn active" onclick="selectRole(this, 'student')">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                    <span>Student</span>
-                                </div>
-                                <div class="role-btn" onclick="selectRole(this, 'teacher')">
-                                    <i class="fa-solid fa-chalkboard-user"></i>
-                                    <span>Teacher</span>
-                                </div>
-                                <div class="role-btn" onclick="selectRole(this, 'parent')">
-                                    <i class="fa-solid fa-user-group"></i>
-                                    <span>Parent</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Password</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="regPassword" class="form-input" placeholder="At least 8 characters" required minlength="8">
-                                <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Confirm Password</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="regConfirm" class="form-input" placeholder="Re-enter password" required>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn-primary">
-                            Get Started <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </form>
-
-                    <div class="auth-switch">
-                        Already have an account? <a onclick="switchCard('signin')">Sign In</a>
-                    </div>
-
-                    <div class="card-security">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span>Secure & Private — Your data is safe with us</span>
-                    </div>
-                </div>
-            </div>
+      <!-- HOME -->
+      <section class="view active" id="view-home">
+        <div class="section-lbl" style="margin-top:0">How are you feeling about studying?</div>
+        <div class="moods">
+          <button class="mood">😩 Stressed</button>
+          <button class="mood active">😴 Tired</button>
+          <button class="mood">😐 Neutral</button>
+          <button class="mood">🙂 Good</button>
+          <button class="mood">🚀 Confident</button>
         </div>
 
-        <!-- Trust Footer Bar -->
-        <footer class="trust-footer">
-            <div class="trust-items">
-                <div class="trust-item">
-                    <div class="trust-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                    <div class="trust-text">
-                        <h4>Personalized Learning</h4>
-                        <p>Adapted to your pace</p>
-                    </div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                    <div class="trust-text">
-                        <h4>Safe & Secure</h4>
-                        <p>Your data is protected</p>
-                    </div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-icon"><i class="fa-solid fa-bolt"></i></div>
-                    <div class="trust-text">
-                        <h4>Powered by AI</h4>
-                        <p>Advanced Llama & Groq</p>
-                    </div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-icon"><i class="fa-solid fa-heart"></i></div>
-                    <div class="trust-text">
-                        <h4>Built for</h4>
-                        <p>The better you</p>
-                    </div>
-                </div>
-            </div>
+        <div class="card stats">
+          <div class="stat"><b>0</b><span>day streak</span></div>
+          <div class="stat"><b>0</b><span>xp earned</span></div>
+          <div class="stat"><b>1</b><span>level</span></div>
+        </div>
 
-            <div class="bottom-banner">
-                <div class="bottom-banner-text">Let's Learn Together</div>
-                <button class="btn-arrow" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to top">
-                    <i class="fa-solid fa-arrow-up"></i>
-                </button>
+        <div class="hero-card">
+          <div class="hero-eyebrow">What should I study now</div>
+          <h2>Add your first subject to start learning!</h2>
+          <p>Personalized for your progress</p>
+          <button class="btn-start" data-view="study">Start studying →</button>
+        </div>
+
+        <div class="section-lbl">Study tools</div>
+        <div class="tools">
+          <div class="tool" onclick="window.location.href='/tutor'"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="m9 14 2 2 4-4"/></svg></div><b>Quick quiz</b></div>
+          <div class="tool" data-view="study"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8"><rect x="3" y="5" width="15" height="12" rx="2.5"/></svg></div><b>Flashcards</b></div>
+          <div class="tool" onclick="window.location.href='/tutor'"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.8l2.4 1.6"/></svg></div><b>Pomodoro</b></div>
+          <div class="tool" data-view="progress"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg></div><b>Mistakes</b></div>
+          <div class="tool" data-view="progress"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg></div><b>Analytics</b></div>
+          <div class="tool" data-view="study"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/></svg></div><b>Planner</b></div>
+        </div>
+      </section>
+
+      <!-- STUDY -->
+      <section class="view" id="view-study">
+        <div class="section-lbl" style="margin-top:0">Your subjects</div>
+        <div class="subject-grid">
+          <div class="subject-card">
+            <div class="top">
+              <div class="dot-ic" style="background:rgba(79,195,232,.16)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><path d="M4 19.5V6.5A2.5 2.5 0 0 1 6.5 4H18a2 2 0 0 1 2 2v13.5"/></svg></div>
+              <b>Physics</b><span class="pct">62%</span>
             </div>
-        </footer>
+            <div class="bar-track"><div class="bar-fill" style="width:62%"></div></div>
+            <div class="subject-actions">
+              <button class="mini-btn" onclick="window.location.href='/tutor'">Notes</button>
+              <button class="mini-btn" onclick="window.location.href='/tutor'">Flashcards</button>
+              <button class="mini-btn" onclick="window.location.href='/tutor'">Quiz</button>
+            </div>
+          </div>
+          <div class="subject-card">
+            <div class="top">
+              <div class="dot-ic" style="background:rgba(140,134,255,.18)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8"><path d="M4 19.5V6.5A2.5 2.5 0 0 1 6.5 4H18a2 2 0 0 1 2 2v13.5"/></svg></div>
+              <b>English</b><span class="pct">38%</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:38%"></div></div>
+            <div class="subject-actions">
+              <button class="mini-btn" onclick="window.location.href='/tutor'">Notes</button>
+              <button class="mini-btn" onclick="window.location.href='/tutor'">Flashcards</button>
+              <button class="mini-btn" onclick="window.location.href='/tutor'">Quiz</button>
+            </div>
+          </div>
+          <div class="add-subject-card" onclick="window.location.href='/tutor'">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg>
+            <span style="font-size:12.5px;font-weight:700">Add subject</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROGRESS -->
+      <section class="view" id="view-progress">
+        <div class="prog-stats">
+          <div class="pstat"><b>0</b><span>day streak</span></div>
+          <div class="pstat"><b>0</b><span>xp earned</span></div>
+          <div class="pstat"><b>0</b><span>badges</span></div>
+        </div>
+
+        <div class="section-lbl">This week</div>
+        <div class="card week-chart">
+          <div class="col"><div class="bar" style="height:18%"></div><span class="day">Mon</span></div>
+          <div class="col"><div class="bar" style="height:6%"></div><span class="day">Tue</span></div>
+          <div class="col"><div class="bar" style="height:40%"></div><span class="day">Wed</span></div>
+          <div class="col"><div class="bar" style="height:12%"></div><span class="day">Thu</span></div>
+          <div class="col"><div class="bar" style="height:65%"></div><span class="day">Fri</span></div>
+          <div class="col"><div class="bar" style="height:4%"></div><span class="day">Sat</span></div>
+          <div class="col"><div class="bar" style="height:4%"></div><span class="day">Sun</span></div>
+        </div>
+
+        <div class="section-lbl">Last 14 days</div>
+        <div class="streak-grid" id="streakGrid"></div>
+
+        <div class="section-lbl">Badges</div>
+        <div class="badges-row">
+          <div class="badge earned"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M8 4h8v4a4 4 0 0 1-8 0V4Z"/></svg></div><span>First Quiz</span></div>
+          <div class="badge"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8"><path d="M12 20.5s-7.5-4.3-7.5-9.3a4.2 4.2 0 0 1 7.5-2.6 4.2 4.2 0 0 1 7.5 2.6c0 5-7.5 9.3-7.5 9.3Z"/></svg></div><span>7-Day Streak</span></div>
+          <div class="badge"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></div><span>Perfect Score</span></div>
+          <div class="badge"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/></svg></div><span>Mistake Fixer</span></div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="view" id="view-profile">
+        <div class="profile-head">
+          <div class="avatar-lg">
+            <img src="assets/images/foysal_ahmed.jpg" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/richardfacman/Ai-LearnMate/main/assets/images/foysal_ahmed.jpg';" alt="Foysal Ahmed">
+          </div>
+          <h2>Foysal Ahmed</h2>
+          <p>Student · Level 1</p>
+          <div class="streak-pill">🔥 0 day streak</div>
+        </div>
+
+        <div class="card stats" style="margin-top:22px">
+          <div class="stat"><b>0</b><span>xp earned</span></div>
+          <div class="stat"><b>1</b><span>level</span></div>
+          <div class="stat"><b>0</b><span>badges</span></div>
+        </div>
+
+        <div class="section-lbl">Account</div>
+        <div class="list-row" onclick="window.location.href='/about'"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg></div><b>Edit profile</b><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></div>
+        <div class="list-row" onclick="window.location.href='/about'"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><b>Notification settings</b><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></div>
+        <div class="list-row" onclick="window.location.href='/about'"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/></svg></div><b>Study preferences</b><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></div>
+        <div class="list-row" onclick="window.location.href='/about'"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="1.8"><path d="M12 3l7.5 3v6c0 4.4-3.1 8.1-7.5 9-4.4-.9-7.5-4.6-7.5-9V6L12 3Z"/></svg></div><b>Privacy &amp; data</b><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></div>
+        <div class="list-row" onclick="window.location.href='/about'"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div><b>About &amp; contact owner</b><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></div>
+
+        <div class="section-lbl">Support</div>
+        <div class="list-row" onclick="window.location.href='/about'"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.8"><path d="M9 9V6a3 3 0 0 1 6 0v3M6 9h12v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V9Z"/></svg></div><b>Report bug</b><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></div>
+        <div class="list-row" onclick="window.location.href='/about'"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg></div><b>Send feedback</b><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></div>
+
+        <button class="logout-btn" onclick="window.location.href='/'">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17.5V21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10v3.5"/><path d="M21 12H9M17.5 8.5 21 12l-3.5 3.5"/></svg>
+          Log out
+        </button>
+        <div class="ver">AI Learn Mate v1.0.0</div>
+      </section>
+
     </div>
+  </div>
+</div>
 
-    <!-- JavaScript Logic -->
-    <script>
-        function setTheme(mode) {
-            const sunBtn = document.getElementById('sunBtn');
-            const moonBtn = document.getElementById('moonBtn');
+<nav class="nav">
+  <button class="navitem active" data-view="home"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 1 1 h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></svg>Home</button>
+  <button class="navitem" onclick="window.location.href='/tutor'"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13H6.5A2.5 2.5 0 0 0 4 19.5V6.5Z"/></svg>AI Tutor</button>
+  <button class="navitem" data-view="study"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/></svg>Study</button>
+  <button class="navitem" data-view="progress"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 19V9M9.3 19V5M14.7 19v-7M20 19v-11"/></svg>Progress</button>
+  <button class="navitem" data-view="profile"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg>Profile</button>
+</nav>
 
-            if (mode === 'light') {
-                document.body.classList.add('light-theme');
-                sunBtn.classList.add('active');
-                moonBtn.classList.remove('active');
-            } else {
-                document.body.classList.remove('light-theme');
-                moonBtn.classList.add('active');
-                sunBtn.classList.remove('active');
-            }
-        }
+<script>
+(function(){
+  var sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),ham=document.getElementById('hamburger');
+  ham && ham.addEventListener('click',function(){sidebar.classList.add('open');overlay.classList.add('show')});
+  overlay && overlay.addEventListener('click',function(){sidebar.classList.remove('open');overlay.classList.remove('show')});
 
-        function switchCard(cardType) {
-            const signInCard = document.getElementById('signInCard');
-            const registerCard = document.getElementById('registerCard');
+  var titles={
+    home:{h:'Good evening, Foysal',p:'Ready to master something new?'},
+    study:{h:'Study',p:'All your subjects in one place'},
+    progress:{h:'Progress',p:'Track your streaks, XP and badges'},
+    profile:{h:'Profile',p:'Manage your account'}
+  };
+  function goto(view){
+    if(view==='tutor') { window.location.href='/tutor'; return; }
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
+    var target = document.getElementById('view-'+view);
+    if(target) target.classList.add('active');
+    document.querySelectorAll('[data-view]').forEach(function(el){
+      el.classList.toggle('active', el.dataset.view===view && (el.classList.contains('side-link')||el.classList.contains('navitem')));
+    });
+    var t=titles[view];
+    if(t) document.getElementById('headTitle').innerHTML='<h1>'+t.h+'</h1><p>'+t.p+'</p>';
+    sidebar.classList.remove('open');overlay && overlay.classList.remove('show');
+    document.querySelector('.content').scrollTop=0;
+  }
+  document.querySelectorAll('[data-view]').forEach(function(el){
+    el.addEventListener('click',function(){goto(el.dataset.view)});
+  });
 
-            if (cardType === 'register') {
-                signInCard.classList.add('hidden-card');
-                registerCard.classList.remove('hidden-card');
-            } else {
-                registerCard.classList.add('hidden-card');
-                signInCard.classList.remove('hidden-card');
-            }
-        }
+  document.querySelectorAll('.mood').forEach(function(m){
+    m.addEventListener('click',function(){document.querySelectorAll('.mood').forEach(x=>x.classList.remove('active'));m.classList.add('active')});
+  });
 
-        function togglePassword(fieldId, btn) {
-            const input = document.getElementById(fieldId);
-            const icon = btn.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
+  var grid=document.getElementById('streakGrid');
+  if(grid) {
+    for(var i=0;i<14;i++){var d=document.createElement('i');if(i===7||i===10)d.classList.add('on');grid.appendChild(d)}
+  }
 
-        function selectRole(element, role) {
-            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-        }
-
-        function handleSignIn(event) {
-            event.preventDefault();
-            alert('Successfully signed in to AI Learn Mate!');
-        }
-
-        function handleRegister(event) {
-            event.preventDefault();
-            const pass = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-            if (pass !== confirm) {
-                alert('Passwords do not match!');
-                return;
-            }
-            alert('Account successfully created! Welcome to AI Learn Mate.');
-        }
-    </script>
+  var root=document.documentElement,L=document.getElementById('lightBtn'),D=document.getElementById('darkBtn');
+  function setTheme(t){root.setAttribute('data-theme',t);L && L.setAttribute('aria-pressed',t==='light');D && D.setAttribute('aria-pressed',t==='dark');try{localStorage.setItem('alm-theme',t)}catch(e){}}
+  try{var s=localStorage.getItem('alm-theme');if(s)setTheme(s)}catch(e){}
+  L && L.addEventListener('click',function(){setTheme('light')});
+  D && D.addEventListener('click',function(){setTheme('dark')});
+})();
+</script>
 </body>
 </html>
