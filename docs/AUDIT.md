@@ -31,10 +31,10 @@
 | **1. Auth** | App Shell & Auth Gate | WORKS | Single `AuthGate` at root with `authStateChanges()`; no stack pushes on auth | Verified in `main.dart` & `login_screen.dart` |
 | **2. AI Tutor Chat** | Persona/Mode & Quick Actions | FIXED | Injected system prompt for selected Persona & Mode into AI prompts | `chat_screen.dart` verified |
 | **3. Pomodoro + Focus**| Timer & Session Completion | FIXED | Saved focus session to `timers/{uid}/sessions` and awarded +25 XP | `pomodoro_timer_provider.dart` |
-| **4. Flashcards** | SM-2 Review & AI Gen | FIXED | Full SM-2 SM-2 algorithm, AI generator, manual CRUD, filters | `flashcard_provider.dart` & `flashcard_screen.dart` |
-| **5. Quick Quiz** | Config & Adaptive Quiz | NOT RUN | Batch 2 | - |
-| **6. Mistake Bank** | Try Again & Resolve | NOT RUN | Batch 2 | - |
-| **7. Study Planner** | Task Schedule & AI Plan | NOT RUN | Batch 2 | - |
+| **4. Flashcards** | SM-2 Review & AI Gen | FIXED | Full SM-2 algorithm, AI generator, manual CRUD, filters | `flashcard_provider.dart` & `flashcard_screen.dart` |
+| **5. Quick Quiz** | Config & Adaptive Quiz | WORKS | Quiz setup, AI generation, scoring, skip, mistake logging, XP reward | `quiz_provider.dart` & `quiz_screen.dart` |
+| **6. Mistake Bank** | Try Again & Resolve | WORKS | Try Again, + Flashcard, Explain AI, Mark Resolved, filters | `mistake_bank_screen.dart` |
+| **7. Study Planner** | Task Schedule & AI Plan | WORKS | Task creation, topic/duration scheduling, completion toggle | `study_planner_screen.dart` |
 | **8. Analytics** | Metrics & Charts | NOT RUN | Batch 3 | - |
 | **9. Scanner** | Vision & OCR | NOT RUN | Batch 3 | - |
 | **10. Voice Tutor** | STT & TTS | NOT RUN | Batch 3 | - |
