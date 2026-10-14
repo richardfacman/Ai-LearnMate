@@ -51,7 +51,15 @@ class _NotesScreenState extends State<NotesScreen> {
 
     setState(() => _loading = true);
 
-    final summary = await HuggingFaceService.summarize(text);
+    String summary = "";
+    try {
+      summary = await AiProviderManager().generateResponse(
+        prompt: "Summarize these notes into clear, structured bullet points focusing on key definitions and concepts:\n\n$text",
+        feature: AiFeature.summarization,
+      );
+    } catch (_) {
+      summary = await HuggingFaceService.summarize(text);
+    }
 
     await _db
         .collection('notes')
