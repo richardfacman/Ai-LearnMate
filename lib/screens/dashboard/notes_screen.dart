@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../services/huggingface_service.dart';
+import '../../services/ai/ai_provider_manager.dart';
 import 'note_tutor_screen.dart';
 
 class NotesScreen extends StatefulWidget {
