@@ -35,9 +35,9 @@
 | **5. Quick Quiz** | Config & Adaptive Quiz | WORKS | Quiz setup, AI generation, scoring, skip, mistake logging, XP reward | `quiz_provider.dart` & `quiz_screen.dart` |
 | **6. Mistake Bank** | Try Again & Resolve | WORKS | Try Again, + Flashcard, Explain AI, Mark Resolved, filters | `mistake_bank_screen.dart` |
 | **7. Study Planner** | Task Schedule & AI Plan | WORKS | Task creation, topic/duration scheduling, completion toggle | `study_planner_screen.dart` |
-| **8. Analytics** | Metrics & Charts | NOT RUN | Batch 3 | - |
-| **9. Scanner** | Vision & OCR | NOT RUN | Batch 3 | - |
-| **10. Voice Tutor** | STT & TTS | NOT RUN | Batch 3 | - |
+| **8. Analytics** | Metrics & Charts | WORKS | Session time calculation, quiz history metrics, active streak, fl_chart | `analytics_screen.dart` |
+| **9. Scanner** | Vision & OCR | WORKS | Camera/Gallery picker, ML Kit OCR (Android) + Gemini Vision (Web) | `camera_solver_screen.dart` |
+| **10. Voice Tutor** | STT & TTS | WORKS | SpeechToText microphone, text fallback, Gemini AI, FlutterTTS | `voice_tutor_screen.dart` |
 | **11. Notes** | Summarizer & Q&A | NOT RUN | Batch 4 | - |
 | **12. Achievements** | Badges & Daily Goal | NOT RUN | Batch 4 | - |
 | **13. Home** | Dashboard & Bento Grid | NOT RUN | Batch 4 | - |
