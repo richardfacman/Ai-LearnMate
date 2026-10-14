@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../core/logging/app_log.dart';
 
 /// The three phases of a Pomodoro cycle.
 enum TimerMode { focus, shortBreak, longBreak }
@@ -124,8 +127,35 @@ class PomodoroTimerProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _onPhaseComplete() {
-    if (_mode == TimerMode.focus) _completedFocusSessions++;
+    if (_mode == TimerMode.focus) {
+      _completedFocusSessions++;
+      _saveCompletedSession();
+    }
     _advancePhase();
+  }
+
+  Future<void> _saveCompletedSession() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    try {
+      final docRef = FirebaseFirestore.instance.collection('timers').doc(userId).collection('sessions').doc();
+      await docRef.set({
+        'id': docRef.id,
+        'userId': userId,
+        'mode': _mode.name,
+        'duration': focusDuration.inSeconds,
+        'startTime': DateTime.now().subtract(focusDuration).toIso8601String(),
+        'completedAt': DateTime.now().toIso8601String(),
+      });
+
+      // Award +25 XP to user in Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'xp': FieldValue.increment(25),
+      });
+    } catch (e) {
+      AppLog.e('PomodoroTimerProvider', e);
+    }
   }
 
   void _advancePhase() {
@@ -185,7 +215,10 @@ class PomodoroTimerProvider extends ChangeNotifier with WidgetsBindingObserver {
         _isRunning = true;
         _startUiTicker();
       } else {
-        if (_mode == TimerMode.focus) _completedFocusSessions++;
+        if (_mode == TimerMode.focus) {
+          _completedFocusSessions++;
+          _saveCompletedSession();
+        }
         _advancePhase();
       }
     } else {

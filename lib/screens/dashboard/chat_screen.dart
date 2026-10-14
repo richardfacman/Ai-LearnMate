@@ -135,10 +135,12 @@ class _ChatScreenState extends State<ChatScreen> {
         };
       }).toList();
 
+      final systemContext = "[SYSTEM INSTRUCTION: Adopt the persona of '${_personaLabel(_selectedPersona, short: true)}' in '${_modeLabel(_selectedMode)}' learning mode.]\n\n$userText";
+
       final aiReply = _useNvidia
           ? await NvidiaService.getChatResponse(history)
           : await AiProviderManager().generateResponse(
-              prompt: userText,
+              prompt: systemContext,
               feature: AiFeature.tutor,
               history: history,
             );
