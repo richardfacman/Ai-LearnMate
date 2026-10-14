@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -9,6 +10,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'core/logging/app_log.dart';
 import 'services/user_provider.dart';
 import 'services/learning_provider.dart';
 import 'services/quiz_provider.dart';
@@ -22,14 +24,35 @@ import 'services/pomodoro_timer_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    AppLog.e('FlutterError', details.exception, details.stack);
+  };
+
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    AppLog.e('Uncaught', error, stack);
+    return true;
+  };
+
   try {
     await dotenv.load(fileName: ".env");
-  } catch (_) {}
-  
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    AppLog.w('main', 'dotenv.load failed or .env missing: $e');
+  }
 
-  await Hive.initFlutter();
-  await Hive.openBox('settings');
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    AppLog.e('main', 'Firebase initializeApp error: $e');
+  }
+
+  try {
+    await Hive.initFlutter();
+    await Hive.openBox('settings');
+  } catch (e) {
+    AppLog.e('main', 'Hive init error: $e');
+  }
 
   runApp(const MyApp());
 }

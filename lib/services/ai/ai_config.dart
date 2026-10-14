@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../core/logging/app_log.dart';
 
 class AiConfig {
   // Fallback Groq Key
@@ -45,57 +46,57 @@ class AiConfig {
   // Task-specific Configurable Models
   static String get geminiTextModel {
     try {
-      return dotenv.env['GEMINI_TEXT_MODEL'] ?? 'gemini-3.8-flash';
+      return dotenv.env['GEMINI_TEXT_MODEL'] ?? 'gemini-1.5-flash';
     } catch (_) {
-      return 'gemini-3.8-flash';
+      return 'gemini-1.5-flash';
     }
   }
 
   static String get geminiVisionModel {
     try {
-      return dotenv.env['GEMINI_VISION_MODEL'] ?? 'gemini-3.8-flash';
+      return dotenv.env['GEMINI_VISION_MODEL'] ?? 'gemini-1.5-flash';
     } catch (_) {
-      return 'gemini-3.8-flash';
+      return 'gemini-1.5-flash';
     }
   }
 
   static String get geminiSttModel {
     try {
-      return dotenv.env['GEMINI_STT_MODEL'] ?? 'gemini-3.5-transcribe';
+      return dotenv.env['GEMINI_STT_MODEL'] ?? 'gemini-1.5-flash';
     } catch (_) {
-      return 'gemini-3.5-transcribe';
+      return 'gemini-1.5-flash';
     }
   }
 
   static String get geminiLiveModel {
     try {
-      return dotenv.env['GEMINI_LIVE_MODEL'] ?? 'gemini-3.8-live';
+      return dotenv.env['GEMINI_LIVE_MODEL'] ?? 'gemini-1.5-flash';
     } catch (_) {
-      return 'gemini-3.8-live';
+      return 'gemini-1.5-flash';
     }
   }
 
   static String get geminiTtsModel {
     try {
-      return dotenv.env['GEMINI_TTS_MODEL'] ?? 'gemini-3.1-flash-tts';
+      return dotenv.env['GEMINI_TTS_MODEL'] ?? 'gemini-1.5-flash';
     } catch (_) {
-      return 'gemini-3.1-flash-tts';
+      return 'gemini-1.5-flash';
     }
   }
 
   static String get geminiReasoningModel {
     try {
-      return dotenv.env['GEMINI_REASONING_MODEL'] ?? 'gemini-3.1-pro';
+      return dotenv.env['GEMINI_REASONING_MODEL'] ?? 'gemini-1.5-pro';
     } catch (_) {
-      return 'gemini-3.1-pro';
+      return 'gemini-1.5-pro';
     }
   }
 
   static String get groqTextModel {
     try {
-      return dotenv.env['GROQ_TEXT_MODEL'] ?? 'openai/gpt-oss-120b';
+      return dotenv.env['GROQ_TEXT_MODEL'] ?? 'llama-3.3-70b-versatile';
     } catch (_) {
-      return 'openai/gpt-oss-120b';
+      return 'llama-3.3-70b-versatile';
     }
   }
 
@@ -109,9 +110,9 @@ class AiConfig {
 
   static String get openRouterFallbackModel {
     try {
-      return dotenv.env['OPENROUTER_FALLBACK_MODEL'] ?? 'google/gemini-3.5-flash';
+      return dotenv.env['OPENROUTER_FALLBACK_MODEL'] ?? 'google/gemini-2.0-flash-exp:free';
     } catch (_) {
-      return 'google/gemini-3.5-flash';
+      return 'google/gemini-2.0-flash-exp:free';
     }
   }
 
@@ -130,7 +131,7 @@ class AiConfig {
       'Gemini': hasGeminiKey ? 'configured' : 'not configured',
       'OpenRouter': hasOpenRouterKey ? 'configured' : 'not configured',
     };
-    print('AI Provider Status\nGroq: ${status['Groq']}\nGemini: ${status['Gemini']}\nOpenRouter: ${status['OpenRouter']}');
+    AppLog.i('AiConfig', 'Provider Health: $status');
     return status;
   }
 }
