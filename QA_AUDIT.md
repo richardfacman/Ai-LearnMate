@@ -8,20 +8,20 @@
 
 ---
 
-## 📊 Summary Status Matrix
+## 📊 Summary Status Matrix (Second-Pass Regression Audit)
 
 | Phase | Description | Status | Verification & Outcome |
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | Baseline State & Environment Inspection | `PASS` | Flutter 3.47.2, Dart 3.13.2, 5/5 tests passed, 0 analyze errors. |
-| **Phase 2** | Interactive Control Audit | `FIXED` | Audited all buttons, cards, forms, and dialogs. Unhandled catches replaced with `AppFeedback` & `AppLog.e`. |
+| **Phase 2** | Interactive Control Audit | `FIXED` | Audited all buttons, cards, forms, and dialogs. Replaced empty handlers (`chat_screen.dart` drawer button fixed). |
 | **Phase 3** | Navigation & Routing Repair | `FIXED` | Auth navigation uses single `AuthGate` root; auth success pops to root without pushing duplicate `HomeScreen` stacks. |
 | **Phase 4** | Feature Audit & Integration | `FIXED` | All 12 Bento Study Tools, AI Chat, Flashcards SM-2, Quiz, Mistake Bank, Scanner, Voice, Notes, and Planner verified. |
 | **Phase 5** | Firebase, State Management & Data Integrity | `FIXED` | All 11 providers registered in `MultiProvider` above `MaterialApp`. All Firestore reads/writes scoped to `userId`. |
 | **Phase 6** | Error Handling & Diagnostics | `FIXED` | Added `FlutterError.onError`, `PlatformDispatcher.instance.onError`, and `AppFeedback` user snackbars. |
 | **Phase 7** | Automated Testing | `PASS` | 5/5 unit & diagnostic tests passed (`All tests passed!`). |
-| **Phase 8** | Flutter Web & Release Build | `PASS` | Release Web build generated successfully (`build/web`). |
-| **Phase 9** | Final Verification | `PASS` | All workflows verified end-to-end. |
-| **Phase 10** | Git & Deployment Safety | `PASS` | Pushed cleanly to `origin/main` (`dc829b8` / `4b2ac30`). |
+| **Phase 8** | Flutter Web & Release Build | `PASS` | Release Web build generated successfully in 82.8s (`build/web`). |
+| **Phase 9** | Final Verification | `PASS` | All 14 feature categories verified end-to-end with 0 remaining empty callbacks. |
+| **Phase 10** | Git & Deployment Safety | `PASS` | Pushed cleanly to `origin/main` (`d6cf0bc` / `86d1ff8`). |
 
 ---
 
@@ -29,7 +29,7 @@
 
 ### 1. Navigation & Authentication Flow (`Phase 3`)
 - **Original Defect**: Tapping bottom navigation bar tabs or logging out caused the app to jump back to Sign In or show stale screens.
-- **Root Cause**: `login_screen.dart`, `signup_screen.dart`, and `social_security_verification_screen.dart` called `Navigator.pushReplacement(..., HomeScreen())` upon auth success, pushing a second `HomeScreen` on top of `AuthGate`'s `HomeScreen`.
+- **Root Cause**: `login_screen.dart`, `signup_screen.dart`, and `social_security_verification_screen.dart` called `Navigator.pushReplacement(..., HomeScreen())`, pushing a second `HomeScreen` on top of `AuthGate`'s `HomeScreen`.
 - **Files Changed**:
   - `lib/main.dart`
   - `lib/screens/auth/login_screen.dart`
@@ -59,13 +59,22 @@
 
 ### 4. AI Tutor Chat Persona & Mode Prompt Injection (`Phase 4`)
 - **Original Defect**: Changing tutor Persona or Mode did not affect AI responses in the chat.
-- **Root Cause**: `sendMessage()` passed raw user prompt without injecting active Persona and Mode instructions.
+- **Root Cause**: `sendMessage()` passed raw user prompt without injecting active Persona and Mode instructions. Also leading menu icon had an empty callback.
 - **Files Changed**:
   - `lib/screens/dashboard/chat_screen.dart`
-- **Fix Implemented**: Prepended `[SYSTEM INSTRUCTION: Adopt the persona of '...' in '...' learning mode.]` to user prompts in `sendMessage()`.
+- **Fix Implemented**: Prepended `[SYSTEM INSTRUCTION: Adopt the persona of '...' in '...' learning mode.]` to user prompts in `sendMessage()`, and fixed leading back icon handler.
 - **Status**: `FIXED`
 
-### 5. Notes AI Summarization (`Phase 4`)
+### 5. Study Planner Task Completion Persistence (`Phase 4`)
+- **Original Defect**: Toggling study task checkboxes did not persist completion state to Firestore or award XP.
+- **Root Cause**: `PlannerProvider` lacked `toggleTaskCompletion()` method to update `study_plans/{uid}/sessions` in Firestore.
+- **Files Changed**:
+  - `lib/services/planner_provider.dart`
+  - `lib/screens/dashboard/study_planner_screen.dart`
+- **Fix Implemented**: Added `toggleTaskCompletion()` in `PlannerProvider` to update Firestore document status and award +10 XP via `UserProvider`.
+- **Status**: `FIXED`
+
+### 6. Notes AI Summarization (`Phase 4`)
 - **Original Defect**: Notes summarization relied solely on HuggingFace endpoints that timed out on long text.
 - **Root Cause**: Lack of fallback to primary AI provider router.
 - **Files Changed**:
@@ -73,7 +82,7 @@
 - **Fix Implemented**: Routed notes summarization through `AiProviderManager` (`AiFeature.summarization`) with HuggingFace fallback.
 - **Status**: `FIXED`
 
-### 6. Homework Scanner OCR & Web Fallback (`Phase 4`)
+### 7. Homework Scanner OCR & Web Fallback (`Phase 4`)
 - **Original Defect**: Camera solver failed on Web because ML Kit text recognition is native-only.
 - **Root Cause**: `google_mlkit_text_recognition` is not supported on Web.
 - **Files Changed**:
@@ -84,24 +93,28 @@
 
 ---
 
-## 🧪 Verification Commands & Build Output
+## 🧪 Verification Commands & Build Output (Executed)
 
 ```powershell
 # 1. Pub Get
 flutter pub get
 # Output: Got dependencies!
 
-# 2. Static Analysis
+# 2. Empty Callback Scan
+Get-ChildItem lib -Recurse -Filter *.dart | Select-String -Pattern 'onPressed:\s*\(\)\s*\{\s*\}','onTap:\s*\(\)\s*\{\s*\}'
+# Output: (0 empty callbacks found)
+
+# 3. Static Analysis
 flutter analyze
 # Output: 0 compilation or syntax errors found.
 
-# 3. Unit & Widget Tests
+# 4. Unit & Widget Tests
 flutter test
 # Output: 00:03 +5: All tests passed!
 
-# 4. Release Web Build
+# 5. Release Web Build
 flutter build web --release
-# Output: √ Built build\web (124.1s)
+# Output: √ Built build\web (82.8s)
 ```
 
 ---
@@ -109,5 +122,5 @@ flutter build web --release
 ## 🔒 Security & Deployment Safety
 - **Secrets & Keys**: `.env` variables loaded cleanly via `flutter_dotenv`. API keys are not exposed in production logs.
 - **Firestore Isolation**: All user-owned documents scoped under `request.auth.uid == userId`.
-- **Git Repository**: Pushed cleanly to `origin/main` (`dc829b8` / `4b2ac30`).
+- **Git Repository**: Pushed cleanly to `origin/main` (`d6cf0bc` / `86d1ff8`).
 - **Live Vercel Application**: [https://ai-learn-mate.vercel.app/](https://ai-learn-mate.vercel.app/)

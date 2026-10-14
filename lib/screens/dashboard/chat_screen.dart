@@ -325,8 +325,8 @@ class _ChatScreenState extends State<ChatScreen> {
               border: Border.all(color: hairline),
             ),
             child: IconButton(
-              icon: const Icon(Icons.menu_rounded, color: paper, size: 18),
-              onPressed: () {},
+              icon: const Icon(Icons.arrow_back_rounded, color: paper, size: 18),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
         ),

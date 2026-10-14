@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/planner_provider.dart';
 import '../../services/learning_provider.dart';
+import '../../services/user_provider.dart';
 import '../../services/theme_service.dart';
 import '../../models/learning/study_plan_model.dart';
 
@@ -178,9 +179,8 @@ class _StudyPlannerScreenState extends State<StudyPlannerScreen> {
                 activeColor: AppColors.accent,
                 checkColor: AppColors.goldInk,
                 onChanged: (val) {
-                  setState(() {
-                    session.isCompleted = val ?? false;
-                  });
+                  final userProvider = Provider.of<UserProvider>(context, listen: false);
+                  Provider.of<PlannerProvider>(context, listen: false).toggleTaskCompletion(session.id, val ?? false, userProvider: userProvider);
                 },
               ),
             ],
