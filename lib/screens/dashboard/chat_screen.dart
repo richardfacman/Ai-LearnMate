@@ -1,10 +1,17 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../core/widgets/app_feedback.dart';
+import '../../services/ai/ai_provider_manager.dart';
+import '../../services/ai/camera_service.dart';
+import '../../services/ai/voice_service.dart';
 import '../../services/groq_service.dart';
 import '../../services/nvidia_service.dart';
-import '../../services/ai/ai_provider_manager.dart';
 import '../../widgets/orbital_share_dialog.dart';
 
 enum TutorQuickAction {
@@ -26,6 +33,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _msgCtrl = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
   final ScrollController _scrollController = ScrollController();
+
+  final CameraService _cameraService = CameraService();
+  final VoiceService _voiceService = VoiceService();
+
+  XFile? _selectedImage;
+  bool _isListening = false;
   bool _loading = false;
   String _statusMessage = "AI Tutor is thinking...";
   bool _useNvidia = false;
@@ -46,11 +59,21 @@ class _ChatScreenState extends State<ChatScreen> {
   static const Color paper = Color(0xFFF4EFE6);
   static const Color muted = Color(0xFF8B93A6);
   static const Color hairline = Color(0x1AF4EFE6);
+  static const Color cyan = Color(0xFF4FC3E8);
+  static const Color violet = Color(0xFF8C86FF);
 
   @override
   void initState() {
     super.initState();
     _loadChatHistory();
+  }
+
+  @override
+  void dispose() {
+    _cameraService.dispose();
+    _msgCtrl.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadChatHistory() async {
@@ -69,10 +92,12 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _messages.clear();
           for (var doc in snap.docs) {
+            final data = doc.data();
             _messages.add({
-              'role': doc['role'],
-              'text': doc['text'],
-              'timestamp': doc['timestamp'],
+              'role': data['role'],
+              'text': data['text'] ?? '',
+              'imagePath': data['imagePath'],
+              'timestamp': data['timestamp'],
             });
           }
         });
@@ -81,20 +106,25 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (_) {}
   }
 
-  Future<void> _saveMessage(String role, String text) async {
+  Future<void> _saveMessage(String role, String text, {String? imagePath}) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
     try {
+      final data = <String, dynamic>{
+        'role': role,
+        'text': text,
+        'timestamp': FieldValue.serverTimestamp(),
+      };
+      if (imagePath != null) {
+        data['imagePath'] = imagePath;
+      }
+
       await _db
           .collection('chats')
           .doc(user.uid)
           .collection('messages')
-          .add({
-        'role': role,
-        'text': text,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+          .add(data);
     } catch (_) {}
   }
 
@@ -114,18 +144,114 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (_) {}
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final image = await _cameraService.pickImage(source: source);
+      if (image != null) {
+        setState(() {
+          _selectedImage = image;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        AppFeedback.error(context, "Could not select image: $e");
+      }
+    }
+  }
+
+  void _showImageSourcePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Attach Photo / Homework Image", style: TextStyle(color: paper, fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined, color: gold),
+              title: const Text("Take Photo", style: TextStyle(color: paper)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined, color: cyan),
+              title: const Text("Choose from Gallery", style: TextStyle(color: paper)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleVoiceInput() async {
+    if (_isListening) {
+      _voiceService.stopListening();
+      setState(() => _isListening = false);
+      return;
+    }
+
+    final initialized = await _voiceService.initSpeech();
+    if (!initialized) {
+      if (mounted) {
+        AppFeedback.error(context, "Microphone access is not supported or was denied.");
+      }
+      return;
+    }
+
+    setState(() => _isListening = true);
+    _voiceService.startListening((recognizedText) {
+      if (mounted) {
+        setState(() {
+          if (recognizedText.isNotEmpty) {
+            _msgCtrl.text = recognizedText;
+            _msgCtrl.selection = TextSelection.fromPosition(
+              TextPosition(offset: _msgCtrl.text.length),
+            );
+          }
+        });
+      }
+    });
+  }
+
   Future<void> sendMessage() async {
     final userText = _msgCtrl.text.trim();
-    if (userText.isEmpty || _loading) return;
+    final attachedImage = _selectedImage;
+
+    if ((userText.isEmpty && attachedImage == null) || _loading) return;
+
+    if (_isListening) {
+      _voiceService.stopListening();
+      _isListening = false;
+    }
+
+    final messageData = <String, dynamic>{
+      'role': 'user',
+      'text': userText,
+      'imagePath': attachedImage?.path,
+    };
 
     setState(() {
-      _messages.add({'role': 'user', 'text': userText});
+      _messages.add(messageData);
       _loading = true;
-      _statusMessage = "AI Tutor is thinking...";
+      _statusMessage = attachedImage != null ? "AI Tutor is analyzing image & prompt..." : "AI Tutor is thinking...";
+      _selectedImage = null;
     });
+
     _msgCtrl.clear();
     _scrollToBottom();
-    await _saveMessage('user', userText);
+    await _saveMessage('user', userText, imagePath: attachedImage?.path);
 
     try {
       final history = _messages.map((m) {
@@ -141,7 +267,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ? await NvidiaService.getChatResponse(history)
           : await AiProviderManager().generateResponse(
               prompt: systemContext,
-              feature: AiFeature.tutor,
+              feature: attachedImage != null ? AiFeature.imageSolver : AiFeature.tutor,
               history: history,
             );
 
@@ -373,7 +499,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Switch(
                     value: _useNvidia,
                     onChanged: (val) => setState(() => _useNvidia = val),
-                    activeColor: gold,
+                    activeThumbColor: gold,
                   ),
                 ),
               ],
@@ -431,7 +557,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemBuilder: (context, index) {
                           final msg = _messages[index];
                           final isUser = msg['role'] == 'user';
-                          return _buildMessageBubble(msg['text'], isUser);
+                          return _buildMessageBubble(msg, isUser);
                         },
                       ),
               ),
@@ -474,7 +600,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: gold, width: 1.5),
                 boxShadow: [
-                  BoxShadow(color: gold.withOpacity(0.2), blurRadius: 15, offset: const Offset(0, 4)),
+                  BoxShadow(color: gold.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 4)),
                 ],
               ),
               child: const Icon(Icons.psychology_outlined, color: gold, size: 44),
@@ -486,7 +612,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              "Ask a question, choose a learning persona, or tap a quick action chip below to begin.",
+              "Ask a question, upload a homework photo, speak via microphone, or tap a quick action chip.",
               style: TextStyle(color: muted, fontSize: 13),
               textAlign: TextAlign.center,
             ),
@@ -645,7 +771,10 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessageBubble(String text, bool isUser) {
+  Widget _buildMessageBubble(Map<String, dynamic> msgData, bool isUser) {
+    final text = msgData['text'] as String? ?? '';
+    final imagePath = msgData['imagePath'] as String?;
+
     if (isUser) {
       return Align(
         alignment: Alignment.centerRight,
@@ -662,18 +791,32 @@ class _ChatScreenState extends State<ChatScreen> {
               bottomRight: Radius.circular(4),
             ),
             boxShadow: [
-              BoxShadow(color: gold.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3)),
+              BoxShadow(color: gold.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 3)),
             ],
           ),
-          child: SelectableText(
-            text,
-            style: const TextStyle(color: ink, fontSize: 14, height: 1.45, fontWeight: FontWeight.w500),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (imagePath != null && imagePath.isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: kIsWeb
+                      ? Image.network(imagePath, width: 200, height: 140, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image, color: ink))
+                      : Image.file(File(imagePath), width: 200, height: 140, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image, color: ink)),
+                ),
+                const SizedBox(height: 8),
+              ],
+              SelectableText(
+                text,
+                style: const TextStyle(color: ink, fontSize: 14, height: 1.45, fontWeight: FontWeight.w500),
+              ),
+            ],
           ),
         ),
       );
     }
 
-    // AI Response Card with Top-Left Floating Speech Badge & Bottom-Right Share Button
+    // AI Response Card
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       child: Stack(
@@ -685,9 +828,9 @@ class _ChatScreenState extends State<ChatScreen> {
             decoration: BoxDecoration(
               color: cardNavy,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: gold.withOpacity(0.25), width: 1.2),
+              border: Border.all(color: gold.withValues(alpha: 0.25), width: 1.2),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.35), blurRadius: 15, offset: const Offset(0, 5)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 15, offset: const Offset(0, 5)),
               ],
             ),
             child: Column(
@@ -703,7 +846,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     h3: const TextStyle(color: paper),
                     h4: const TextStyle(color: paper),
                     listBullet: const TextStyle(color: paper),
-                    code: TextStyle(color: paper, backgroundColor: surfaceHi),
+                    code: const TextStyle(color: paper, backgroundColor: surfaceHi),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -716,7 +859,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     icon: const Icon(Icons.file_upload_outlined, color: gold, size: 16),
                     label: const Text("Share", style: TextStyle(color: gold, fontSize: 12, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: gold.withOpacity(0.6), width: 1.2),
+                      side: BorderSide(color: gold.withValues(alpha: 0.6), width: 1.2),
                       backgroundColor: surfaceHi,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -738,7 +881,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: gold, width: 1.5),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3)),
                 ],
               ),
               child: const Icon(Icons.chat_bubble_outline_rounded, color: gold, size: 16),
@@ -757,54 +900,111 @@ class _ChatScreenState extends State<ChatScreen> {
         border: Border(top: BorderSide(color: hairline)),
       ),
       child: SafeArea(
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+            if (_selectedImage != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: cardNavy,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: hairline),
+                  color: surfaceHi,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: gold.withValues(alpha: 0.4)),
                 ),
-                child: TextField(
-                  controller: _msgCtrl,
-                  cursorColor: gold,
-                  style: const TextStyle(color: paper, fontSize: 14),
-                  maxLines: 4,
-                  minLines: 1,
-                  decoration: const InputDecoration(
-                    hintText: "Ask anything...",
-                    hintStyle: TextStyle(color: muted, fontSize: 14),
-                    border: InputBorder.none,
-                  ),
-                  onSubmitted: (_) => sendMessage(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            InkWell(
-              onTap: _loading ? null : sendMessage,
-              borderRadius: BorderRadius.circular(24),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: gold,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: gold.withOpacity(0.35), blurRadius: 10, offset: const Offset(0, 3)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.image, color: gold, size: 18),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _selectedImage!.name,
+                        style: const TextStyle(color: paper, fontSize: 12, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: () => setState(() => _selectedImage = null),
+                      child: const Icon(Icons.close, color: muted, size: 16),
+                    ),
                   ],
                 ),
-                alignment: Alignment.center,
-                child: _loading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: ink, strokeWidth: 2),
-                      )
-                    : const Icon(Icons.arrow_forward_rounded, color: ink, size: 22),
               ),
+
+            Row(
+              children: [
+                // Camera / Image Attachment Button
+                IconButton(
+                  icon: const Icon(Icons.add_a_photo_outlined, color: cyan, size: 22),
+                  tooltip: "Attach Photo / Homework Image",
+                  onPressed: _loading ? null : _showImageSourcePicker,
+                ),
+
+                // Microphone Voice Input Button
+                IconButton(
+                  icon: Icon(
+                    _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                    color: _isListening ? Colors.redAccent : violet,
+                    size: 22,
+                  ),
+                  tooltip: _isListening ? "Stop Listening" : "Voice Input",
+                  onPressed: _loading ? null : _toggleVoiceInput,
+                ),
+
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: cardNavy,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: _isListening ? Colors.redAccent : hairline),
+                    ),
+                    child: TextField(
+                      controller: _msgCtrl,
+                      cursorColor: gold,
+                      style: const TextStyle(color: paper, fontSize: 14),
+                      maxLines: 4,
+                      minLines: 1,
+                      decoration: InputDecoration(
+                        hintText: _isListening ? "Listening... speak now" : "Ask anything...",
+                        hintStyle: TextStyle(
+                          color: _isListening ? Colors.redAccent : muted,
+                          fontSize: 14,
+                          fontWeight: _isListening ? FontWeight.bold : FontWeight.normal,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (_) => sendMessage(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                InkWell(
+                  onTap: _loading ? null : sendMessage,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: gold,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: gold.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 3)),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: _loading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(color: ink, strokeWidth: 2),
+                          )
+                        : const Icon(Icons.arrow_forward_rounded, color: ink, size: 22),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
