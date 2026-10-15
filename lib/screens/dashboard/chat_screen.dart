@@ -903,108 +903,152 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_selectedImage != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: surfaceHi,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: gold.withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.image, color: gold, size: 18),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        _selectedImage!.name,
-                        style: const TextStyle(color: paper, fontSize: 12, fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    InkWell(
-                      onTap: () => setState(() => _selectedImage = null),
-                      child: const Icon(Icons.close, color: muted, size: 16),
-                    ),
-                  ],
-                ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0, left: 4),
+              child: Text("AI Study Tutor", style: TextStyle(color: paper, fontSize: 13, fontWeight: FontWeight.bold)),
+            ),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: cardNavy,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: gold.withValues(alpha: 0.3)),
               ),
-
-            Row(
-              children: [
-                // Camera / Image Attachment Button
-                IconButton(
-                  icon: const Icon(Icons.add_a_photo_outlined, color: cyan, size: 22),
-                  tooltip: "Attach Photo / Homework Image",
-                  onPressed: _loading ? null : _showImageSourcePicker,
-                ),
-
-                // Microphone Voice Input Button
-                IconButton(
-                  icon: Icon(
-                    _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                    color: _isListening ? Colors.redAccent : violet,
-                    size: 22,
-                  ),
-                  tooltip: _isListening ? "Stop Listening" : "Voice Input",
-                  onPressed: _loading ? null : _toggleVoiceInput,
-                ),
-
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: cardNavy,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _isListening ? Colors.redAccent : hairline),
-                    ),
-                    child: TextField(
-                      controller: _msgCtrl,
-                      cursorColor: gold,
-                      style: const TextStyle(color: paper, fontSize: 14),
-                      maxLines: 4,
-                      minLines: 1,
-                      decoration: InputDecoration(
-                        hintText: _isListening ? "Listening... speak now" : "Ask anything...",
-                        hintStyle: TextStyle(
-                          color: _isListening ? Colors.redAccent : muted,
-                          fontSize: 14,
-                          fontWeight: _isListening ? FontWeight.bold : FontWeight.normal,
-                        ),
-                        border: InputBorder.none,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_selectedImage != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: surfaceHi,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: gold.withValues(alpha: 0.4)),
                       ),
-                      onSubmitted: (_) => sendMessage(),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.image, color: gold, size: 18),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              _selectedImage!.name,
+                              style: const TextStyle(color: paper, fontSize: 12, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          InkWell(
+                            onTap: () => setState(() => _selectedImage = null),
+                            child: const Icon(Icons.close, color: muted, size: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  Row(
+                    children: [
+                      // Square Rounded Image Attachment Button
+                      InkWell(
+                        onTap: _loading ? null : _showImageSourcePicker,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: surfaceHi,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: hairline),
+                          ),
+                          child: const Icon(Icons.add_photo_alternate_outlined, color: gold, size: 20),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // Square Rounded Voice Input Button
+                      InkWell(
+                        onTap: _loading ? null : _toggleVoiceInput,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: surfaceHi,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: _isListening ? Colors.redAccent : hairline),
+                          ),
+                          child: Icon(
+                            _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                            color: _isListening ? Colors.redAccent : gold,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: TextField(
+                          controller: _msgCtrl,
+                          cursorColor: gold,
+                          style: const TextStyle(color: paper, fontSize: 14),
+                          maxLines: 3,
+                          minLines: 1,
+                          decoration: InputDecoration(
+                            hintText: _isListening ? "Listening... speak now" : "Ask anything...",
+                            hintStyle: TextStyle(
+                              color: _isListening ? Colors.redAccent : muted,
+                              fontSize: 14,
+                              fontWeight: _isListening ? FontWeight.bold : FontWeight.normal,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          onSubmitted: (_) => sendMessage(),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // Gold Circular Send Button
+                      InkWell(
+                        onTap: _loading ? null : sendMessage,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: gold,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(color: gold.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 3)),
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: _loading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(color: ink, strokeWidth: 2),
+                                )
+                              : const Icon(Icons.arrow_forward_rounded, color: ink, size: 20),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _isListening
+                        ? "Listening to your voice... Speak clearly into the microphone."
+                        : "Type a question, speak it, or attach an image to discuss with your AI Tutor.",
+                    style: TextStyle(
+                      color: _isListening ? Colors.redAccent : muted,
+                      fontSize: 11.5,
+                      fontWeight: _isListening ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                InkWell(
-                  onTap: _loading ? null : sendMessage,
-                  borderRadius: BorderRadius.circular(24),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: gold,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: gold.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 3)),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: _loading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(color: ink, strokeWidth: 2),
-                          )
-                        : const Icon(Icons.arrow_forward_rounded, color: ink, size: 22),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
