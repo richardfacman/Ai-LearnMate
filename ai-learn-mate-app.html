@@ -425,6 +425,15 @@ body{background:var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",ui-s
     el.addEventListener('click',function(){goto(el.dataset.view)});
   });
 
+  // Read view parameter from URL query string or hash (e.g. /app?view=study)
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var initialView = params.get('view') || window.location.hash.replace('#', '');
+    if (initialView && ['home', 'study', 'progress', 'profile'].indexOf(initialView) !== -1) {
+      goto(initialView);
+    }
+  } catch(e) {}
+
   document.querySelectorAll('.mood').forEach(function(m){
     m.addEventListener('click',function(){document.querySelectorAll('.mood').forEach(x=>x.classList.remove('active'));m.classList.add('active')});
   });
