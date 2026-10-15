@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/bottom_navbar.dart';
+import '../../widgets/app_sidebar.dart';
 import '../../services/user_provider.dart';
 import '../../services/learning_provider.dart';
 import '../../services/exam_provider.dart';
@@ -15,8 +16,7 @@ import '../../services/ai/recommendation_service.dart';
 import '../../services/theme_service.dart';
 
 import 'chat_screen.dart';
-import 'notes_screen.dart';
-import 'timer_screen.dart';
+import 'study_workspace_screen.dart';
 import '../profile/profile_screen.dart';
 import 'quiz_screen.dart';
 import 'flashcard_screen.dart';
@@ -27,6 +27,7 @@ import 'camera_solver_screen.dart';
 import 'voice_tutor_screen.dart';
 import 'achievement_screen.dart';
 import 'add_subject_screen.dart';
+import 'focus_timer_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,27 +42,47 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = const [
     HomeDashboard(),
     ChatScreen(),
-    NotesScreen(),
+    StudyWorkspaceScreen(),
     AnalyticsScreen(),
     ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width > 900;
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
+      body: Row(
+        children: [
+          if (isDesktop)
+            AppSidebar(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
+          Expanded(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: _pages,
+            ),
+          ),
+        ],
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-      ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : BottomNavBar(
+              currentIndex: _selectedIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
     );
   }
 }
@@ -114,7 +135,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
     final user = userProvider.user;
 
     final size = MediaQuery.of(context).size;
-    final isDesktop = size.width > 800;
+    final isDesktop = size.width > 900;
 
     final recommendation = RecommendationService.getNextActivity(
       subjects: learningProvider.subjects,
@@ -474,8 +495,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
     final List<Map<String, dynamic>> tools = [
       {"icon": Icons.event_available_outlined, "label": "Quick quiz", "color": AppColors.cyan, "page": const QuizScreen()},
       {"icon": Icons.style_outlined, "label": "Flashcards", "color": AppColors.violet, "page": const FlashcardScreen()},
-      {"icon": Icons.timer_outlined, "label": "Pomodoro", "color": AppColors.pink, "page": const TimerScreen()},
-      {"icon": Icons.center_focus_strong_rounded, "label": "Focus mode", "color": AppColors.cyan, "page": const TimerScreen()},
+      {"icon": Icons.timer_outlined, "label": "Pomodoro", "color": AppColors.pink, "page": const FocusTimerScreen()},
+      {"icon": Icons.center_focus_strong_rounded, "label": "Focus mode", "color": AppColors.cyan, "page": const FocusTimerScreen()},
       {"icon": Icons.bookmark_border_outlined, "label": "Mistakes", "color": AppColors.accent, "page": const MistakeBankScreen()},
       {"icon": Icons.bar_chart_rounded, "label": "Analytics", "color": AppColors.pink, "page": const AnalyticsScreen()},
       {"icon": Icons.check_box_outlined, "label": "Planner", "color": AppColors.violet, "page": const StudyPlannerScreen()},
@@ -483,7 +504,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
       {"icon": Icons.mic_none_rounded, "label": "Voice", "color": AppColors.violet, "page": const VoiceTutorScreen()},
       {"icon": Icons.emoji_events_outlined, "label": "Awards", "color": AppColors.accent, "page": const AchievementScreen()},
       {"icon": Icons.chat_bubble_outline_rounded, "label": "AI Tutor", "color": AppColors.cyan, "page": const ChatScreen()},
-      {"icon": Icons.description_outlined, "label": "Notes", "color": AppColors.pink, "page": const NotesScreen()},
+      {"icon": Icons.description_outlined, "label": "Notes", "color": AppColors.pink, "page": const StudyWorkspaceScreen(initialTabIndex: 1)},
     ];
 
     return LayoutBuilder(
